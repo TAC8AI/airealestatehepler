@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Navigation from '../components/Navigation';
+import Navigation from '../components/navigation';
 import { FiArrowRight, FiCheck, FiStar, FiBarChart2, FiFileText, FiHome, FiTrendingUp } from 'react-icons/fi';
 
 export default function Home() {
