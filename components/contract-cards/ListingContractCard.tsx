@@ -3,7 +3,7 @@ import { FiHome, FiDollarSign, FiUsers, FiCalendar, FiFileText, FiAlertCircle, F
 
 interface ListingData {
   property_address?: string;
-  listing_price?: string;
+  listing_price?: string | number;
   commission_rate?: string;
   listing_agent?: string;
   listing_start_date?: string;
@@ -35,9 +35,10 @@ interface ListingContractCardProps {
 }
 
 export default function ListingContractCard({ data, confidence, fileName }: ListingContractCardProps) {
-  const formatCurrency = (value?: string) => {
+  const formatCurrency = (value?: string | number) => {
     if (!value) return 'Not specified';
-    return value.includes('$') ? value : `$${value}`;
+    const stringValue = String(value);
+    return stringValue.includes('$') ? stringValue : `$${stringValue}`;
   };
 
   const formatArray = (value?: string[] | string) => {

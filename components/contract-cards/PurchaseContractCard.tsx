@@ -3,14 +3,14 @@ import { FiHome, FiDollarSign, FiUsers, FiCalendar, FiFileText, FiAlertCircle, F
 
 interface PurchaseData {
   property_address?: string;
-  purchase_price?: string;
-  earnest_money?: string;
+  purchase_price?: string | number;
+  earnest_money?: string | number;
   closing_date?: string;
   buyer_name?: string;
   seller_name?: string;
   financing_type?: string;
-  down_payment?: string;
-  loan_amount?: string;
+  down_payment?: string | number;
+  loan_amount?: string | number;
   inspection_period?: string;
   appraisal_contingency?: string;
   financing_contingency?: string;
@@ -31,9 +31,10 @@ interface PurchaseContractCardProps {
 }
 
 export default function PurchaseContractCard({ data, confidence, fileName }: PurchaseContractCardProps) {
-  const formatCurrency = (value?: string) => {
+  const formatCurrency = (value?: string | number) => {
     if (!value) return 'Not specified';
-    return value.includes('$') ? value : `$${value}`;
+    const stringValue = String(value);
+    return stringValue.includes('$') ? stringValue : `$${stringValue}`;
   };
 
   const formatArray = (value?: string[] | string) => {
@@ -44,14 +45,15 @@ export default function PurchaseContractCard({ data, confidence, fileName }: Pur
 
   const getContingencyStatus = (contingency?: string) => {
     if (!contingency) return { text: 'Not specified', color: 'gray' };
-    const lower = contingency.toLowerCase();
+    const stringValue = String(contingency);
+    const lower = stringValue.toLowerCase();
     if (lower.includes('yes') || lower.includes('included') || lower.includes('required')) {
-      return { text: contingency, color: 'green' };
+      return { text: stringValue, color: 'green' };
     }
     if (lower.includes('no') || lower.includes('waived') || lower.includes('none')) {
-      return { text: contingency, color: 'red' };
+      return { text: stringValue, color: 'red' };
     }
-    return { text: contingency, color: 'blue' };
+    return { text: stringValue, color: 'blue' };
   };
 
   return (

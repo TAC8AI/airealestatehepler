@@ -49,11 +49,14 @@ export async function analyzePDFContract(
     formData.append('contractType', contractType);
     formData.append('fileName', file.name);
     
-    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Files API`);
+    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Supabase Edge Function`);
     
-    // Send to our PDF analysis endpoint
-    const response = await fetch('/api/contract-analysis-pdf', {
+    // Send to our Supabase Edge Function for PDF analysis
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Contract-Analysis`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+      },
       body: formData,
     });
     

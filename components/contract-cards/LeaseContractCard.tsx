@@ -3,8 +3,8 @@ import { FiHome, FiDollarSign, FiUsers, FiCalendar, FiFileText, FiAlertCircle } 
 
 interface LeaseData {
   property_address?: string;
-  monthly_rent?: string;
-  security_deposit?: string;
+  monthly_rent?: string | number;
+  security_deposit?: string | number;
   lease_start_date?: string;
   lease_end_date?: string;
   tenant_name?: string;
@@ -13,7 +13,7 @@ interface LeaseData {
   pet_policy?: string;
   parking_included?: string;
   lease_term_months?: string;
-  late_fee?: string;
+  late_fee?: string | number;
   renewal_option?: string;
   maintenance_responsibility?: string;
   early_termination_clause?: string;
@@ -27,9 +27,10 @@ interface LeaseContractCardProps {
 }
 
 export default function LeaseContractCard({ data, confidence, fileName }: LeaseContractCardProps) {
-  const formatCurrency = (value?: string) => {
+  const formatCurrency = (value?: string | number) => {
     if (!value) return 'Not specified';
-    return value.includes('$') ? value : `$${value}`;
+    const stringValue = String(value);
+    return stringValue.includes('$') ? stringValue : `$${stringValue}`;
   };
 
   const formatArray = (value?: string[] | string) => {
