@@ -166,7 +166,7 @@ function PDFUploadZone({ contractType, onAnalysisComplete, onAnalysisStart, disa
         {dragActive ? 'Drop the PDF here' : 'Drag & drop a PDF file here, or click to select'}
       </p>
       <p className="text-sm text-gray-500">
-        {disabled ? 'Processing...' : 'PDFs up to 20MB • Powered by GPT-4o Vision'}
+        {disabled ? 'Processing...' : 'PDFs up to 20MB • Powered by GPT-4o Files API'}
       </p>
     </div>
   );
@@ -602,27 +602,28 @@ export default function ContractAnalysis() {
 
                 {/* File Upload */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Contract or Paste Text</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Contract Document</h3>
                   
                   {!file && !fileContent ? (
                     <div className="space-y-6">
-                      {/* Text File Upload Section */}
+                      {/* Primary: PDF Upload Section */}
                       <div>
-                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 1: Upload File</h4>
-                        <div
-                          {...getRootProps()}
-                          className={`
-                            border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200
-                            ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-                          `}
-                        >
-                          <input {...getInputProps()} />
-                          <FiUpload className="mx-auto h-10 w-10 text-gray-400 mb-3" />
-                          <p className="text-md text-gray-600 mb-2">
-                            {isDragActive ? 'Drop the file here' : 'Drag & drop a file here, or click to select'}
-                          </p>
-                          <p className="text-sm text-gray-500">Supports .txt files and .pdf files (with GPT-4o Vision)</p>
-                        </div>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">
+                          <span className="flex items-center">
+                            <FiEye className="mr-2 text-blue-600" />
+                            Upload PDF Contract
+                            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Recommended</span>
+                          </span>
+                        </h4>
+                        <PDFUploadZone 
+                          contractType={selectedContractType}
+                          onAnalysisComplete={handlePDFAnalysisComplete}
+                          onAnalysisStart={() => setPdfAnalyzing(true)}
+                          disabled={pdfAnalyzing}
+                        />
+                        <p className="text-sm text-blue-600 bg-blue-50 p-3 rounded mt-3">
+                          ✨ <strong>Best Option:</strong> Direct PDF analysis with GPT-4o Files API - most accurate and no manual copying required!
+                        </p>
                       </div>
                       
                       {/* OR Divider */}
@@ -632,13 +633,13 @@ export default function ContractAnalysis() {
                         <div className="border-t border-gray-300 flex-grow"></div>
                       </div>
                       
-                      {/* Text Input Section */}
+                      {/* Secondary: Text Input Section */}
                       <div>
-                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 2: Paste Contract Text</h4>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">Paste Contract Text</h4>
                         <div className="space-y-3">
                           <textarea
                             placeholder="Paste your contract text here... (Copy text from PDFs, Word docs, etc.)"
-                            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full h-40 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             value={fileContent}
                             onChange={(e) => {
                               setFileContent(e.target.value);
@@ -652,37 +653,10 @@ export default function ContractAnalysis() {
                               }
                             }}
                           />
-                          <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                            💡 Tip: This works great with PDFs! Copy text from any PDF viewer and paste here for analysis.
+                          <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                            💡 Alternative method: Copy text from any document and paste here for analysis.
                           </p>
                         </div>
-                      </div>
-
-                      {/* OR Divider */}
-                      <div className="flex items-center justify-center">
-                        <div className="border-t border-gray-300 flex-grow"></div>
-                        <span className="px-4 text-sm text-gray-500 bg-white">OR</span>
-                        <div className="border-t border-gray-300 flex-grow"></div>
-                      </div>
-
-                      {/* NEW: PDF Upload Section */}
-                      <div>
-                        <h4 className="text-md font-medium text-gray-700 mb-3">
-                          <span className="flex items-center">
-                            <FiEye className="mr-2" />
-                            Option 3: Upload PDF (GPT-4o Vision)
-                            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">NEW</span>
-                          </span>
-                        </h4>
-                        <PDFUploadZone 
-                          contractType={selectedContractType}
-                          onAnalysisComplete={handlePDFAnalysisComplete}
-                          onAnalysisStart={() => setPdfAnalyzing(true)}
-                          disabled={pdfAnalyzing}
-                        />
-                        <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
-                          ✨ Advanced: Direct PDF reading with GPT-4o Vision - no copy/paste needed!
-                        </p>
                       </div>
                     </div>
                   ) : (

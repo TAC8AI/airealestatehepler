@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import OpenAI from 'openai';
 
-// Initialize OpenAI with Vision capabilities
+// Initialize OpenAI with Files API capabilities
 const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 });
@@ -10,7 +10,7 @@ const openai = new OpenAI({
 // Contract type definitions
 type ContractType = 'purchase' | 'listing' | 'lease';
 
-// Contract analysis prompts for each type
+// Specialized prompts for each contract type
 const CONTRACT_PROMPTS = {
   purchase: `You are an expert real estate contract analyzer. Analyze this Purchase/Offer-to-Purchase agreement and extract the following key information in JSON format:
 
@@ -93,53 +93,69 @@ export async function POST(request: NextRequest) {
     console.log(`[PDF Analysis] Processing ${contractType} contract: ${fileName}`);
     console.log(`[PDF Analysis] File size: ${file.size} bytes`);
 
-    // Convert PDF to base64 for Vision API
+    // Convert File to Buffer for OpenAI upload
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-    const dataUrl = `data:${file.type};base64,${base64}`;
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Create a File-like object for OpenAI
+    const fileForUpload = new File([buffer], fileName, { type: file.type });
+    
+    console.log('[PDF Analysis] Uploading PDF to OpenAI Files API');
+    
+    // Upload PDF to OpenAI Files API
+    const uploadedFile = await openai.files.create({
+      file: fileForUpload,
+      purpose: 'user_data'
+    });
 
-    console.log(`[PDF Analysis] Converted to base64, sending to GPT-4o Vision`);
+    console.log('[PDF Analysis] PDF uploaded successfully, analyzing with file ID:', uploadedFile.id);
 
     // Get the appropriate prompt for this contract type
     const systemPrompt = CONTRACT_PROMPTS[contractType];
 
-    // Send to GPT-4o Vision for analysis
+    // Analyze the PDF using the file reference
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o', // Use GPT-4o for vision capabilities
+      model: 'gpt-4o', 
       messages: [
         {
           role: 'user',
           content: [
             {
-              type: 'text',
-              text: `${systemPrompt}\n\nAnalyze this ${contractType} contract and return only the JSON object with the extracted information. Be thorough and accurate.`
+              type: 'file',
+              file: {
+                file_id: uploadedFile.id
+              }
             },
             {
-              type: 'image_url',
-              image_url: {
-                url: dataUrl,
-                detail: 'high' // High detail for better text extraction
-              }
+              type: 'text',
+              text: `${systemPrompt}\n\nAnalyze this ${contractType} contract and return only the JSON object with the extracted information. Be thorough and accurate.`
             }
           ]
         }
       ],
       max_tokens: 2000,
-      temperature: 0.1 // Low temperature for consistent extraction
+      temperature: 0.1
     });
+
+    // Clean up the uploaded file
+    try {
+      await openai.files.del(uploadedFile.id);
+      console.log('[PDF Analysis] Cleaned up uploaded file');
+    } catch (cleanupError) {
+      console.warn('[PDF Analysis] Failed to cleanup file:', cleanupError);
+    }
 
     const analysisText = response.choices[0]?.message?.content;
     
     if (!analysisText) {
-      throw new Error('No response from GPT-4o Vision');
+      throw new Error('No response from GPT-4o');
     }
 
-    console.log(`[PDF Analysis] Received response from GPT-4o Vision`);
+    console.log(`[PDF Analysis] Received response from GPT-4o`);
 
     // Parse the JSON response
     let extractedData;
     try {
-      // Clean the response to extract JSON
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         extractedData = JSON.parse(jsonMatch[0]);
@@ -148,7 +164,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (parseError) {
       console.error('[PDF Analysis] JSON parsing error:', parseError);
-      // Fallback: return the raw text in a structured format
       extractedData = {
         raw_analysis: analysisText,
         note: 'JSON parsing failed, returning raw analysis'
@@ -186,7 +201,7 @@ export async function POST(request: NextRequest) {
       success: true,
       extractedData,
       confidence: Math.round(confidence),
-      analysisMethod: 'GPT-4o Vision',
+      analysisMethod: 'GPT-4o Files API',
       fileName,
       contractType,
       processingTime: Date.now()
@@ -197,7 +212,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       error: error instanceof Error ? error.message : 'Failed to analyze PDF contract',
-      details: 'PDF analysis failed. Please try copying and pasting the text instead.'
+      details: 'Please try again or contact support if the issue persists.'
     }, { status: 500 });
   }
 } 
