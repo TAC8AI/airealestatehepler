@@ -3,8 +3,9 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
-import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey } from 'react-icons/fi';
+import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey, FiEye } from 'react-icons/fi';
 import { extractTextFromTextFile, isTextFile } from '@/lib/ocr';
+import { analyzePDFContract, isPDFFile, formatFileSize, getUploadMessage } from '@/lib/pdf-upload';
 import { supabase } from '@/lib/supabase';
 
 // Contract type definition
@@ -86,6 +87,91 @@ function sanitizeForPostgres(input: string): string {
   return sanitized;
 }
 
+// PDF Upload Zone Component
+interface PDFUploadZoneProps {
+  contractType: ContractType | null;
+  onAnalysisComplete: (result: any) => void;
+  onAnalysisStart: () => void;
+  disabled: boolean;
+}
+
+function PDFUploadZone({ contractType, onAnalysisComplete, onAnalysisStart, disabled }: PDFUploadZoneProps) {
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (disabled || !contractType) return;
+    
+    const files = Array.from(e.dataTransfer.files);
+    const pdfFile = files.find(file => isPDFFile(file));
+    
+    if (pdfFile) {
+      onAnalysisStart();
+      const result = await analyzePDFContract(pdfFile, contractType);
+      onAnalysisComplete(result);
+    }
+  }, [contractType, onAnalysisComplete, onAnalysisStart, disabled]);
+
+  const handleFileInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled || !contractType) return;
+    
+    const file = e.target.files?.[0];
+    if (file && isPDFFile(file)) {
+      onAnalysisStart();
+      const result = await analyzePDFContract(file, contractType);
+      onAnalysisComplete(result);
+    }
+  }, [contractType, onAnalysisComplete, onAnalysisStart, disabled]);
+
+  return (
+    <div
+      className={`
+        border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200
+        ${dragActive ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-gray-400'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+      `}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+      onDrop={handleDrop}
+      onClick={() => {
+        if (!disabled) {
+          document.getElementById('pdf-file-input')?.click();
+        }
+      }}
+    >
+      <input
+        id="pdf-file-input"
+        type="file"
+        accept=".pdf,application/pdf"
+        onChange={handleFileInput}
+        style={{ display: 'none' }}
+        disabled={disabled}
+      />
+      <FiEye className="mx-auto h-10 w-10 text-green-500 mb-3" />
+      <p className="text-md text-gray-600 mb-2">
+        {dragActive ? 'Drop the PDF here' : 'Drag & drop a PDF file here, or click to select'}
+      </p>
+      <p className="text-sm text-gray-500">
+        {disabled ? 'Processing...' : 'PDFs up to 20MB • Powered by GPT-4o Vision'}
+      </p>
+    </div>
+  );
+}
+
 export default function ContractAnalysis() {
   const router = useRouter();
   const [selectedContractType, setSelectedContractType] = useState<ContractType | null>(null);
@@ -93,9 +179,11 @@ export default function ContractAnalysis() {
   const [fileContent, setFileContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [analyzing, setAnalyzing] = useState<boolean>(false);
+  const [pdfAnalyzing, setPdfAnalyzing] = useState<boolean>(false);
   const [extractedData, setExtractedData] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [uploadMethod, setUploadMethod] = useState<'text' | 'pdf' | null>(null);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error' | 'warning'} | null>(null);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -105,9 +193,8 @@ export default function ContractAnalysis() {
       setLoading(true);
       
       try {
-        // Handle different file types
         if (selectedFile.type === 'text/plain') {
-          // For text files, read directly
+          // Handle text files as before
           setNotification({
             message: 'Processing text file...',
             type: 'success'
@@ -116,18 +203,67 @@ export default function ContractAnalysis() {
           const extractedText = await extractTextFromTextFile(selectedFile);
           console.log(`[Contract Analysis] Text file processed, length: ${extractedText.length}`);
           setFileContent(extractedText);
+          setUploadMethod('text');
           setNotification({
             message: 'Text file successfully processed',
             type: 'success'
           });
           setLoading(false);
-        } else {
-          // For non-text file types, show helpful error
+        } else if (selectedFile.type === 'application/pdf' || selectedFile.name.toLowerCase().endsWith('.pdf')) {
+          // Handle PDF files with GPT-4o Vision
+          if (!selectedContractType) {
+            setNotification({
+              message: 'Please select a contract type first before uploading a PDF',
+              type: 'error'
+            });
+            setLoading(false);
+            return;
+          }
+          
           setNotification({
-            message: 'Only text files (.txt) are currently supported. For PDFs, please copy and paste the text content directly into the text input area below.',
+            message: 'Processing PDF with GPT-4o Vision...',
+            type: 'success'
+          });
+          setLoading(false);
+          setPdfAnalyzing(true);
+          
+          // Process PDF directly here instead of calling handler
+          try {
+            const result = await analyzePDFContract(selectedFile, selectedContractType);
+            setPdfAnalyzing(false);
+            
+            if (!result.success) {
+              setNotification({
+                message: result.error || 'PDF analysis failed',
+                type: 'error'
+              });
+              return;
+            }
+
+            // Set the results from PDF analysis
+            setExtractedData(result.extractedData);
+            setAnalysisResult(result);
+            setUploadMethod('pdf');
+            
+            setNotification({
+              message: `PDF analysis completed successfully using GPT-4o Vision`,
+              type: 'success'
+            });
+          } catch (pdfError) {
+            setPdfAnalyzing(false);
+            setNotification({
+              message: 'PDF analysis failed. Please try again or use the text input option.',
+              type: 'error'
+            });
+          }
+        } else {
+          // Unsupported file type
+          setNotification({
+            message: 'Unsupported file type. Please upload a .txt or .pdf file, or use the paste option below.',
             type: 'error'
           });
           setLoading(false);
+          setPdfAnalyzing(false);
         }
       } catch (error) {
         console.error('Error processing file:', error);
@@ -136,14 +272,16 @@ export default function ContractAnalysis() {
           type: 'error'
         });
         setLoading(false);
+        setPdfAnalyzing(false);
       }
     }
-  }, []);
+  }, [selectedContractType]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/plain': ['.txt']
+      'text/plain': ['.txt'],
+      'application/pdf': ['.pdf']
     },
     multiple: false
   });
@@ -251,6 +389,72 @@ export default function ContractAnalysis() {
       });
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handlePDFAnalysisComplete = async (result: any) => {
+    setPdfAnalyzing(false);
+    
+    if (!result.success) {
+      setNotification({
+        message: result.error || 'PDF analysis failed',
+        type: 'error'
+      });
+      return;
+    }
+
+    // Set the results from PDF analysis
+    setExtractedData(result.extractedData);
+    setAnalysisResult(result);
+    setUploadMethod('pdf');
+    setFile(new File([''], result.fileName, { type: 'application/pdf' }));
+    
+    // Save to database if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user?.id) {
+      console.log(`[PDF Analysis] Saving to database for user: ${session.user.id}`);
+      
+      // Sanitize the data before saving
+      const sanitizedExtractedData = sanitizeForPostgres(JSON.stringify(result.extractedData));
+      
+      // Create readable summary for easy viewing
+      const summaryText = formatAnalysisSummary(result.extractedData, result.contractType, result.confidence || 0);
+      const sanitizedSummaryText = sanitizeForPostgres(summaryText);
+      
+      const { data, error } = await supabase
+        .from('contracts')
+        .insert([
+          {
+            user_id: session.user.id,
+            title: result.fileName || `${result.contractType} PDF Contract Analysis`,
+            contract_type: result.contractType,
+            original_content: `PDF File: ${result.fileName} (Analyzed with GPT-4o Vision)`,
+            extracted_data: JSON.parse(sanitizedExtractedData),
+            summary: sanitizedSummaryText,
+            confidence_score: result.confidence || 0
+          },
+        ])
+        .select();
+        
+      if (error) {
+        console.error('Error saving PDF analysis:', error);
+        setNotification({
+          message: 'PDF analysis completed but failed to save to database. Results are still available above.',
+          type: 'warning'
+        });
+      } else {
+        console.log('[PDF Analysis] Successfully saved to database:', data);
+        setNotification({
+          message: `PDF analysis completed and saved successfully using GPT-4o Vision`,
+          type: 'success'
+        });
+      }
+    } else {
+      setNotification({
+        message: `PDF analysis completed successfully using GPT-4o Vision (login to save results)`,
+        type: 'success'
+      });
     }
   };
 
@@ -402,9 +606,9 @@ export default function ContractAnalysis() {
                   
                   {!file && !fileContent ? (
                     <div className="space-y-6">
-                      {/* File Upload Section */}
+                      {/* Text File Upload Section */}
                       <div>
-                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 1: Upload Text File</h4>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 1: Upload File</h4>
                         <div
                           {...getRootProps()}
                           className={`
@@ -415,9 +619,9 @@ export default function ContractAnalysis() {
                           <input {...getInputProps()} />
                           <FiUpload className="mx-auto h-10 w-10 text-gray-400 mb-3" />
                           <p className="text-md text-gray-600 mb-2">
-                            {isDragActive ? 'Drop the text file here' : 'Drag & drop a text file here, or click to select'}
+                            {isDragActive ? 'Drop the file here' : 'Drag & drop a file here, or click to select'}
                           </p>
-                          <p className="text-sm text-gray-500">Supports .txt files only</p>
+                          <p className="text-sm text-gray-500">Supports .txt files and .pdf files (with GPT-4o Vision)</p>
                         </div>
                       </div>
                       
@@ -438,11 +642,13 @@ export default function ContractAnalysis() {
                             value={fileContent}
                             onChange={(e) => {
                               setFileContent(e.target.value);
+                              setUploadMethod('text');
                               if (e.target.value && !file) {
                                 // Create a virtual file object for consistency
                                 setFile(new File([e.target.value], 'pasted-text.txt', { type: 'text/plain' }));
                               } else if (!e.target.value) {
                                 setFile(null);
+                                setUploadMethod(null);
                               }
                             }}
                           />
@@ -451,6 +657,73 @@ export default function ContractAnalysis() {
                           </p>
                         </div>
                       </div>
+
+                      {/* OR Divider */}
+                      <div className="flex items-center justify-center">
+                        <div className="border-t border-gray-300 flex-grow"></div>
+                        <span className="px-4 text-sm text-gray-500 bg-white">OR</span>
+                        <div className="border-t border-gray-300 flex-grow"></div>
+                      </div>
+
+                      {/* NEW: PDF Upload Section */}
+                      <div>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">
+                          <span className="flex items-center">
+                            <FiEye className="mr-2" />
+                            Option 3: Upload PDF (GPT-4o Vision)
+                            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">NEW</span>
+                          </span>
+                        </h4>
+                        <PDFUploadZone 
+                          contractType={selectedContractType}
+                          onAnalysisComplete={handlePDFAnalysisComplete}
+                          onAnalysisStart={() => setPdfAnalyzing(true)}
+                          disabled={pdfAnalyzing}
+                        />
+                        <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+                          ✨ Advanced: Direct PDF reading with GPT-4o Vision - no copy/paste needed!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <FiFile className="h-8 w-8 text-blue-600 mr-3" />
+                          <div>
+                            <p className="font-medium text-gray-900">{file?.name || 'Pasted Text'}</p>
+                            <p className="text-sm text-gray-500">
+                              {file?.name && file.size ? formatFileSize(file.size) : `${fileContent.length.toLocaleString()} characters`}
+                            </p>
+                            {uploadMethod && (
+                              <p className="text-xs text-blue-600">
+                                Method: {uploadMethod === 'pdf' ? 'GPT-4o Vision' : 'Text Analysis'}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setFile(null);
+                            setFileContent('');
+                            setUploadMethod(null);
+                            setExtractedData(null);
+                            setAnalysisResult(null);
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FiTrash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+
+                      {(loading || pdfAnalyzing) && (
+                        <div className="flex justify-center items-center py-8">
+                          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-3"></div>
+                          <span className="text-gray-600">
+                            {pdfAnalyzing ? getUploadMessage(file?.size || 0) : 'Processing content...'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
