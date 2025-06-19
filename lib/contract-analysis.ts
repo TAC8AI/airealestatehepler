@@ -4,7 +4,7 @@
  */
 
 import { openai } from './openai';
-import { analyzeWithGemini } from './gemini';
+import { analyzeWithGemini } from './gemini.js';
 
 // Contract types supported by the system
 export type ContractType = 'purchase' | 'listing' | 'lease';
