@@ -4,7 +4,7 @@
  */
 
 import { openai } from './openai';
-import { analyzeWithGemini } from './gemini.js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Contract types supported by the system
 export type ContractType = 'purchase' | 'listing' | 'lease';
@@ -301,7 +301,45 @@ function mergeChunkAnalyses(chunks: any[]): any {
 }
 
 /**
- * Analyze using Gemini 2.5 Flash (preferred for large documents and quota efficiency)
+ * Analyze contract with Gemini 2.5 Flash (moved here to avoid import issues)
+ */
+async function analyzeWithGemini(
+  systemPrompt: string, 
+  userPrompt: string, 
+  contractText: string
+): Promise<string> {
+  try {
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Missing Gemini API key');
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    const fullPrompt = `${systemPrompt}
+
+${userPrompt}${contractText}
+>>>`;
+
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 2048,
+      },
+    });
+
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('[Gemini 2.5 Flash] Error:', error);
+    throw new Error(`Gemini 2.5 Flash analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Analyze using Gemini 2.5 Flash with chunking for large documents
  */
 async function analyzeWithGeminiFlash(
   systemPrompt: string,
