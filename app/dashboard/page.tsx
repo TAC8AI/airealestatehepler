@@ -181,9 +181,6 @@ export default function Dashboard() {
                     <p className="font-medium">{listing.title}</p>
                     <p className="text-sm text-secondary-500">{formatDate(listing.created_at)}</p>
                   </div>
-                  <Link href={`/dashboard/listing/${listing.id}`} className="text-primary-600 text-sm hover:underline">
-                    View
-                  </Link>
                 </div>
               ))}
             </div>
@@ -214,9 +211,6 @@ export default function Dashboard() {
                     <p className="font-medium">{contract.title}</p>
                     <p className="text-sm text-secondary-500">{formatDate(contract.created_at)}</p>
                   </div>
-                  <Link href={`/dashboard/contract/${contract.id}`} className="text-primary-600 text-sm hover:underline">
-                    View
-                  </Link>
                 </div>
               ))}
             </div>
