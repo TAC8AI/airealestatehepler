@@ -851,13 +851,24 @@ export default function ContractAnalysis() {
                   : result.extractedData.special_conditions ? [result.extractedData.special_conditions] : null,
                 
                 // Metadata
-                confidence_score: result.confidence || 0
+                confidence_score: result.confidence || 0,
+                analysis_method: result.analysisMethod || 'GPT-4o Files API',
+                file_name: result.fileName
               }
             ])
             .select();
 
           if (listingError) {
-            console.warn('[PDF Analysis] Failed to save to listing_agreements table:', listingError);
+            console.error('[PDF Analysis] Failed to save to listing_agreements table:', listingError);
+            console.error('[PDF Analysis] Listing data that failed:', {
+              user_id: session.user.id,
+              contract_id: contractId,
+              title: result.fileName || 'Listing Agreement Analysis',
+              property_address: result.extractedData.property_address,
+              listing_price: result.extractedData.listing_price,
+              seller_name: result.extractedData.seller_name,
+              listing_agent: result.extractedData.listing_agent
+            });
           } else {
             specializedTableResult = listingData;
             console.log('[PDF Analysis] Successfully saved to listing_agreements table:', listingData);
