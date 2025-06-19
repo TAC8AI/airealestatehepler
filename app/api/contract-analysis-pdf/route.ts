@@ -54,22 +54,32 @@ const CONTRACT_PROMPTS = {
 
 {
   "property_address": "Full property address",
-  "monthly_rent": "Dollar amount",
-  "lease_term": "Duration and dates",
-  "security_deposit": "Dollar amount",
+  "monthly_rent": "$2,450.00",
+  "lease_start_date": "2024-08-01",
+  "lease_end_date": "2025-07-31",
+  "lease_term_months": 12,
+  "security_deposit": "$2,450.00",
   "tenant_name": "Full tenant name(s)",
   "landlord_name": "Full landlord name(s)",
-  "utilities_included": ["List of included utilities"],
-  "pet_policy": "Pet restrictions and fees",
-  "maintenance_responsibilities": {
-    "tenant": ["Tenant responsibilities"],
-    "landlord": ["Landlord responsibilities"]
-  },
-  "rent_due_date": "Day of month",
-  "late_fees": "Late fee structure",
-  "renewal_terms": "Renewal options",
-  "termination_conditions": ["How lease can be terminated"]
-}`
+  "utilities_included": ["Water", "Trash", "Sewer"],
+  "pet_policy": "No pets allowed / Pets allowed with $XXX deposit / etc.",
+  "late_fee": "$50.00",
+  "rent_due_date": 1,
+  "maintenance_responsibility": "Tenant handles minor repairs, landlord handles major repairs",
+  "parking_included": true,
+  "renewal_option": "60-day notice required for renewal",
+  "early_termination_clause": "2 months rent penalty for early termination",
+  "special_conditions": ["Any special terms or restrictions"]
+}
+
+IMPORTANT INSTRUCTIONS:
+- Extract lease start and end dates in YYYY-MM-DD format (e.g., "2024-08-01")
+- Look for phrases like "Term begins", "Lease commences", "From [date] to [date]", "Starting [date]", "Ending [date]"
+- Calculate lease_term_months if not explicitly stated (difference between start and end dates)
+- Extract monthly rent as dollar amount with currency symbol (e.g., "$2,450.00")
+- Be precise with dates - this is critical information
+- Extract specific dollar amounts for fees, not ranges
+- Look for exact due dates (e.g., "1st of each month" = 1)`
 };
 
 export async function POST(request: NextRequest) {

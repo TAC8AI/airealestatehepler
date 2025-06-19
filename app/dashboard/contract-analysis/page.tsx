@@ -3,10 +3,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
-import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey, FiEye } from 'react-icons/fi';
+import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey, FiEye, FiClipboard, FiUsers } from 'react-icons/fi';
 import { extractTextFromTextFile, isTextFile } from '@/lib/ocr';
 import { analyzePDFContract, isPDFFile, formatFileSize, getUploadMessage } from '@/lib/pdf-upload';
 import { supabase } from '@/lib/supabase';
+import LeaseContractCard from '@/components/contract-cards/LeaseContractCard';
+import PurchaseContractCard from '@/components/contract-cards/PurchaseContractCard';
+import ListingContractCard from '@/components/contract-cards/ListingContractCard';
 
 // Contract type definition
 type ContractType = 'purchase' | 'listing' | 'lease';
@@ -422,37 +425,242 @@ export default function ContractAnalysis() {
       const summaryText = formatAnalysisSummary(result.extractedData, result.contractType, result.confidence || 0);
       const sanitizedSummaryText = sanitizeForPostgres(summaryText);
       
-      const { data, error } = await supabase
-        .from('contracts')
-        .insert([
-          {
-            user_id: session.user.id,
-            title: result.fileName || `${result.contractType} PDF Contract Analysis`,
-            contract_type: result.contractType,
-            original_content: `PDF File: ${result.fileName} (Analyzed with GPT-4o Vision)`,
-            extracted_data: JSON.parse(sanitizedExtractedData),
-            summary: sanitizedSummaryText,
-            confidence_score: result.confidence || 0
-          },
-        ])
-        .select();
+      try {
+        // 1. Save to general contracts table (for backward compatibility)
+        const { data: contractData, error: contractError } = await supabase
+          .from('contracts')
+          .insert([
+            {
+              user_id: session.user.id,
+              title: result.fileName || `${result.contractType} PDF Contract Analysis`,
+              contract_type: result.contractType,
+              original_content: `PDF File: ${result.fileName} (Analyzed with GPT-4o Files API)`,
+              extracted_data: JSON.parse(sanitizedExtractedData),
+              summary: sanitizedSummaryText,
+              confidence_score: result.confidence || 0
+            },
+          ])
+          .select();
+
+        if (contractError) {
+          throw contractError;
+        }
+
+        console.log('[PDF Analysis] Successfully saved to contracts table:', contractData);
+
+        // 2. Save to specialized table based on contract type
+        let specializedTableResult = null;
+        const contractId = contractData?.[0]?.id;
+
+        if (result.contractType === 'lease') {
+          // Save to lease_agreements table
+          const { data: leaseData, error: leaseError } = await supabase
+            .from('lease_agreements')
+            .insert([
+              {
+                user_id: session.user.id,
+                contract_id: contractId,
+                title: result.fileName || 'Lease Agreement Analysis',
+                
+                // Property Information
+                property_address: result.extractedData.property_address,
+                
+                // Financial Terms
+                monthly_rent: result.extractedData.monthly_rent ? parseFloat(result.extractedData.monthly_rent.replace(/[$,]/g, '')) : null,
+                security_deposit: result.extractedData.security_deposit ? parseFloat(result.extractedData.security_deposit.replace(/[$,]/g, '')) : null,
+                late_fee_amount: result.extractedData.late_fee ? parseFloat(result.extractedData.late_fee.replace(/[$,]/g, '')) : null,
+                
+                // Dates (try to parse dates)
+                lease_start_date: result.extractedData.lease_start_date || null,
+                lease_end_date: result.extractedData.lease_end_date || null,
+                lease_term_months: result.extractedData.lease_term_months ? parseInt(result.extractedData.lease_term_months) : null,
+                
+                // Parties
+                tenant_name: result.extractedData.tenant_name,
+                landlord_name: result.extractedData.landlord_name,
+                
+                // Policies & Terms
+                utilities_included: Array.isArray(result.extractedData.utilities_included) 
+                  ? result.extractedData.utilities_included 
+                  : result.extractedData.utilities_included ? [result.extractedData.utilities_included] : null,
+                pet_policy: result.extractedData.pet_policy,
+                parking_spaces: result.extractedData.parking_included ? 1 : 0,
+                renewal_options: result.extractedData.renewal_option,
+                tenant_maintenance_responsibilities: result.extractedData.maintenance_responsibility ? [result.extractedData.maintenance_responsibility] : null,
+                lease_break_conditions: result.extractedData.early_termination_clause ? [result.extractedData.early_termination_clause] : null,
+                special_conditions: Array.isArray(result.extractedData.special_conditions) 
+                  ? result.extractedData.special_conditions 
+                  : result.extractedData.special_conditions ? [result.extractedData.special_conditions] : null,
+                
+                // Metadata
+                confidence_score: result.confidence || 0
+              }
+            ])
+            .select();
+
+          if (leaseError) {
+            console.warn('[PDF Analysis] Failed to save to lease_agreements table:', leaseError);
+          } else {
+            specializedTableResult = leaseData;
+            console.log('[PDF Analysis] Successfully saved to lease_agreements table:', leaseData);
+          }
+        }
         
-      if (error) {
+        else if (result.contractType === 'purchase') {
+          // Save to purchase_contracts table
+          const { data: purchaseData, error: purchaseError } = await supabase
+            .from('purchase_contracts')
+            .insert([
+              {
+                user_id: session.user.id,
+                contract_id: contractId,
+                title: result.fileName || 'Purchase Agreement Analysis',
+                
+                // Property Information
+                property_address: result.extractedData.property_address,
+                
+                // Financial Terms
+                purchase_price: result.extractedData.purchase_price ? parseFloat(result.extractedData.purchase_price.replace(/[$,]/g, '')) : null,
+                earnest_money: result.extractedData.earnest_money ? parseFloat(result.extractedData.earnest_money.replace(/[$,]/g, '')) : null,
+                down_payment: result.extractedData.down_payment ? parseFloat(result.extractedData.down_payment.replace(/[$,]/g, '')) : null,
+                
+                // Dates
+                closing_date: result.extractedData.closing_date || null,
+                possession_date: result.extractedData.possession_date || null,
+                
+                // Parties
+                buyer_name: result.extractedData.buyer_name,
+                seller_name: result.extractedData.seller_name,
+                
+                // Financing & Terms
+                financing_type: result.extractedData.financing_type,
+                inspection_period: result.extractedData.inspection_period,
+                appraisal_contingency: result.extractedData.appraisal_contingency,
+                financing_contingency: result.extractedData.financing_contingency,
+                sale_contingency: result.extractedData.sale_contingency,
+                closing_costs_responsibility: result.extractedData.closing_costs_responsibility,
+                home_warranty: result.extractedData.home_warranty,
+                
+                // Professional Services
+                title_company: result.extractedData.title_company,
+                real_estate_agent: result.extractedData.real_estate_agent,
+                
+                // Other
+                special_conditions: Array.isArray(result.extractedData.special_conditions) 
+                  ? result.extractedData.special_conditions 
+                  : result.extractedData.special_conditions ? [result.extractedData.special_conditions] : null,
+                
+                // Metadata
+                confidence_score: result.confidence || 0
+              }
+            ])
+            .select();
+
+          if (purchaseError) {
+            console.warn('[PDF Analysis] Failed to save to purchase_contracts table:', purchaseError);
+          } else {
+            specializedTableResult = purchaseData;
+            console.log('[PDF Analysis] Successfully saved to purchase_contracts table:', purchaseData);
+          }
+        }
+        
+        else if (result.contractType === 'listing') {
+          // Save to listing_agreements table
+          const { data: listingData, error: listingError } = await supabase
+            .from('listing_agreements')
+            .insert([
+              {
+                user_id: session.user.id,
+                contract_id: contractId,
+                title: result.fileName || 'Listing Agreement Analysis',
+                
+                // Property Information
+                property_address: result.extractedData.property_address,
+                property_type: result.extractedData.property_type,
+                square_footage: result.extractedData.square_footage ? parseInt(result.extractedData.square_footage.replace(/[,]/g, '')) : null,
+                bedrooms: result.extractedData.bedrooms ? parseInt(result.extractedData.bedrooms) : null,
+                bathrooms: result.extractedData.bathrooms ? parseFloat(result.extractedData.bathrooms) : null,
+                lot_size: result.extractedData.lot_size,
+                year_built: result.extractedData.year_built ? parseInt(result.extractedData.year_built) : null,
+                
+                // Financial Terms
+                listing_price: result.extractedData.listing_price ? parseFloat(result.extractedData.listing_price.replace(/[$,]/g, '')) : null,
+                commission_rate: result.extractedData.commission_rate,
+                
+                // Timeline
+                listing_start_date: result.extractedData.listing_start_date || null,
+                listing_end_date: result.extractedData.listing_end_date || null,
+                listing_duration: result.extractedData.listing_duration,
+                
+                // Parties
+                seller_name: result.extractedData.seller_name,
+                listing_agent: result.extractedData.listing_agent,
+                broker_name: result.extractedData.broker_name,
+                
+                // Marketing Terms
+                marketing_terms: Array.isArray(result.extractedData.marketing_terms) 
+                  ? result.extractedData.marketing_terms 
+                  : result.extractedData.marketing_terms ? [result.extractedData.marketing_terms] : null,
+                showing_instructions: result.extractedData.showing_instructions,
+                
+                // Authorizations
+                lockbox_authorization: result.extractedData.lockbox_authorization,
+                sign_authorization: result.extractedData.sign_authorization,
+                mls_authorization: result.extractedData.mls_authorization,
+                internet_marketing_authorization: result.extractedData.internet_marketing_authorization,
+                
+                // Terms
+                listing_terms: result.extractedData.listing_terms,
+                price_reduction_terms: result.extractedData.price_reduction_terms,
+                special_conditions: Array.isArray(result.extractedData.special_conditions) 
+                  ? result.extractedData.special_conditions 
+                  : result.extractedData.special_conditions ? [result.extractedData.special_conditions] : null,
+                
+                // Metadata
+                confidence_score: result.confidence || 0
+              }
+            ])
+            .select();
+
+          if (listingError) {
+            console.warn('[PDF Analysis] Failed to save to listing_agreements table:', listingError);
+          } else {
+            specializedTableResult = listingData;
+            console.log('[PDF Analysis] Successfully saved to listing_agreements table:', listingData);
+          }
+        }
+
+        // Success notification
+        const specializedTableNames: Record<ContractType, string> = {
+          'lease': 'lease agreements',
+          'purchase': 'purchase contracts', 
+          'listing': 'listing agreements'
+        };
+        
+        const specializedTableName = specializedTableNames[result.contractType as ContractType] || 'specialized table';
+
+        if (specializedTableResult) {
+          setNotification({
+            message: `PDF analysis completed and saved to both contracts table and ${specializedTableName} table successfully!`,
+            type: 'success'
+          });
+        } else {
+          setNotification({
+            message: `PDF analysis completed and saved to contracts table (specialized table save failed but analysis is available)`,
+            type: 'warning'
+          });
+        }
+
+      } catch (error) {
         console.error('Error saving PDF analysis:', error);
         setNotification({
           message: 'PDF analysis completed but failed to save to database. Results are still available above.',
           type: 'warning'
         });
-      } else {
-        console.log('[PDF Analysis] Successfully saved to database:', data);
-        setNotification({
-          message: `PDF analysis completed and saved successfully using GPT-4o Vision`,
-          type: 'success'
-        });
       }
     } else {
       setNotification({
-        message: `PDF analysis completed successfully using GPT-4o Vision (login to save results)`,
+        message: `PDF analysis completed successfully using GPT-4o Files API (login to save results)`,
         type: 'success'
       });
     }
@@ -745,45 +953,75 @@ export default function ContractAnalysis() {
 
                 {/* Analysis Results */}
                 {extractedData && analysisResult && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-xl font-semibold text-gray-900">Analysis Results</h2>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          analysisResult.confidence >= 80 ? 'bg-green-100 text-green-800' :
-                          analysisResult.confidence >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {analysisResult.confidence}% confidence
-                        </span>
-                        <button
-                          onClick={handleCopy}
-                          className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
-                        >
-                          {copied ? (
-                            <>
-                              <FiCheck className="mr-1" /> Copied!
-                            </>
-                          ) : (
-                            <>
-                              <FiCopy className="mr-1" /> Copy JSON
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={handleDownloadReport}
-                          className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
-                        >
-                          <FiDownload className="mr-1" /> Download Report
-                        </button>
-                      </div>
+                  <div className="space-y-6">
+                    {/* Enhanced Contract Cards */}
+                    <div>
+                      {selectedContractType === 'lease' && (
+                        <LeaseContractCard 
+                          data={extractedData}
+                          confidence={analysisResult.confidence}
+                          fileName={file?.name}
+                        />
+                      )}
+                      {selectedContractType === 'purchase' && (
+                        <PurchaseContractCard 
+                          data={extractedData}
+                          confidence={analysisResult.confidence}
+                          fileName={file?.name}
+                        />
+                      )}
+                      {selectedContractType === 'listing' && (
+                        <ListingContractCard 
+                          data={extractedData}
+                          confidence={analysisResult.confidence}
+                          fileName={file?.name}
+                        />
+                      )}
                     </div>
 
-                    {/* Structured Data Display */}
-                    <div className="space-y-4">
-                      <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
-                        {JSON.stringify(extractedData, null, 2)}
-                      </pre>
+                    {/* Technical Data Section (Collapsible) */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                      <div className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900">Technical Analysis Data</h3>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={handleCopy}
+                              className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
+                            >
+                              {copied ? (
+                                <>
+                                  <FiCheck className="mr-1" /> Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <FiCopy className="mr-1" /> Copy JSON
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={handleDownloadReport}
+                              className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
+                            >
+                              <FiDownload className="mr-1" /> Download Report
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Collapsible JSON Data */}
+                        <details className="group">
+                          <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 flex items-center mb-3">
+                            <span className="mr-2">🔧</span>
+                            View Raw JSON Data (for developers)
+                            <span className="ml-2 transform group-open:rotate-90 transition-transform">▶</span>
+                          </summary>
+                          <div className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                            <pre className="text-sm text-gray-700">
+                              {JSON.stringify(extractedData, null, 2)}
+                            </pre>
+                          </div>
+                        </details>
+                      </div>
                     </div>
                   </div>
                 )}
