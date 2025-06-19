@@ -47,25 +47,18 @@ export function isTextFile(file: File): boolean {
  */
 export async function extractTextFromTextFile(file: File): Promise<string> {
   if (!isTextFile(file)) {
-    throw new Error('This file type is not supported. Please use plain text files (.txt) or copy/paste your contract text directly.');
+    throw new Error('File is not a text file');
   }
   
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (text && text.trim()) {
-        resolve(text.trim());
-      } else {
-        reject(new Error('The file appears to be empty or unreadable.'));
-      }
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      resolve(text || '');
     };
-    
     reader.onerror = () => {
-      reject(new Error('Failed to read the file. Please try again or copy/paste the text directly.'));
+      reject(new Error('Failed to read text file'));
     };
-    
     reader.readAsText(file);
   });
 }

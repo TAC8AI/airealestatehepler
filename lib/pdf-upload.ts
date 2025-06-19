@@ -34,10 +34,10 @@ export async function analyzePDFContract(
     
     // Validate file type
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-      throw new Error('Only PDF files are supported for Vision analysis. Please upload a PDF file.');
+      throw new Error('Only PDF files are supported for Files API analysis. Please upload a PDF file.');
     }
     
-    // Validate file size (max 20MB for Vision API)
+    // Validate file size (max 20MB for Files API)
     const maxSize = 20 * 1024 * 1024; // 20MB
     if (file.size > maxSize) {
       throw new Error('PDF file is too large. Please use a file smaller than 20MB.');
@@ -49,7 +49,7 @@ export async function analyzePDFContract(
     formData.append('contractType', contractType);
     formData.append('fileName', file.name);
     
-    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Vision API`);
+    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Files API`);
     
     // Send to our PDF analysis endpoint
     const response = await fetch('/api/contract-analysis-pdf', {
@@ -73,7 +73,7 @@ export async function analyzePDFContract(
       success: false,
       extractedData: {},
       confidence: 0,
-      analysisMethod: 'GPT-4o Vision (Failed)',
+      analysisMethod: 'GPT-4o Files API (Failed)',
       fileName: file.name,
       contractType,
       processingTime: Date.now(),
@@ -99,11 +99,9 @@ export function isPDFFile(file: File): boolean {
  */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
-  
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
@@ -116,7 +114,7 @@ export function getUploadMessage(fileSize: number): string {
   const sizeMB = fileSize / (1024 * 1024);
   
   if (sizeMB < 1) {
-    return 'Analyzing PDF with GPT-4o Vision...';
+    return 'Analyzing PDF with GPT-4o Files API...';
   } else if (sizeMB < 5) {
     return 'Processing PDF (this may take 10-20 seconds)...';
   } else {
