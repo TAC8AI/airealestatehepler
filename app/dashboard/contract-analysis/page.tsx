@@ -4,8 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
 import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey } from 'react-icons/fi';
-import { jsPDF } from 'jspdf';
-import { extractTextFromPDF } from '@/lib/ocr';
+import { extractTextFromTextFile, isTextFile } from '@/lib/ocr';
 import { supabase } from '@/lib/supabase';
 
 // Contract type definition
@@ -109,40 +108,23 @@ export default function ContractAnalysis() {
         // Handle different file types
         if (selectedFile.type === 'text/plain') {
           // For text files, read directly
-          const reader = new FileReader();
-          reader.onload = async (e) => {
-            const text = e.target?.result as string;
-            setFileContent(text);
-            setLoading(false);
-          };
-          reader.onerror = () => {
-            setNotification({
-              message: 'Error reading file. Please try again with a different file.',
-              type: 'error'
-            });
-            setLoading(false);
-          };
-          reader.readAsText(selectedFile);
-        } else if (selectedFile.type === 'application/pdf') {
-          // For PDF files, use text extraction
           setNotification({
-            message: 'Extracting text from PDF. This may take a moment...',
+            message: 'Processing text file...',
             type: 'success'
           });
           
-          // Extract text from PDF
-          const extractedText = await extractTextFromPDF(selectedFile);
-          console.log(`[Contract Analysis] PDF text extracted, length: ${extractedText.length}`);
+          const extractedText = await extractTextFromTextFile(selectedFile);
+          console.log(`[Contract Analysis] Text file processed, length: ${extractedText.length}`);
           setFileContent(extractedText);
           setNotification({
-            message: 'Text successfully extracted from PDF',
+            message: 'Text file successfully processed',
             type: 'success'
           });
           setLoading(false);
         } else {
-          // For other file types, show error
+          // For non-text file types, show helpful error
           setNotification({
-            message: 'Unsupported file type. Please upload a text or PDF file.',
+            message: 'Only text files (.txt) are currently supported. For PDFs, please copy and paste the text content directly into the text input area below.',
             type: 'error'
           });
           setLoading(false);
@@ -161,10 +143,7 @@ export default function ContractAnalysis() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/plain': ['.txt'],
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+      'text/plain': ['.txt']
     },
     multiple: false
   });
@@ -292,36 +271,41 @@ export default function ContractAnalysis() {
     setNotification(null);
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadReport = () => {
     if (!extractedData || !selectedContractType) return;
 
-    const doc = new jsPDF();
     const contractTypeName = CONTRACT_TYPES[selectedContractType].name;
     
-    // Title
-    doc.setFontSize(20);
-    doc.text(`${contractTypeName} Analysis`, 20, 30);
+    // Create readable report content
+    let reportContent = `${contractTypeName} Analysis Report\n`;
+    reportContent += `Generated: ${new Date().toLocaleString()}\n`;
+    reportContent += `Confidence Score: ${analysisResult?.confidence || 0}%\n\n`;
+    reportContent += `${'='.repeat(50)}\n\n`;
     
-    // Add extracted data
-    doc.setFontSize(12);
-    let yPosition = 50;
-    
-    const addSection = (title: string, content: any) => {
-      doc.setFontSize(14);
-      doc.text(title, 20, yPosition);
-      yPosition += 10;
-      
-      doc.setFontSize(10);
-      const lines = doc.splitTextToSize(JSON.stringify(content, null, 2), 170);
-      doc.text(lines, 20, yPosition);
-      yPosition += lines.length * 5 + 10;
-    };
-
+    // Add extracted data in readable format
     Object.entries(extractedData).forEach(([key, value]) => {
-      addSection(key.replace(/_/g, ' ').toUpperCase(), value);
+      const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      reportContent += `${formattedKey}:\n`;
+      
+      if (value === null || value === undefined) {
+        reportContent += '  Not specified\n\n';
+      } else if (typeof value === 'object') {
+        reportContent += `  ${JSON.stringify(value, null, 2)}\n\n`;
+      } else {
+        reportContent += `  ${value}\n\n`;
+      }
     });
 
-    doc.save(`${contractTypeName.replace(/\//g, '-')}-analysis.pdf`);
+    // Create and download text file
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${contractTypeName.replace(/\//g, '-')}-analysis-report.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   // Auto-dismiss notifications
@@ -414,50 +398,59 @@ export default function ContractAnalysis() {
 
                 {/* File Upload */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Contract</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Contract or Paste Text</h3>
                   
-                  {!file ? (
-                    <div
-                      {...getRootProps()}
-                      className={`
-                        border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200
-                        ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-                      `}
-                    >
-                      <input {...getInputProps()} />
-                      <FiUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-lg text-gray-600 mb-2">
-                        {isDragActive ? 'Drop the contract file here' : 'Drag & drop a contract file here, or click to select'}
-                      </p>
-                      <p className="text-sm text-gray-500">Supports TXT, PDF, DOC, DOCX files</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center">
-                          <FiFile className="h-8 w-8 text-blue-600 mr-3" />
-                          <div>
-                            <p className="font-medium text-gray-900">{file.name}</p>
-                            <p className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setFile(null);
-                            setFileContent('');
-                          }}
-                          className="text-red-600 hover:text-red-700"
+                  {!file && !fileContent ? (
+                    <div className="space-y-6">
+                      {/* File Upload Section */}
+                      <div>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 1: Upload Text File</h4>
+                        <div
+                          {...getRootProps()}
+                          className={`
+                            border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200
+                            ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
+                          `}
                         >
-                          <FiTrash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-
-                      {loading && (
-                        <div className="flex justify-center items-center py-8">
-                          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-3"></div>
-                          <span className="text-gray-600">Processing file...</span>
+                          <input {...getInputProps()} />
+                          <FiUpload className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                          <p className="text-md text-gray-600 mb-2">
+                            {isDragActive ? 'Drop the text file here' : 'Drag & drop a text file here, or click to select'}
+                          </p>
+                          <p className="text-sm text-gray-500">Supports .txt files only</p>
                         </div>
-                      )}
+                      </div>
+                      
+                      {/* OR Divider */}
+                      <div className="flex items-center justify-center">
+                        <div className="border-t border-gray-300 flex-grow"></div>
+                        <span className="px-4 text-sm text-gray-500 bg-white">OR</span>
+                        <div className="border-t border-gray-300 flex-grow"></div>
+                      </div>
+                      
+                      {/* Text Input Section */}
+                      <div>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">Option 2: Paste Contract Text</h4>
+                        <div className="space-y-3">
+                          <textarea
+                            placeholder="Paste your contract text here... (Copy text from PDFs, Word docs, etc.)"
+                            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            value={fileContent}
+                            onChange={(e) => {
+                              setFileContent(e.target.value);
+                              if (e.target.value && !file) {
+                                // Create a virtual file object for consistency
+                                setFile(new File([e.target.value], 'pasted-text.txt', { type: 'text/plain' }));
+                              } else if (!e.target.value) {
+                                setFile(null);
+                              }
+                            }}
+                          />
+                          <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                            💡 Tip: This works great with PDFs! Copy text from any PDF viewer and paste here for analysis.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -531,10 +524,10 @@ export default function ContractAnalysis() {
                           )}
                         </button>
                         <button
-                          onClick={handleDownloadPDF}
+                          onClick={handleDownloadReport}
                           className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
                         >
-                          <FiDownload className="mr-1" /> Download PDF
+                          <FiDownload className="mr-1" /> Download Report
                         </button>
                       </div>
                     </div>
@@ -579,11 +572,11 @@ export default function ContractAnalysis() {
                           Copy Analysis Data
                         </button>
                         <button
-                          onClick={handleDownloadPDF}
+                          onClick={handleDownloadReport}
                           className="w-full flex items-center justify-center text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                         >
                           <FiDownload className="mr-2" />
-                          Export PDF Report
+                          Export Report
                         </button>
                         <button
                           onClick={handleReset}
