@@ -26,6 +26,10 @@ body {
     @apply bg-white rounded-md border border-secondary-200 p-6;
   }
   
+  .feature-card {
+    @apply bg-white rounded-xl border border-secondary-200 p-6 hover:shadow-lg transition-shadow;
+  }
+  
   .input {
     @apply w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500;
   }

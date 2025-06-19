@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { processLargeContract, intelligentChunkContract } from '@/lib/contract-chunking';
 
 // Use proper server-side environment variable access
 // Note: In Next.js API routes, we can access process.env directly without NEXT_PUBLIC_ prefix
@@ -97,7 +98,12 @@ export async function POST(request: Request) {
       );
     }
     
-    const { text, query = "Extract key contract information including parties, terms, dates, and financial details", maxChunks = 5 } = body;
+    const { 
+      text, 
+      query = "Extract key contract information including parties, terms, dates, and financial details", 
+      maxChunks = 5,
+      maxTokens = 100000
+    } = body;
     
     if (!text) {
       return NextResponse.json(
@@ -106,7 +112,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Sanitize input text to remove problematic characters
+    // Sanitize input text
     const sanitizedText = sanitizeText(text);
     const sanitizedQuery = sanitizeText(query);
     
@@ -116,44 +122,35 @@ export async function POST(request: Request) {
       // Generate embedding for the query
       const queryEmbedding = await generateEmbeddings(sanitizedQuery);
       
-      // Split text into chunks - use smaller chunks to avoid token limits
-      const chunks = chunkText(sanitizedText);
-      console.log(`[API] Split text into ${chunks.length} chunks`);
+      // Use intelligent contract processing for better chunking
+      const contractProcessing = await processLargeContract(sanitizedText, maxTokens);
+      const { chunks, strategy, coverage } = contractProcessing;
       
-      // For very large documents, limit the number of chunks to process
-      // to avoid API rate limits and timeouts
-      // Reduce max chunks for very large documents
-      const maxChunksToProcess = sanitizedText.length > 500000 ? 20 : Math.min(chunks.length, 50);
-      const processedChunks = chunks.slice(0, maxChunksToProcess);
+      console.log(`[API] Using strategy: ${strategy}, coverage: ${(coverage * 100).toFixed(1)}%`);
+      console.log(`[API] Generated ${chunks.length} intelligent chunks`);
       
-      if (maxChunksToProcess < chunks.length) {
-        console.log(`[API] Limited processing to ${maxChunksToProcess} of ${chunks.length} chunks`);
-      }
+      // Sort chunks by importance and process the most important ones first
+      const sortedChunks = chunks
+        .sort((a, b) => b.importance - a.importance)
+        .slice(0, Math.min(chunks.length, 30)); // Limit to top 30 chunks
       
-      // For extremely large texts, we need to be even more aggressive with limiting chunks
-      // OpenAI has a limit of 300k tokens per request
-      const maxTokenEstimate = sanitizedText.length / 3; // Rough estimate: ~3 chars per token
-      const maxSafeChunks = maxTokenEstimate > 250000 ? 10 : processedChunks.length;
+      console.log(`[API] Processing top ${sortedChunks.length} chunks by importance`);
       
-      // Generate embeddings for each chunk (in batches to avoid rate limits)
-      const batchSize = 3; // Reduce batch size for large documents
+      // Generate embeddings for chunks in batches
+      const batchSize = 5;
       const chunkEmbeddings = [];
       
-      // Process only a safe number of chunks
-      const safeChunks = processedChunks.slice(0, maxSafeChunks);
-      console.log(`[API] Processing ${safeChunks.length} chunks safely (estimated tokens: ~${maxTokenEstimate})`); 
-      
-      for (let i = 0; i < safeChunks.length; i += batchSize) {
-        const batch = safeChunks.slice(i, i + batchSize);
+      for (let i = 0; i < sortedChunks.length; i += batchSize) {
+        const batch = sortedChunks.slice(i, i + batchSize);
         
         try {
-          const batchPromises = batch.map(chunk => generateEmbeddings(chunk));
+          const batchPromises = batch.map(chunk => generateEmbeddings(chunk.text));
           const batchResults = await Promise.all(batchPromises);
           chunkEmbeddings.push(...batchResults);
           
-          // Add a larger delay between batches for very large documents
-          if (i + batchSize < safeChunks.length) {
-            await new Promise(resolve => setTimeout(resolve, 500));
+          // Add delay between batches to respect rate limits
+          if (i + batchSize < sortedChunks.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
           }
         } catch (error) {
           console.error(`Error processing batch ${i}-${i+batchSize}:`, error);
@@ -163,56 +160,92 @@ export async function POST(request: Request) {
       }
       
       // Calculate similarity scores
-      const similarities = chunkEmbeddings.map(embedding => 
-        cosineSimilarity(embedding, queryEmbedding)
-      );
+      const similarities = chunkEmbeddings.map((embedding, index) => ({
+        score: cosineSimilarity(embedding, queryEmbedding),
+        chunk: sortedChunks[index],
+        index
+      }));
       
-      // Get indices of top chunks by similarity
-      const topIndices = similarities
-        .map((score, i) => ({ score, index: i }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, maxChunks)
-        .map(item => item.index);
+      // Get top chunks by similarity, but also consider importance
+      const scoredChunks = similarities.map(item => ({
+        ...item,
+        combinedScore: item.score * 0.7 + (item.chunk.importance / 5) * 0.3 // Weight similarity more than importance
+      }));
       
-      // Sort indices to maintain original document order
-      topIndices.sort((a, b) => a - b);
+      // Sort by combined score and get top chunks
+      const topChunks = scoredChunks
+        .sort((a, b) => b.combinedScore - a.combinedScore)
+        .slice(0, maxChunks);
       
-      // Join the most relevant chunks
-      const relevantText = topIndices.map(i => processedChunks[i]).join('\n\n');
+      // Sort by original document order for better readability
+      const orderedChunks = topChunks.sort((a, b) => a.index - b.index);
       
-      // Final sanitization of output
+      // Create relevantText with section headers for better context
+      const relevantText = orderedChunks.map(item => {
+        const section = item.chunk.section !== 'unknown' ? `[${item.chunk.section}]\n` : '';
+        return section + item.chunk.text;
+      }).join('\n\n---\n\n');
+      
       const sanitizedRelevantText = sanitizeText(relevantText);
       
-      console.log(`[API] Selected ${topIndices.length} most relevant chunks`);
+      console.log(`[API] Selected ${orderedChunks.length} most relevant chunks`);
+      console.log(`[API] Average importance score: ${(orderedChunks.reduce((sum, c) => sum + c.chunk.importance, 0) / orderedChunks.length).toFixed(2)}`);
+      console.log(`[API] Average similarity score: ${(orderedChunks.reduce((sum, c) => sum + c.score, 0) / orderedChunks.length).toFixed(3)}`);
       
       return NextResponse.json({
         relevantText: sanitizedRelevantText,
         chunkCount: chunks.length,
-        processedChunks: processedChunks.length,
-        selectedChunks: topIndices.length,
+        processedChunks: sortedChunks.length,
+        selectedChunks: orderedChunks.length,
         originalLength: text.length,
-        relevantLength: sanitizedRelevantText.length
+        relevantLength: sanitizedRelevantText.length,
+        strategy,
+        coverage,
+        averageImportance: orderedChunks.reduce((sum, c) => sum + c.chunk.importance, 0) / orderedChunks.length,
+        averageSimilarity: orderedChunks.reduce((sum, c) => sum + c.score, 0) / orderedChunks.length
       });
+      
     } catch (embeddingError: any) {
       console.error('Error generating embeddings:', embeddingError);
       
-      // Fallback to simple text truncation if embeddings fail
-      const truncatedText = sanitizedText.slice(0, 15000);
+      // Enhanced fallback with intelligent chunking
+      console.log('[API] Using intelligent chunking fallback');
+      const fallbackChunks = intelligentChunkContract(sanitizedText, {
+        chunkSize: 2000,
+        overlap: 400,
+        preserveSections: true
+      });
+      
+      // Take the most important chunks as fallback
+      const topFallbackChunks = fallbackChunks
+        .sort((a, b) => b.importance - a.importance)
+        .slice(0, maxChunks);
+      
+      const fallbackText = topFallbackChunks
+        .map(chunk => {
+          const section = chunk.section !== 'unknown' ? `[${chunk.section}]\n` : '';
+          return section + chunk.text;
+        })
+        .join('\n\n---\n\n');
+      
+      const sanitizedFallbackText = sanitizeText(fallbackText);
+      
       return NextResponse.json({
-        relevantText: truncatedText,
-        chunkCount: 1,
-        processedChunks: 1,
-        selectedChunks: 1,
+        relevantText: sanitizedFallbackText,
+        chunkCount: fallbackChunks.length,
+        processedChunks: fallbackChunks.length,
+        selectedChunks: topFallbackChunks.length,
         originalLength: text.length,
-        relevantLength: truncatedText.length,
-        fallback: true,
-        error: embeddingError.message || 'Failed to generate embeddings'
+        relevantLength: sanitizedFallbackText.length,
+        strategy: 'intelligent_fallback',
+        coverage: Math.min(sanitizedFallbackText.length / sanitizedText.length, 1),
+        error: 'Embeddings failed, used intelligent fallback'
       });
     }
   } catch (error: any) {
     console.error('Error in embeddings API:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to process text' },
+      { error: `Server error: ${error.message}` },
       { status: 500 }
     );
   }
