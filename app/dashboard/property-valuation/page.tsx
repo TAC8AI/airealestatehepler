@@ -29,45 +29,29 @@ export default function PropertyValuation() {
     setResult(null);
 
     try {
-      // Use Supabase Edge Function
-      const useEdgeFunction = process.env.NEXT_PUBLIC_USE_EDGE_FUNCTION === 'true';
+      // Always use Supabase Edge Function
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session:', session?.user?.email || 'No session');
       
-      let response;
-      if (useEdgeFunction) {
-        // Use Supabase Edge Function
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('Session:', session?.user?.email || 'No session');
-        
-        if (!session) {
-          throw new Error('Please log in to use this feature');
-        }
-        
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const functionUrl = `${supabaseUrl}/functions/v1/Property-Valuations`;
-        console.log('Calling edge function at:', functionUrl);
-        
-        response = await fetch(functionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ address: address.trim() }),
-        });
-        
-        console.log('Edge function response status:', response.status);
-        console.log('Edge function response headers:', response.headers);
-      } else {
-        // Use Next.js API route
-        console.log('Using Next.js API route');
-        response = await fetch('/api/property-valuation', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ address: address.trim() }),
-        });
+      if (!session) {
+        throw new Error('Please log in to use this feature');
       }
+      
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const functionUrl = `${supabaseUrl}/functions/v1/property-valuation`;
+      console.log('Calling edge function at:', functionUrl);
+      
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ address: address.trim() }),
+      });
+      
+      console.log('Edge function response status:', response.status);
+      console.log('Edge function response headers:', response.headers);
 
       if (!response.ok) {
         const errorText = await response.text();
