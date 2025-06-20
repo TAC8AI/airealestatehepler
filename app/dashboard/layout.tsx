@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { FiHome, FiFileText, FiSettings, FiLogOut, FiMenu, FiX, FiPlus, FiCreditCard } from 'react-icons/fi';
+import { FiHome, FiFileText, FiSettings, FiLogOut, FiMenu, FiX, FiPlus, FiCreditCard, FiTrendingUp } from 'react-icons/fi';
 
 export default function DashboardLayout({
   children,
@@ -53,6 +53,7 @@ export default function DashboardLayout({
     { name: 'Dashboard', href: '/dashboard', icon: FiHome },
     { name: 'Generate Listing', href: '/dashboard/generate-listing', icon: FiPlus },
     { name: 'Contract Analysis', href: '/dashboard/contract-analysis', icon: FiFileText },
+    { name: 'Property Valuation', href: '/dashboard/property-valuation', icon: FiTrendingUp },
     { name: 'Settings', href: '/dashboard/settings', icon: FiSettings },
     { name: 'Subscription', href: '/dashboard/subscription', icon: FiCreditCard },
   ];

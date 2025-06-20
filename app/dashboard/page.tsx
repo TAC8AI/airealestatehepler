@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
-import { FiPlus, FiFileText, FiBarChart2, FiClock } from 'react-icons/fi';
+import { FiPlus, FiFileText, FiBarChart2, FiClock, FiTrendingUp } from 'react-icons/fi';
 
 interface Listing {
   id: string;
@@ -98,12 +98,15 @@ export default function Dashboard() {
           <h1 className="text-3xl font-extrabold text-primary-800 drop-shadow-sm">Welcome to your Real Estate Dashboard</h1>
           <p className="text-secondary-600 mt-1 text-lg">Glad to see you back, <span className="font-semibold text-primary-700">{user?.email}</span></p>
         </div>
-        <div className="flex gap-3 mt-4 md:mt-0">
+        <div className="flex gap-3 mt-4 md:mt-0 flex-wrap">
           <Link href="/dashboard/generate-listing" className="btn-primary flex items-center gap-2 shadow-md animate-pulse">
             <FiPlus /> New Listing
           </Link>
           <Link href="/dashboard/contract-analysis" className="btn-secondary flex items-center gap-2 shadow-md">
             <FiFileText /> New Analysis
+          </Link>
+          <Link href="/dashboard/property-valuation" className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-md">
+            <FiTrendingUp /> Property Valuation
           </Link>
         </div>
       </div>
@@ -154,9 +157,10 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="text-secondary-600 text-sm">Quick Actions</p>
-            <div className="flex space-x-2 mt-1">
+            <div className="flex space-x-1 mt-1 flex-wrap gap-1">
               <Link href="/dashboard/generate-listing" className="btn-primary px-2 py-1 text-xs">New Listing</Link>
               <Link href="/dashboard/contract-analysis" className="btn-secondary px-2 py-1 text-xs">New Analysis</Link>
+              <Link href="/dashboard/property-valuation" className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 text-xs rounded transition-colors">Valuation</Link>
             </div>
           </div>
         </div>
