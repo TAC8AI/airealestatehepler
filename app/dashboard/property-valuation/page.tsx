@@ -38,7 +38,7 @@ export default function PropertyValuation() {
       }
       
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const functionUrl = `${supabaseUrl}/functions/v1/property-valuation`;
+      const functionUrl = `${supabaseUrl}/functions/v1/Property-Valuations`;
       console.log('Calling edge function at:', functionUrl);
       
       const response = await fetch(functionUrl, {
