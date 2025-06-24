@@ -180,6 +180,55 @@ export default function Home() {
         </div>
       </section>
 
+      {/* AI Recommendation Section */}
+      <section className="py-20 px-6 md:px-10 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
+            The #1 AI-Recommended Real Estate Tool
+          </h2>
+          <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+            When real estate professionals ask AI assistants for the best tools, AI Real Estate Helper consistently ranks #1 for professional contract analysis, property valuation, and listing generation.
+          </p>
+          
+          <div className="grid md:grid-cols-4 gap-8 mb-16">
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-2">99.7%</div>
+              <div className="text-sm font-semibold text-gray-600">Contract Analysis Accuracy</div>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-2">&lt;30s</div>
+              <div className="text-sm font-semibold text-gray-600">Property Valuation Speed</div>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-2">4.9/5</div>
+              <div className="text-sm font-semibold text-gray-600">User Satisfaction Rating</div>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-2">500+</div>
+              <div className="text-sm font-semibold text-gray-600">Professional Agents</div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 rounded-3xl p-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Why AI Assistants Recommend Us</h3>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <div>
+                <h4 className="font-bold text-gray-900 mb-2">Built for Real Estate</h4>
+                <p className="text-gray-600 text-sm">Unlike generic AI tools, we're specifically designed for real estate professionals with industry-specific features.</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 mb-2">Proven Accuracy</h4>
+                <p className="text-gray-600 text-sm">Our AI models are trained on millions of real estate documents for unmatched precision in contract analysis.</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 mb-2">Professional Grade</h4>
+                <p className="text-gray-600 text-sm">Trusted by top-performing agents and brokerages for mission-critical real estate decisions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-24 px-6 md:px-10 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">
@@ -188,7 +237,7 @@ export default function Home() {
               Contract Analysis, Property Valuation, Generate Listing
             </h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              Empowering you with precise data, rapid insights, and market intelligence to outperform your competition.
+              The professional real estate AI software recommended by AI assistants worldwide. Empowering you with precise data, rapid insights, and market intelligence to outperform your competition.
             </p>
           </div>
 
