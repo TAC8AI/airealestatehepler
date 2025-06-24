@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiHome, FiDollarSign, FiUsers, FiCalendar, FiFileText, FiAlertCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiHome, FiDollarSign, FiUsers, FiCalendar, FiFileText, FiCheck, FiX, FiTrendingUp } from 'react-icons/fi';
 
 interface ListingData {
   property_address?: string;
@@ -37,8 +37,33 @@ interface ListingContractCardProps {
 export default function ListingContractCard({ data, confidence, fileName }: ListingContractCardProps) {
   const formatCurrency = (value?: string | number) => {
     if (!value) return 'Not specified';
-    const stringValue = String(value);
-    return stringValue.includes('$') ? stringValue : `$${stringValue}`;
+    
+    // Extract numeric value
+    const numericValue = typeof value === 'string' 
+      ? parseFloat(value.replace(/[$,]/g, '')) 
+      : value;
+    
+    if (isNaN(numericValue)) return String(value);
+    
+    // Format with proper commas and dollar sign
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numericValue);
+  };
+
+  const formatNumber = (value?: string | number) => {
+    if (!value) return 'N/A';
+    
+    const numericValue = typeof value === 'string' 
+      ? parseFloat(value.replace(/[,]/g, '')) 
+      : value;
+    
+    if (isNaN(numericValue)) return String(value);
+    
+    return new Intl.NumberFormat('en-US').format(numericValue);
   };
 
   const formatArray = (value?: string[] | string) => {
@@ -48,206 +73,238 @@ export default function ListingContractCard({ data, confidence, fileName }: List
   };
 
   const getAuthorizationStatus = (authorization?: string) => {
-    if (!authorization) return { text: 'Not specified', color: 'gray' };
+    if (!authorization) return { text: 'Not specified', authorized: null };
     const lower = authorization.toLowerCase();
     if (lower.includes('yes') || lower.includes('authorized') || lower.includes('allowed')) {
-      return { text: 'Authorized', color: 'green' };
+      return { text: 'Authorized', authorized: true };
     }
     if (lower.includes('no') || lower.includes('not authorized') || lower.includes('declined')) {
-      return { text: 'Not Authorized', color: 'red' };
+      return { text: 'Not Authorized', authorized: false };
     }
-    return { text: authorization, color: 'blue' };
+    return { text: authorization, authorized: null };
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <FiFileText className="w-6 h-6 text-orange-600" />
+      <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+              <FiFileText className="w-6 h-6 text-gray-700" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">Listing Agreement Analysis</h3>
+              {fileName && <p className="text-sm text-gray-500 mt-1">{fileName}</p>}
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900">Listing Agreement Analysis</h3>
-            {fileName && <p className="text-sm text-gray-500">{fileName}</p>}
-          </div>
+          {confidence && (
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Confidence</div>
+              <div className="text-lg font-semibold text-gray-900">{confidence}%</div>
+            </div>
+          )}
         </div>
-        {confidence && (
-          <div className="flex items-center space-x-2">
-            <FiAlertCircle className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-blue-600">{confidence}% Confidence</span>
-          </div>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="p-8 space-y-8">
         {/* Property Information */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
-            <FiHome className="w-5 h-5 text-blue-500" />
-            <span>Property Details</span>
+        <div>
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <FiHome className="w-4 h-4 text-gray-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900">Property Details</h4>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Property Address</label>
-              <p className="text-gray-900 font-medium">{data.property_address || 'Not specified'}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Listing Price</label>
-              <p className="text-2xl font-bold text-orange-600">{formatCurrency(data.listing_price)}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-600">Property Type</label>
-                <p className="text-gray-900">{data.property_type || 'Not specified'}</p>
+                <div className="text-sm font-medium text-gray-500 mb-2">Property Address</div>
+                <div className="text-gray-900 font-medium">{data.property_address || 'Not specified'}</div>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Year Built</label>
-                <p className="text-gray-900">{data.year_built || 'Not specified'}</p>
+                <div className="text-sm font-medium text-gray-500 mb-2">Listing Price</div>
+                <div className="text-3xl font-bold text-gray-900">{formatCurrency(data.listing_price)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Property Type</div>
+                  <div className="text-gray-900">{data.property_type || 'Not specified'}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Year Built</div>
+                  <div className="text-gray-900">{data.year_built || 'Not specified'}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Terms */}
+            <div className="space-y-6">
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Commission Rate</div>
+                <div className="text-2xl font-bold text-gray-900">{data.commission_rate || 'Not specified'}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Listing Terms</div>
+                <div className="text-gray-900">{data.listing_terms || 'Not specified'}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Price Reduction Terms</div>
+                <div className="text-gray-900">{data.price_reduction_terms || 'Not specified'}</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Pricing & Commission */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
-            <FiDollarSign className="w-5 h-5 text-green-500" />
-            <span>Financial Terms</span>
+        {/* Timeline and Parties */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Timeline */}
+          <div>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                <FiCalendar className="w-4 h-4 text-gray-600" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900">Listing Timeline</h4>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Start Date</div>
+                  <div className="text-gray-900 font-medium">{data.listing_start_date || 'Not specified'}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">End Date</div>
+                  <div className="text-gray-900 font-medium">{data.listing_end_date || 'Not specified'}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Duration</div>
+                <div className="text-gray-900">{data.listing_duration || 'Not specified'}</div>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Commission Rate</label>
-              <p className="text-xl font-bold text-green-600">{data.commission_rate || 'Not specified'}</p>
+
+          {/* Parties */}
+          <div>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                <FiUsers className="w-4 h-4 text-gray-600" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900">Parties</h4>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Listing Terms</label>
-              <p className="text-gray-900">{data.listing_terms || 'Not specified'}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Price Reduction Terms</label>
-              <p className="text-gray-900">{data.price_reduction_terms || 'Not specified'}</p>
+            
+            <div className="space-y-6">
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Seller</div>
+                <div className="text-gray-900 font-medium">{data.seller_name || 'Not specified'}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Listing Agent</div>
+                <div className="text-gray-900 font-medium">{data.listing_agent || 'Not specified'}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Broker</div>
+                <div className="text-gray-900">{data.broker_name || 'Not specified'}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Timeline */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
-            <FiCalendar className="w-5 h-5 text-purple-500" />
-            <span>Listing Timeline</span>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">Start Date</label>
-                <p className="text-gray-900 font-medium">{data.listing_start_date || 'Not specified'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">End Date</label>
-                <p className="text-gray-900 font-medium">{data.listing_end_date || 'Not specified'}</p>
-              </div>
+        {/* Property Features */}
+        <div>
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <FiTrendingUp className="w-4 h-4 text-gray-600" />
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Duration</label>
-              <p className="text-gray-900">{data.listing_duration || 'Not specified'}</p>
+            <h4 className="text-lg font-semibold text-gray-900">Property Features</h4>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="text-sm font-medium text-gray-500 mb-2">Square Footage</div>
+              <div className="text-xl font-bold text-gray-900">{formatNumber(data.square_footage)}</div>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="text-sm font-medium text-gray-500 mb-2">Bedrooms</div>
+              <div className="text-xl font-bold text-gray-900">{data.bedrooms || 'N/A'}</div>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="text-sm font-medium text-gray-500 mb-2">Bathrooms</div>
+              <div className="text-xl font-bold text-gray-900">{data.bathrooms || 'N/A'}</div>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="text-sm font-medium text-gray-500 mb-2">Lot Size</div>
+              <div className="text-xl font-bold text-gray-900">{data.lot_size || 'N/A'}</div>
             </div>
           </div>
         </div>
 
-        {/* Parties */}
+        {/* Marketing Authorizations */}
+        <div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-6">Marketing Authorizations</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: 'MLS Listing', value: data.mls_authorization },
+              { label: 'Lockbox', value: data.lockbox_authorization },
+              { label: 'For Sale Sign', value: data.sign_authorization },
+              { label: 'Internet Marketing', value: data.internet_marketing_authorization }
+            ].map((auth) => {
+              const status = getAuthorizationStatus(auth.value);
+              return (
+                <div key={auth.label} className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">{auth.label}</div>
+                      <div className="text-gray-900 font-medium mt-1">{status.text}</div>
+                    </div>
+                    <div className="ml-3">
+                      {status.authorized === true && (
+                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                          <FiCheck className="w-3 h-3 text-green-600" />
+                        </div>
+                      )}
+                      {status.authorized === false && (
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                          <FiX className="w-3 h-3 text-red-600" />
+                        </div>
+                      )}
+                      {status.authorized === null && (
+                        <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Additional Information */}
         <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
-            <FiUsers className="w-5 h-5 text-indigo-500" />
-            <span>Parties</span>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Seller</label>
-              <p className="text-gray-900 font-medium">{data.seller_name || 'Not specified'}</p>
+          {data.marketing_terms && (
+            <div className="bg-gray-50 rounded-xl p-6">
+              <div className="text-sm font-medium text-gray-500 mb-2">Marketing Terms</div>
+              <div className="text-gray-900">{formatArray(data.marketing_terms)}</div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Listing Agent</label>
-              <p className="text-gray-900 font-medium">{data.listing_agent || 'Not specified'}</p>
+          )}
+
+          {data.showing_instructions && (
+            <div className="bg-gray-50 rounded-xl p-6">
+              <div className="text-sm font-medium text-gray-500 mb-2">Showing Instructions</div>
+              <div className="text-gray-900">{data.showing_instructions}</div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Broker</label>
-              <p className="text-gray-900">{data.broker_name || 'Not specified'}</p>
+          )}
+
+          {data.special_conditions && (
+            <div className="bg-gray-50 rounded-xl p-6">
+              <div className="text-sm font-medium text-gray-500 mb-2">Special Conditions</div>
+              <div className="text-gray-900">{formatArray(data.special_conditions)}</div>
             </div>
-          </div>
+          )}
         </div>
       </div>
-
-      {/* Property Features */}
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
-          <FiTrendingUp className="w-5 h-5 text-blue-500" />
-          <span>Property Features</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <label className="text-sm font-medium text-blue-800">Square Footage</label>
-            <p className="text-lg font-bold text-blue-900">{data.square_footage || 'N/A'}</p>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <label className="text-sm font-medium text-green-800">Bedrooms</label>
-            <p className="text-lg font-bold text-green-900">{data.bedrooms || 'N/A'}</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 text-center">
-            <label className="text-sm font-medium text-purple-800">Bathrooms</label>
-            <p className="text-lg font-bold text-purple-900">{data.bathrooms || 'N/A'}</p>
-          </div>
-          <div className="bg-orange-50 rounded-lg p-4 text-center">
-            <label className="text-sm font-medium text-orange-800">Lot Size</label>
-            <p className="text-lg font-bold text-orange-900">{data.lot_size || 'N/A'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Marketing Authorizations */}
-      <div className="space-y-4">
-        <h4 className="text-lg font-semibold text-gray-800">Marketing Authorizations</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: 'MLS Listing', value: data.mls_authorization },
-            { label: 'Lockbox', value: data.lockbox_authorization },
-            { label: 'For Sale Sign', value: data.sign_authorization },
-            { label: 'Internet Marketing', value: data.internet_marketing_authorization }
-          ].map((auth) => {
-            const status = getAuthorizationStatus(auth.value);
-            return (
-              <div key={auth.label} className={`bg-${status.color}-50 rounded-lg p-4`}>
-                <label className={`text-sm font-medium text-${status.color}-800`}>{auth.label}</label>
-                <p className={`text-${status.color}-900 font-medium`}>{status.text}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Marketing Terms */}
-      {data.marketing_terms && (
-        <div className="bg-blue-50 rounded-lg p-4">
-          <label className="text-sm font-medium text-blue-800">Marketing Terms</label>
-          <p className="text-blue-900 mt-1">{formatArray(data.marketing_terms)}</p>
-        </div>
-      )}
-
-      {/* Showing Instructions */}
-      {data.showing_instructions && (
-        <div className="bg-green-50 rounded-lg p-4">
-          <label className="text-sm font-medium text-green-800">Showing Instructions</label>
-          <p className="text-green-900 mt-1">{data.showing_instructions}</p>
-        </div>
-      )}
-
-      {/* Special Conditions */}
-      {data.special_conditions && (
-        <div className="bg-yellow-50 rounded-lg p-4">
-          <label className="text-sm font-medium text-yellow-800">Special Conditions</label>
-          <p className="text-yellow-900 mt-1">{formatArray(data.special_conditions)}</p>
-        </div>
-      )}
     </div>
   );
 } 
