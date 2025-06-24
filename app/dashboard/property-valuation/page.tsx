@@ -1,13 +1,34 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FiTrendingUp, FiMapPin, FiSearch, FiDollarSign, FiAlertTriangle, FiLoader } from 'react-icons/fi';
+import { FiTrendingUp, FiMapPin, FiSearch, FiDollarSign, FiAlertTriangle, FiLoader, FiCheck, FiBarChart2, FiInfo } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
+
+interface SoldComp {
+  addr: string;
+  sold: string;
+  ppsf: number;
+  adj_price: number;
+}
 
 interface ValuationResult {
   headline_range: string;
-  reasoning: string;
-  caution: string;
+  confidence_0to1: number;
+  key_numbers: {
+    price_per_sqft_subject: number;
+    zip_median_ppsf: number;
+    days_on_market_median: number;
+    months_of_supply: number;
+  };
+  sold_comps: SoldComp[];
+  active_comp_summary: string;
+  market_context: string;
+  micro_drivers: string[];
+  agent_action_steps: string[];
+  limitations: string;
+  // Legacy fields for backward compatibility
+  reasoning?: string;
+  caution?: string;
   confidence_score?: number;
 }
 
@@ -155,76 +176,159 @@ export default function PropertyValuation() {
               <p className="text-green-100 text-lg">{address}</p>
             </div>
 
-            {/* Valuation Range */}
+            {/* Headline Range Card */}
             <div className="card shadow-xl bg-white border border-green-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-lg">
-                  <FiDollarSign className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800">Estimated Value Range</h3>
+              <div className="text-center p-8">
+                <h2 className="text-4xl font-extrabold text-green-700 mb-4 tracking-tight">
+                  {result.headline_range}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Confidence: {(result.confidence_0to1 * 100).toFixed(0)}%
+                </p>
               </div>
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-lg border border-green-200">
-                <div className="text-center">
-                  <p className="text-4xl font-extrabold text-green-700 mb-4 tracking-tight">
-                    {result.headline_range}
-                  </p>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Estimated Property Value Range
-                  </p>
+            </div>
+
+            {/* Key Numbers Grid */}
+            {result.key_numbers && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="card bg-white border border-gray-200 text-center">
+                  <div className="p-4">
+                    <p className="text-2xl font-bold text-gray-900">${result.key_numbers.price_per_sqft_subject}</p>
+                    <p className="text-sm text-gray-600 mt-1">Price/SqFt Subject</p>
+                  </div>
                 </div>
-                {result.confidence_score && (
-                  <div className="flex items-center gap-2 mt-6">
-                    <span className="text-sm text-gray-600">Confidence Level:</span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-3 max-w-xs">
-                      <div 
-                        className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${result.confidence_score * 100}%` }}
-                      ></div>
+                <div className="card bg-white border border-gray-200 text-center">
+                  <div className="p-4">
+                    <p className="text-2xl font-bold text-gray-900">${result.key_numbers.zip_median_ppsf}</p>
+                    <p className="text-sm text-gray-600 mt-1">ZIP Median PPSF</p>
+                  </div>
+                </div>
+                <div className="card bg-white border border-gray-200 text-center">
+                  <div className="p-4">
+                    <p className="text-2xl font-bold text-gray-900">{result.key_numbers.days_on_market_median}</p>
+                    <p className="text-sm text-gray-600 mt-1">Days on Market</p>
+                  </div>
+                </div>
+                <div className="card bg-white border border-gray-200 text-center">
+                  <div className="p-4">
+                    <p className="text-2xl font-bold text-gray-900">{result.key_numbers.months_of_supply}</p>
+                    <p className="text-sm text-gray-600 mt-1">Months of Supply</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sold Comparables Table */}
+            {result.sold_comps && result.sold_comps.length > 0 && (
+              <div className="card shadow-xl bg-white border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <FiBarChart2 className="h-5 w-5 text-green-500" />
+                  Sold Comparables
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full table-auto">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Address</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Sold Date</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">PPSF</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Adj. Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.sold_comps.map((comp, index) => (
+                        <tr key={index} className="border-t border-gray-200">
+                          <td className="px-4 py-3 text-sm text-gray-900">{comp.addr}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{comp.sold}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">${comp.ppsf}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">${comp.adj_price.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Market Context & Active Comparables Info Box */}
+            {(result.active_comp_summary || result.market_context) && (
+              <div className="card shadow-xl bg-white border border-blue-100">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <FiInfo className="h-5 w-5 text-blue-500" />
+                  Market Context
+                </h3>
+                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 space-y-4">
+                  {result.market_context && (
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2">Market Overview</h4>
+                      <p className="text-gray-700 leading-relaxed">{result.market_context}</p>
                     </div>
-                    <span className="text-sm font-bold text-green-600 min-w-[40px]">
-                      {Math.round(result.confidence_score * 100)}%
-                    </span>
+                  )}
+                  {result.active_comp_summary && (
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2">Active Comparables</h4>
+                      <p className="text-gray-700 leading-relaxed">{result.active_comp_summary}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Side-by-side lists: Micro Drivers & Agent Action Steps */}
+            {(result.micro_drivers || result.agent_action_steps) && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Micro Drivers */}
+                {result.micro_drivers && result.micro_drivers.length > 0 && (
+                  <div className="card shadow-xl bg-white border border-green-100">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <FiTrendingUp className="h-5 w-5 text-green-500" />
+                      Market Drivers
+                    </h3>
+                    <ul className="space-y-3">
+                      {result.micro_drivers.map((driver, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="p-1 bg-green-100 rounded-full mt-1">
+                            <FiCheck className="h-3 w-3 text-green-600" />
+                          </div>
+                          <span className="text-gray-700 leading-relaxed">{driver}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Agent Action Steps */}
+                {result.agent_action_steps && result.agent_action_steps.length > 0 && (
+                  <div className="card shadow-xl bg-white border border-purple-100">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <FiDollarSign className="h-5 w-5 text-purple-500" />
+                      Action Steps
+                    </h3>
+                    <ul className="space-y-3">
+                      {result.agent_action_steps.map((step, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="p-1 bg-purple-100 rounded-full mt-1">
+                            <FiCheck className="h-3 w-3 text-purple-600" />
+                          </div>
+                          <span className="text-gray-700 leading-relaxed">{step}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Analysis Reasoning */}
-            <div className="card shadow-xl bg-white border border-blue-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FiTrendingUp className="h-5 w-5 text-blue-500" />
-                Market Analysis
-              </h3>
-              <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                {/* Check if reasoning looks like JSON and format it properly */}
-                {result.reasoning.startsWith('{') ? (
-                  <div className="space-y-3">
-                    <p className="text-gray-700 leading-relaxed text-lg">
-                      Based on available market data and comparable properties in the area.
-                    </p>
-                    <details className="text-sm">
-                      <summary className="cursor-pointer text-blue-600 hover:text-blue-800 font-medium">
-                        View detailed analysis data
-                      </summary>
-                      <pre className="mt-2 p-3 bg-blue-100 rounded text-xs overflow-x-auto">
-                        {JSON.stringify(JSON.parse(result.reasoning), null, 2)}
-                      </pre>
-                    </details>
-                  </div>
-                ) : (
-                  <p className="text-gray-700 leading-relaxed text-lg">{result.reasoning}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Important Caution */}
+            {/* Important Considerations */}
             <div className="card shadow-xl bg-white border border-orange-100">
               <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <FiAlertTriangle className="h-5 w-5 text-orange-500" />
                 Important Considerations
               </h3>
               <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
-                <p className="text-gray-700 leading-relaxed text-lg">{result.caution}</p>
+                <p className="text-gray-700 leading-relaxed text-lg">
+                  {result.limitations || result.caution || "This analysis is based on available market data and should be used as a general guide. Consider getting a professional appraisal for precise valuation."}
+                </p>
               </div>
             </div>
 

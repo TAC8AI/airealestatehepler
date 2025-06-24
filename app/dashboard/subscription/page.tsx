@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FiCheck } from 'react-icons/fi';
+import { FiCheck, FiStar, FiMail, FiArrowRight } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
 
 interface Plan {
@@ -26,9 +26,9 @@ export default function Subscription() {
       price: 0,
       interval: 'month',
       features: [
-        '5 Listings per month',
-        '3 Contract analyses per month',
-        'Basic social media templates',
+        '1 Listing per month',
+        '1 Contract analysis per month',
+        '1 Property valuation per month',
         'Email support'
       ]
     },
@@ -38,11 +38,10 @@ export default function Subscription() {
       price: 29,
       interval: 'month',
       features: [
-        'Unlimited listings',
-        '20 Contract analyses per month',
-        'Advanced social media templates',
-        'Priority email support',
-        'Custom branding'
+        '5 Listings per month',
+        '5 Contract analyses per month',
+        '5 Property valuations per month',
+        'Priority support'
       ],
       isPopular: true
     },
@@ -54,11 +53,9 @@ export default function Subscription() {
       features: [
         'Unlimited listings',
         'Unlimited contract analyses',
-        'Premium social media templates',
-        'Priority phone support',
-        'Custom branding',
-        'Team accounts (up to 5)',
-        'API access'
+        'Unlimited property valuations',
+        'Priority support',
+        'One-on-one meetings'
       ]
     }
   ];
@@ -140,71 +137,103 @@ export default function Subscription() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-96">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-gray-800 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Subscription</h1>
-      
-      <div className="mb-8">
-        <h2 className="text-lg font-medium mb-2">Current Plan</h2>
-        <p className="text-secondary-600">
-          You are currently on the <span className="font-medium">{plans.find(p => p.id === currentPlan)?.name || 'Free'}</span> plan.
-        </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <div className="mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h1 className="text-4xl font-semibold text-gray-900 mb-4">Subscription</h1>
+          
+          {/* Current Plan Status */}
+          <div className="bg-gray-50 rounded-xl p-6 mb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-2">Current Plan</h2>
+            <p className="text-gray-600">
+              You are currently on the <span className="font-semibold text-gray-900">{plans.find(p => p.id === currentPlan)?.name || 'Free'}</span> plan.
+            </p>
+          </div>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Pricing Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         {plans.map((plan) => {
           const isCurrentPlan = plan.id === currentPlan;
           
           return (
             <div 
               key={plan.id}
-              className={`border rounded-lg overflow-hidden ${
+              className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 group ${
                 plan.isPopular 
-                  ? 'border-primary-500 shadow-sm' 
-                  : 'border-secondary-200'
+                  ? 'border-gray-300 relative' 
+                  : 'border-gray-200'
               }`}
             >
+              {/* Popular Badge */}
               {plan.isPopular && (
-                <div className="bg-primary-500 text-white text-center py-1 text-sm font-medium">
-                  Most Popular
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-gray-700 text-white px-4 py-1 rounded-lg text-xs font-medium">
+                    Most Popular
+                  </div>
                 </div>
               )}
               
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                
-                <div className="mb-4">
-                  <span className="text-3xl font-bold">${plan.price}</span>
-                  <span className="text-secondary-500">/{plan.interval}</span>
+              <div className="p-8">
+                {/* Plan Header */}
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                  
+                  <div className="mb-6">
+                    <span className="text-5xl font-semibold text-gray-900">${plan.price}</span>
+                    <span className="text-lg text-gray-500">/{plan.interval}</span>
+                  </div>
                 </div>
                 
-                <ul className="space-y-3 mb-6">
+                {/* Features List */}
+                <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <FiCheck className="text-primary-500 mt-1 mr-2 flex-shrink-0" />
-                      <span>{feature}</span>
+                      <div className="w-5 h-5 bg-gray-100 rounded-lg flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                        <FiCheck className="h-3 w-3 text-gray-600" />
+                      </div>
+                      <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
+                {/* Action Button */}
                 <button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={isCurrentPlan || processingPayment}
-                  className={`w-full py-2 px-4 rounded-md transition-colors ${
+                  className={`w-full py-4 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 group-hover:scale-105 ${
                     isCurrentPlan
-                      ? 'bg-secondary-100 text-secondary-800 cursor-default'
+                      ? 'bg-gray-100 text-gray-500 cursor-default'
                       : plan.isPopular
-                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                        : 'bg-secondary-200 hover:bg-secondary-300 text-secondary-800'
+                        ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                   }`}
                 >
-                  {isCurrentPlan ? 'Current Plan' : `Subscribe to ${plan.name}`}
+                  {processingPayment ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      Processing...
+                    </>
+                  ) : isCurrentPlan ? (
+                    'Current Plan'
+                  ) : (
+                    <>
+                      Subscribe to {plan.name}
+                      <FiArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -212,11 +241,29 @@ export default function Subscription() {
         })}
       </div>
       
-      <div className="mt-8 p-4 bg-secondary-50 rounded-md border border-secondary-200">
-        <h3 className="font-medium mb-2">Need a custom plan?</h3>
-        <p className="text-secondary-600 text-sm">
-          Contact our sales team at <a href="mailto:sales@airealestate.com" className="text-primary-600 hover:underline">sales@airealestate.com</a> for custom enterprise solutions tailored to your business needs.
-        </p>
+      {/* Enterprise Contact */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="flex items-center gap-6">
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <FiMail className="h-6 w-6 text-gray-600" />
+          </div>
+          
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Need a custom plan?</h3>
+            <p className="text-gray-600 mb-4">
+              Contact our sales team for custom enterprise solutions tailored to your business needs.
+            </p>
+            
+            <a 
+              href="mailto:tucker@carlileadvisors.com" 
+              className="inline-flex items-center gap-2 text-gray-900 font-medium hover:text-gray-700 transition-colors group"
+            >
+              <FiMail className="h-4 w-4" />
+              tucker@carlileadvisors.com
+              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

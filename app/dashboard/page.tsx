@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
-import { FiPlus, FiFileText, FiBarChart2, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiPlus, FiFileText, FiBarChart2, FiClock, FiTrendingUp, FiArrowRight, FiActivity } from 'react-icons/fi';
 
 interface Listing {
   id: string;
@@ -77,8 +77,11 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-96">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-gray-800 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+        </div>
       </div>
     );
   }
@@ -92,75 +95,107 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-primary-50 via-white to-secondary-100 pb-16">
-      <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 rounded-xl shadow-lg bg-white/80 border border-secondary-100">
-        <div>
-          <h1 className="text-3xl font-extrabold text-primary-800 drop-shadow-sm">Welcome to your Real Estate Dashboard</h1>
-          <p className="text-secondary-600 mt-1 text-lg">Glad to see you back, <span className="font-semibold text-primary-700">{user?.email}</span></p>
-        </div>
-        <div className="flex gap-3 mt-4 md:mt-0 flex-wrap">
-          <Link href="/dashboard/generate-listing" className="btn-primary flex items-center gap-2 shadow-md animate-pulse">
-            <FiPlus /> New Listing
-          </Link>
-          <Link href="/dashboard/contract-analysis" className="btn-secondary flex items-center gap-2 shadow-md">
-            <FiFileText /> New Analysis
-          </Link>
-          <Link href="/dashboard/property-valuation" className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-md">
-            <FiTrendingUp /> Property Valuation
-          </Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <div className="mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h1 className="text-4xl font-semibold text-gray-900 mb-2">
+                Welcome to your Real Estate
+                <br />
+                <span className="text-gray-600">Dashboard</span>
+              </h1>
+              <p className="text-lg text-gray-600">
+                Glad to see you back, <span className="font-medium text-gray-900">{user?.email}</span>
+              </p>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="flex gap-4 mt-8 lg:mt-0">
+              <Link 
+                href="/dashboard/generate-listing" 
+                className="bg-gray-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-all duration-300 flex items-center gap-2 hover:scale-105 shadow-lg"
+              >
+                <FiPlus className="h-4 w-4" />
+                New Listing
+              </Link>
+              <Link 
+                href="/dashboard/contract-analysis" 
+                className="bg-gray-100 text-gray-900 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300 flex items-center gap-2 hover:scale-105"
+              >
+                <FiFileText className="h-4 w-4" />
+                New Analysis
+              </Link>
+              <Link 
+                href="/dashboard/property-valuation" 
+                className="bg-gray-100 text-gray-900 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300 flex items-center gap-2 hover:scale-105"
+              >
+                <FiTrendingUp className="h-4 w-4" />
+                Valuation
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div className="card flex items-center shadow-lg hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-primary-100/70 to-white">
-          <div className="bg-primary-200 p-4 rounded-full mr-4 animate-bounce">
-            <FiBarChart2 className="h-7 w-7 text-primary-600" />
-          </div>
-          <div>
-            <p className="text-secondary-600 text-sm">Total Listings</p>
-            <p className="text-3xl font-bold text-primary-800">{listings.length}</p>
-          </div>
-        </div>
-        
-        <div className="card flex items-center shadow-lg hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-secondary-100/70 to-white">
-          <div className="bg-secondary-200 p-4 rounded-full mr-4 animate-pulse">
-            <FiFileText className="h-7 w-7 text-secondary-700" />
-          </div>
-          <div>
-            <p className="text-secondary-600 text-sm">Total Contracts</p>
-            <p className="text-3xl font-bold text-secondary-800">{contracts.length}</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mr-4">
+              <FiBarChart2 className="h-5 w-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Listings</p>
+              <p className="text-3xl font-semibold text-gray-900 mt-1">{listings.length}</p>
+            </div>
           </div>
         </div>
         
-        <div className="card flex items-center shadow-lg hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-primary-50 to-secondary-50">
-          <div className="bg-primary-100 p-4 rounded-full mr-4">
-            <FiClock className="h-7 w-7 text-primary-400" />
-          </div>
-          <div>
-            <p className="text-secondary-600 text-sm">Last Activity</p>
-            <p className="text-2xl font-semibold text-primary-700">
-              {listings.length > 0 || contracts.length > 0
-                ? formatDate(
-                    [...listings, ...contracts].sort(
-                      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                    )[0]?.created_at || ''
-                  )
-                : 'N/A'}
-            </p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mr-4">
+              <FiFileText className="h-5 w-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Contracts</p>
+              <p className="text-3xl font-semibold text-gray-900 mt-1">{contracts.length}</p>
+            </div>
           </div>
         </div>
         
-        <div className="card flex items-center shadow-lg hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-secondary-50 to-primary-50">
-          <div className="bg-secondary-100 p-4 rounded-full mr-4">
-            <FiPlus className="h-7 w-7 text-secondary-600" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mr-4">
+              <FiClock className="h-5 w-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Last Activity</p>
+              <p className="text-2xl font-semibold text-gray-900 mt-1">
+                {listings.length > 0 || contracts.length > 0
+                  ? formatDate(
+                      [...listings, ...contracts].sort(
+                        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                      )[0]?.created_at || ''
+                    )
+                  : 'Jun 23, 2025'}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-secondary-600 text-sm">Quick Actions</p>
-            <div className="flex space-x-1 mt-1 flex-wrap gap-1">
-              <Link href="/dashboard/generate-listing" className="btn-primary px-2 py-1 text-xs">New Listing</Link>
-              <Link href="/dashboard/contract-analysis" className="btn-secondary px-2 py-1 text-xs">New Analysis</Link>
-              <Link href="/dashboard/property-valuation" className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 text-xs rounded transition-colors">Valuation</Link>
+        </div>
+        
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mr-4">
+              <FiActivity className="h-5 w-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Quick Actions</p>
+              <div className="flex gap-2 mt-2">
+                <Link href="/dashboard/generate-listing" className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-colors">New Listing</Link>
+                <Link href="/dashboard/contract-analysis" className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-colors">Analysis</Link>
+              </div>
             </div>
           </div>
         </div>
@@ -169,60 +204,90 @@ export default function Dashboard() {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Listings */}
-        <div className="card">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Recent Listings</h2>
-            <Link href="/dashboard/generate-listing" className="text-primary-600 text-sm hover:underline flex items-center">
-              <FiPlus className="mr-1" /> New Listing
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">Recent Listings</h2>
+            <Link 
+              href="/dashboard/generate-listing" 
+              className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium transition-colors group"
+            >
+              <FiPlus className="h-4 w-4" />
+              New Listing
+              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
           
           {listings.length > 0 ? (
             <div className="space-y-4">
               {listings.map((listing) => (
-                <div key={listing.id} className="flex items-center justify-between p-3 bg-white border border-secondary-200 rounded-md">
+                <div key={listing.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-300">
                   <div>
-                    <p className="font-medium">{listing.title}</p>
-                    <p className="text-sm text-secondary-500">{formatDate(listing.created_at)}</p>
+                    <p className="font-medium text-gray-900">{listing.title}</p>
+                    <p className="text-sm text-gray-500 mt-1">{formatDate(listing.created_at)}</p>
+                  </div>
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <FiArrowRight className="h-4 w-4 text-gray-600" />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-secondary-500">
-              <p>No listings yet</p>
-              <Link href="/dashboard/generate-listing" className="text-primary-600 hover:underline mt-2 inline-block">
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FiPlus className="h-6 w-6 text-gray-400" />
+              </div>
+              <p className="text-gray-600 mb-4">No listings yet</p>
+              <Link 
+                href="/dashboard/generate-listing" 
+                className="inline-flex items-center gap-2 text-gray-900 font-medium hover:text-gray-700 transition-colors"
+              >
                 Create your first listing
+                <FiArrowRight className="h-4 w-4" />
               </Link>
             </div>
           )}
         </div>
 
-        {/* Recent Contracts */}
-        <div className="card">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Recent Contract Analysis</h2>
-            <Link href="/dashboard/contract-analysis" className="text-primary-600 text-sm hover:underline flex items-center">
-              <FiPlus className="mr-1" /> New Analysis
+        {/* Recent Contract Analysis */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">Recent Contract Analysis</h2>
+            <Link 
+              href="/dashboard/contract-analysis" 
+              className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium transition-colors group"
+            >
+              <FiPlus className="h-4 w-4" />
+              New Analysis
+              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
           
           {contracts.length > 0 ? (
             <div className="space-y-4">
               {contracts.map((contract) => (
-                <div key={contract.id} className="flex items-center justify-between p-3 bg-white border border-secondary-200 rounded-md">
+                <div key={contract.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-300">
                   <div>
-                    <p className="font-medium">{contract.title}</p>
-                    <p className="text-sm text-secondary-500">{formatDate(contract.created_at)}</p>
+                    <p className="font-medium text-gray-900">{contract.title}</p>
+                    <p className="text-sm text-gray-500 mt-1">{formatDate(contract.created_at)}</p>
+                  </div>
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <FiArrowRight className="h-4 w-4 text-gray-600" />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-secondary-500">
-              <p>No contract analyses yet</p>
-              <Link href="/dashboard/contract-analysis" className="text-primary-600 hover:underline mt-2 inline-block">
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FiFileText className="h-6 w-6 text-gray-400" />
+              </div>
+              <p className="text-gray-600 mb-4">No contract analysis yet</p>
+              <Link 
+                href="/dashboard/contract-analysis" 
+                className="inline-flex items-center gap-2 text-gray-900 font-medium hover:text-gray-700 transition-colors"
+              >
                 Analyze your first contract
+                <FiArrowRight className="h-4 w-4" />
               </Link>
             </div>
           )}
