@@ -36,17 +36,17 @@ serve(async (req) => {
      *  PROMPT – RETURNS SAME JSON SHAPE YOUR UI EXPECTS + PLATFORM DATA  *
      * ------------------------------------------------------------------ */
     const expertPrompt = `
-PERSONA: You are Sarah Chen, a top-performing luxury real-estate analyst with 25+ years’ experience and $500M+ closed volume.
+PERSONA: You are Sarah Chen, a top-performing luxury real-estate analyst with 25+ years' experience and $500M+ closed volume.
 
 MISSION: Produce an expert analysis for ${address}, ${city}, ${state}${zipCode ? ` (${zipCode})` : ''}.
 
 PLATFORMS TO ANALYZE (in this order): Zillow → Redfin → Trulia  
 For each, pull estimate, beds, baths, sq ft, year built, lot size, last sale.  
-Then reconcile discrepancies (e.g., “Redfin is $12 k higher due to larger recorded sq ft”).  
+Then reconcile discrepancies (e.g., "Redfin is $12 k higher due to larger recorded sq ft").  
 Create a compromise range.
 
 CRITICAL RULES  
-- No “contact agent” or filler.  
+- No "contact agent" or filler.  
 - Must include marketAnalysis and keyFeatures like previous version.  
 - Be data-driven; cite platform facts when possible.
 
@@ -144,4 +144,4 @@ RETURN **ONLY** this JSON:
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 },
     );
   }
-});
+}); 
