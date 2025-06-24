@@ -98,49 +98,49 @@ export default function PropertyValuation() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-green-50 via-white to-blue-50 pb-16">
+    <div className="min-h-screen bg-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 p-6 rounded-xl shadow-lg bg-white/80 border border-green-100">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-lg">
-              <FiTrendingUp className="h-6 w-6 text-white" />
+        {/* Clean Header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-gray-100 rounded-xl">
+              <FiTrendingUp className="h-8 w-8 text-black" />
             </div>
-            <h1 className="text-3xl font-extrabold text-gray-800">Property Valuation Analysis</h1>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Property Valuation Analysis</h1>
+              <p className="text-lg text-gray-600 mt-1">Get comprehensive market analysis and valuation insights for any property</p>
+            </div>
           </div>
-          <p className="text-gray-600 text-lg">
-            Get comprehensive market analysis and valuation insights for any property
-          </p>
         </div>
 
         {!result ? (
           /* Input Form */
-          <div className="card shadow-xl bg-white border border-green-100">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label htmlFor="address" className="block text-lg font-semibold text-gray-700 mb-3">
+                <label htmlFor="address" className="block text-lg font-bold text-gray-900 mb-4">
                   Property Address
                 </label>
                 <div className="relative">
-                  <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500 h-5 w-5" />
+                  <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
                     id="address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Enter full property address (e.g., 1428 Freedom Pkwy, Winona Lake, IN)"
-                    className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    className="w-full pl-12 pr-4 py-4 text-lg bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                     disabled={loading}
                   />
                 </div>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-3 text-sm text-gray-500">
                   Enter the complete address including street, city, and state for best results
                 </p>
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <FiAlertTriangle className="h-5 w-5 text-red-500" />
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <FiAlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
                   <span className="text-red-700">{error}</span>
                 </div>
               )}
@@ -148,7 +148,7 @@ export default function PropertyValuation() {
               <button
                 type="submit"
                 disabled={loading || !address.trim()}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 text-lg shadow-lg"
+                className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <>
@@ -166,82 +166,74 @@ export default function PropertyValuation() {
           </div>
         ) : (
           /* Results Display */
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Address Header */}
-            <div className="card bg-gradient-to-r from-green-500 to-green-600 text-white shadow-xl">
+            <div className="bg-gradient-to-r from-black to-gray-800 text-white rounded-3xl p-8 shadow-lg">
               <div className="flex items-center gap-3 mb-2">
                 <FiMapPin className="h-6 w-6" />
                 <h2 className="text-2xl font-bold">Property Analysis Results</h2>
               </div>
-              <p className="text-green-100 text-lg">{address}</p>
+              <p className="text-gray-200 text-lg">{address}</p>
             </div>
 
             {/* Headline Range Card */}
-            <div className="card shadow-xl bg-white border border-green-100">
-              <div className="text-center p-8">
-                <h2 className="text-4xl font-extrabold text-green-700 mb-4 tracking-tight">
-                  {result.headline_range}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Confidence: {(result.confidence_0to1 * 100).toFixed(0)}%
-                </p>
-              </div>
+            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10 text-center">
+              <h2 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                {result.headline_range}
+              </h2>
+              <p className="text-lg text-gray-600">
+                Confidence: {(result.confidence_0to1 * 100).toFixed(0)}%
+              </p>
             </div>
 
             {/* Key Numbers Grid */}
             {result.key_numbers && (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="card bg-white border border-gray-200 text-center">
-                  <div className="p-4">
-                    <p className="text-2xl font-bold text-gray-900">${result.key_numbers.price_per_sqft_subject}</p>
-                    <p className="text-sm text-gray-600 mt-1">Price/SqFt Subject</p>
-                  </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                  <p className="text-3xl font-bold text-gray-900 mb-2">${result.key_numbers.price_per_sqft_subject}</p>
+                  <p className="text-sm font-semibold text-gray-600">Price/SqFt Subject</p>
                 </div>
-                <div className="card bg-white border border-gray-200 text-center">
-                  <div className="p-4">
-                    <p className="text-2xl font-bold text-gray-900">${result.key_numbers.zip_median_ppsf}</p>
-                    <p className="text-sm text-gray-600 mt-1">ZIP Median PPSF</p>
-                  </div>
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                  <p className="text-3xl font-bold text-gray-900 mb-2">${result.key_numbers.zip_median_ppsf}</p>
+                  <p className="text-sm font-semibold text-gray-600">ZIP Median PPSF</p>
                 </div>
-                <div className="card bg-white border border-gray-200 text-center">
-                  <div className="p-4">
-                    <p className="text-2xl font-bold text-gray-900">{result.key_numbers.days_on_market_median}</p>
-                    <p className="text-sm text-gray-600 mt-1">Days on Market</p>
-                  </div>
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                  <p className="text-3xl font-bold text-gray-900 mb-2">{result.key_numbers.days_on_market_median}</p>
+                  <p className="text-sm font-semibold text-gray-600">Days on Market</p>
                 </div>
-                <div className="card bg-white border border-gray-200 text-center">
-                  <div className="p-4">
-                    <p className="text-2xl font-bold text-gray-900">{result.key_numbers.months_of_supply}</p>
-                    <p className="text-sm text-gray-600 mt-1">Months of Supply</p>
-                  </div>
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                  <p className="text-3xl font-bold text-gray-900 mb-2">{result.key_numbers.months_of_supply}</p>
+                  <p className="text-sm font-semibold text-gray-600">Months of Supply</p>
                 </div>
               </div>
             )}
 
             {/* Sold Comparables Table */}
             {result.sold_comps && result.sold_comps.length > 0 && (
-              <div className="card shadow-xl bg-white border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <FiBarChart2 className="h-5 w-5 text-green-500" />
+              <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <FiBarChart2 className="h-5 w-5 text-black" />
+                  </div>
                   Sold Comparables
                 </h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full table-auto">
+                  <table className="w-full">
                     <thead>
-                      <tr className="bg-gray-50">
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Address</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Sold Date</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">PPSF</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Adj. Price</th>
+                      <tr className="border-b border-gray-200">
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Address</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Sold Date</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">PPSF</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Adj. Price</th>
                       </tr>
                     </thead>
                     <tbody>
                       {result.sold_comps.map((comp, index) => (
-                        <tr key={index} className="border-t border-gray-200">
-                          <td className="px-4 py-3 text-sm text-gray-900">{comp.addr}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{comp.sold}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">${comp.ppsf}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">${comp.adj_price.toLocaleString()}</td>
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+                          <td className="px-4 py-4 text-sm text-gray-900 font-medium">{comp.addr}</td>
+                          <td className="px-4 py-4 text-sm text-gray-700">{comp.sold}</td>
+                          <td className="px-4 py-4 text-sm text-gray-700">${comp.ppsf}</td>
+                          <td className="px-4 py-4 text-sm text-gray-700">${comp.adj_price.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -252,21 +244,23 @@ export default function PropertyValuation() {
 
             {/* Market Context & Active Comparables Info Box */}
             {(result.active_comp_summary || result.market_context) && (
-              <div className="card shadow-xl bg-white border border-blue-100">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <FiInfo className="h-5 w-5 text-blue-500" />
+              <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <FiInfo className="h-5 w-5 text-black" />
+                  </div>
                   Market Context
                 </h3>
-                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 space-y-4">
+                <div className="bg-gray-50 p-6 rounded-2xl space-y-6">
                   {result.market_context && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Market Overview</h4>
+                      <h4 className="font-bold text-gray-900 mb-3">Market Overview</h4>
                       <p className="text-gray-700 leading-relaxed">{result.market_context}</p>
                     </div>
                   )}
                   {result.active_comp_summary && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Active Comparables</h4>
+                      <h4 className="font-bold text-gray-900 mb-3">Active Comparables</h4>
                       <p className="text-gray-700 leading-relaxed">{result.active_comp_summary}</p>
                     </div>
                   )}
@@ -276,19 +270,21 @@ export default function PropertyValuation() {
 
             {/* Side-by-side lists: Micro Drivers & Agent Action Steps */}
             {(result.micro_drivers || result.agent_action_steps) && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Micro Drivers */}
                 {result.micro_drivers && result.micro_drivers.length > 0 && (
-                  <div className="card shadow-xl bg-white border border-green-100">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                      <FiTrendingUp className="h-5 w-5 text-green-500" />
+                  <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                      <div className="p-2 bg-gray-100 rounded-lg">
+                        <FiTrendingUp className="h-5 w-5 text-black" />
+                      </div>
                       Market Drivers
                     </h3>
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                       {result.micro_drivers.map((driver, index) => (
                         <li key={index} className="flex items-start gap-3">
-                          <div className="p-1 bg-green-100 rounded-full mt-1">
-                            <FiCheck className="h-3 w-3 text-green-600" />
+                          <div className="p-1 bg-gray-100 rounded-full mt-1 flex-shrink-0">
+                            <FiCheck className="h-3 w-3 text-black" />
                           </div>
                           <span className="text-gray-700 leading-relaxed">{driver}</span>
                         </li>
@@ -299,16 +295,18 @@ export default function PropertyValuation() {
 
                 {/* Agent Action Steps */}
                 {result.agent_action_steps && result.agent_action_steps.length > 0 && (
-                  <div className="card shadow-xl bg-white border border-purple-100">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                      <FiDollarSign className="h-5 w-5 text-purple-500" />
+                  <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                      <div className="p-2 bg-gray-100 rounded-lg">
+                        <FiDollarSign className="h-5 w-5 text-black" />
+                      </div>
                       Action Steps
                     </h3>
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                       {result.agent_action_steps.map((step, index) => (
                         <li key={index} className="flex items-start gap-3">
-                          <div className="p-1 bg-purple-100 rounded-full mt-1">
-                            <FiCheck className="h-3 w-3 text-purple-600" />
+                          <div className="p-1 bg-gray-100 rounded-full mt-1 flex-shrink-0">
+                            <FiCheck className="h-3 w-3 text-black" />
                           </div>
                           <span className="text-gray-700 leading-relaxed">{step}</span>
                         </li>
@@ -320,12 +318,14 @@ export default function PropertyValuation() {
             )}
 
             {/* Important Considerations */}
-            <div className="card shadow-xl bg-white border border-orange-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FiAlertTriangle className="h-5 w-5 text-orange-500" />
+            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <FiAlertTriangle className="h-5 w-5 text-black" />
+                </div>
                 Important Considerations
               </h3>
-              <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
+              <div className="bg-gray-50 p-6 rounded-2xl">
                 <p className="text-gray-700 leading-relaxed text-lg">
                   {result.limitations || result.caution || "This analysis is based on available market data and should be used as a general guide. Consider getting a professional appraisal for precise valuation."}
                 </p>
@@ -333,10 +333,10 @@ export default function PropertyValuation() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 justify-center">
+            <div className="flex justify-center">
               <button
                 onClick={handleNewAnalysis}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-lg"
+                className="bg-black hover:bg-gray-800 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 shadow-lg hover:shadow-xl"
               >
                 <FiSearch className="h-5 w-5" />
                 Analyze Another Property
