@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiSend, FiCopy, FiCheck, FiEdit3, FiHome, FiDollarSign, FiMapPin, FiCalendar, FiTrendingUp, FiStar, FiPlus, FiChevronRight, FiCamera, FiMic, FiZap, FiArrowLeft, FiFileText } from 'react-icons/fi';
+import { FiSend, FiCopy, FiCheck, FiEdit3, FiHome, FiDollarSign, FiMapPin, FiCalendar, FiTrendingUp, FiStar, FiPlus, FiChevronRight, FiCamera, FiMic, FiZap, FiArrowLeft, FiFileText, FiTarget, FiLayers, FiGlobe } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
 
 interface PropertyDetails {
@@ -25,8 +25,6 @@ interface AddressInfo {
   state: string;
   zipCode: string;
 }
-
-
 
 const highlightOptions = [
   { label: "Renovation potential", category: "investment" },
@@ -104,8 +102,6 @@ export default function GenerateListing() {
     const { name, value } = e.target;
     setPropertyDetails((prev) => ({ ...prev, [name]: value }));
   };
-
-
 
   const toggleHighlight = (highlight: string) => {
     setPropertyDetails(prev => ({
@@ -256,27 +252,33 @@ export default function GenerateListing() {
   // STEP 1: Address Input
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-tr from-primary-50 via-white to-secondary-100 p-6">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-primary-800 mb-2">Generate Listing</h1>
-            <p className="text-secondary-600">Step 1 of 3: Enter the property address</p>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-2xl mx-auto px-8 py-12">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-semibold text-gray-900 mb-4">Generate Listing</h1>
+            <p className="text-lg text-gray-600">Step 1 of 3: Enter the property address</p>
           </div>
           
-          <div className="card">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-primary-100 p-3 rounded-full">
-                <FiMapPin className="h-6 w-6 text-primary-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-primary-800">Property Address</h2>
-                <p className="text-secondary-600 text-sm">We'll research the property details for you</p>
+          {/* Main Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            {/* Card Header */}
+            <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <FiMapPin className="w-6 h-6 text-gray-700" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Property Address</h2>
+                  <p className="text-sm text-gray-500 mt-1">We'll research the property details for you</p>
+                </div>
               </div>
             </div>
             
-            <form onSubmit={handleResearchProperty} className="space-y-6">
+            {/* Form */}
+            <form onSubmit={handleResearchProperty} className="p-8 space-y-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
                   Street Address *
                 </label>
                 <input
@@ -284,15 +286,15 @@ export default function GenerateListing() {
                   name="address"
                   value={addressInfo.address}
                   onChange={handleAddressChange}
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="123 Main Street"
                   required
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     City *
                   </label>
                   <input
@@ -300,14 +302,14 @@ export default function GenerateListing() {
                     name="city"
                     value={addressInfo.city}
                     onChange={handleAddressChange}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="San Francisco"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     State *
                   </label>
                   <input
@@ -315,7 +317,7 @@ export default function GenerateListing() {
                     name="state"
                     value={addressInfo.state}
                     onChange={handleAddressChange}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="CA"
                     required
                   />
@@ -323,7 +325,7 @@ export default function GenerateListing() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
                   Zip Code (Optional)
                 </label>
                 <input
@@ -331,7 +333,7 @@ export default function GenerateListing() {
                   name="zipCode"
                   value={addressInfo.zipCode}
                   onChange={handleAddressChange}
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="94102"
                 />
               </div>
@@ -339,17 +341,17 @@ export default function GenerateListing() {
               <button
                 type="submit"
                 disabled={researchLoading}
-                className="btn-primary w-full flex items-center justify-center gap-2 text-lg py-3"
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 {researchLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Researching Property...
+                    <span className="text-lg">Researching Property</span>
                   </>
                 ) : (
                   <>
-                    <FiZap />
-                    Research Property & Continue
+                    <FiZap className="w-5 h-5" />
+                    <span className="text-lg">Research Property & Continue</span>
                   </>
                 )}
               </button>
@@ -363,44 +365,53 @@ export default function GenerateListing() {
   // STEP 2: Property Details (Pre-filled, Editable)
   if (step === 2) {
     return (
-      <div className="min-h-screen bg-gradient-to-tr from-primary-50 via-white to-secondary-100 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
+      <div className="min-h-screen bg-white">
+        <div className="max-w-4xl mx-auto px-8 py-12">
+          {/* Header */}
+          <div className="mb-12">
             <button
               onClick={() => setStep(1)}
-              className="flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-4"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
             >
-              <FiArrowLeft /> Back to Address
+              <FiArrowLeft className="w-4 h-4" />
+              <span>Back to Address</span>
             </button>
-            <h1 className="text-3xl font-bold text-primary-800 mb-2">Property Details</h1>
-            <p className="text-secondary-600">Step 2 of 3: Review and edit the property information</p>
             
-            {/* Progress bar */}
-            <div className="mt-4">
-              <div className="flex justify-between text-sm text-secondary-600 mb-2">
-                <span>Completion</span>
-                <span>{Math.round(completionPercentage)}%</span>
-              </div>
-              <div className="w-full bg-secondary-200 rounded-full h-2">
-                <div
-                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${completionPercentage}%` }}
-                ></div>
+            <div className="text-center">
+              <h1 className="text-4xl font-semibold text-gray-900 mb-4">Property Details</h1>
+              <p className="text-lg text-gray-600 mb-8">Step 2 of 3: Review and edit the property information</p>
+              
+              {/* Progress bar */}
+              <div className="max-w-md mx-auto">
+                <div className="flex justify-between text-sm text-gray-600 mb-3">
+                  <span>Completion</span>
+                  <span className="font-medium">{Math.round(completionPercentage)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gray-900 h-2 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${completionPercentage}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
 
           <form onSubmit={handleGenerateListings} className="space-y-8">
             {/* Basic Information */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <FiHome className="text-primary-600" />
-                Basic Information
-              </h3>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <FiHome className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="p-8 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Listing Title *
                   </label>
                   <input
@@ -408,14 +419,14 @@ export default function GenerateListing() {
                     name="title"
                     value={propertyDetails.title}
                     onChange={handlePropertyChange}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="Beautiful Family Home"
                     required
                   />
                 </div>
                 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Full Address *
                   </label>
                   <input
@@ -423,242 +434,259 @@ export default function GenerateListing() {
                     name="address"
                     value={propertyDetails.address}
                     onChange={handlePropertyChange}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     required
                   />
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price *
-                  </label>
-                  <input
-                    type="text"
-                    name="price"
-                    value={propertyDetails.price}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    placeholder="$750,000"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Property Type *
-                  </label>
-                  <select
-                    name="propertyType"
-                    value={propertyDetails.propertyType}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    required
-                  >
-                    <option value="Single Family">Single Family</option>
-                    <option value="Townhouse">Townhouse</option>
-                    <option value="Condo">Condo</option>
-                    <option value="Multi-Family">Multi-Family</option>
-                    <option value="Land">Land</option>
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Price *
+                    </label>
+                    <input
+                      type="text"
+                      name="price"
+                      value={propertyDetails.price}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="$750,000"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Property Type *
+                    </label>
+                    <select
+                      name="propertyType"
+                      value={propertyDetails.propertyType}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                      required
+                    >
+                      <option value="Single Family">Single Family</option>
+                      <option value="Townhouse">Townhouse</option>
+                      <option value="Condo">Condo</option>
+                      <option value="Multi-Family">Multi-Family</option>
+                      <option value="Land">Land</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Property Details */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <FiEdit3 className="text-primary-600" />
-                Property Specifications
-              </h3>
+            {/* Property Specifications */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <FiTarget className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Property Specifications</h3>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bedrooms *
-                  </label>
-                  <input
-                    type="text"
-                    name="bedrooms"
-                    value={propertyDetails.bedrooms}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    placeholder="3"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bathrooms *
-                  </label>
-                  <input
-                    type="text"
-                    name="bathrooms"
-                    value={propertyDetails.bathrooms}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    placeholder="2.5"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Square Feet *
-                  </label>
-                  <input
-                    type="text"
-                    name="squareFeet"
-                    value={propertyDetails.squareFeet}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    placeholder="2,100"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Year Built *
-                  </label>
-                  <input
-                    type="text"
-                    name="yearBuilt"
-                    value={propertyDetails.yearBuilt}
-                    onChange={handlePropertyChange}
-                    className="input"
-                    placeholder="1995"
-                    required
-                  />
+              <div className="p-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Bedrooms *
+                    </label>
+                    <input
+                      type="text"
+                      name="bedrooms"
+                      value={propertyDetails.bedrooms}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="3"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Bathrooms *
+                    </label>
+                    <input
+                      type="text"
+                      name="bathrooms"
+                      value={propertyDetails.bathrooms}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="2.5"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Square Feet *
+                    </label>
+                    <input
+                      type="text"
+                      name="squareFeet"
+                      value={propertyDetails.squareFeet}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="2,100"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Year Built *
+                    </label>
+                    <input
+                      type="text"
+                      name="yearBuilt"
+                      value={propertyDetails.yearBuilt}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="1995"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Features and Description */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <FiStar className="text-primary-600" />
-                Features & Description
-              </h3>
+            {/* Features & Description */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <FiStar className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Features & Description</h3>
+                </div>
+              </div>
               
-              <div className="space-y-4">
+              <div className="p-8 space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Key Features *
                   </label>
                   <textarea
                     name="features"
                     value={propertyDetails.features}
                     onChange={handlePropertyChange}
-                    className="input h-24"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
+                    rows={4}
                     placeholder="Updated kitchen, hardwood floors, two-car garage..."
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Market Analysis
                   </label>
                   <textarea
                     name="description"
                     value={propertyDetails.description}
                     onChange={handlePropertyChange}
-                    className="input h-32"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
+                    rows={6}
                     placeholder="Market insights and property description..."
                   />
                 </div>
               </div>
             </div>
 
-            {/* Highlights */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <FiTrendingUp className="text-primary-600" />
-                Marketing Highlights
-              </h3>
-              
-              <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => setShowHighlights(!showHighlights)}
-                  className="btn-secondary flex items-center gap-2"
-                >
-                  <FiPlus />
-                  {showHighlights ? 'Hide' : 'Add'} Highlights
-                </button>
+            {/* Marketing Highlights */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                      <FiTrendingUp className="w-5 h-5 text-gray-700" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Marketing Highlights</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowHighlights(!showHighlights)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <FiPlus className="w-4 h-4" />
+                    <span>{showHighlights ? 'Hide' : 'Add'} Highlights</span>
+                  </button>
+                </div>
               </div>
               
-              {showHighlights && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
-                  {highlightOptions.map((option) => (
-                    <button
-                      key={option.label}
-                      type="button"
-                      onClick={() => toggleHighlight(option.label)}
-                      className={`p-2 text-sm rounded-md border transition-colors ${
-                        propertyDetails.highlights.includes(option.label)
-                          ? 'bg-primary-100 border-primary-300 text-primary-800'
-                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              
-              {propertyDetails.highlights.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Selected Highlights:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {propertyDetails.highlights.map((highlight) => (
-                      <span
-                        key={highlight}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+              <div className="p-8">
+                {showHighlights && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                    {highlightOptions.map((option) => (
+                      <button
+                        key={option.label}
+                        type="button"
+                        onClick={() => toggleHighlight(option.label)}
+                        className={`p-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                          propertyDetails.highlights.includes(option.label)
+                            ? 'bg-gray-900 border-gray-900 text-white'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
                       >
-                        {highlight}
-                        <button
-                          type="button"
-                          onClick={() => toggleHighlight(highlight)}
-                          className="text-primary-600 hover:text-primary-800"
-                        >
-                          ×
-                        </button>
-                      </span>
+                        {option.label}
+                      </button>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+                
+                {propertyDetails.highlights.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-4">Selected Highlights:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {propertyDetails.highlights.map((highlight) => (
+                        <span
+                          key={highlight}
+                          className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium"
+                        >
+                          <span>{highlight}</span>
+                          <button
+                            type="button"
+                            onClick={() => toggleHighlight(highlight)}
+                            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            
-
             {/* Submit Button */}
-            <div className="flex gap-4">
+            <div className="flex space-x-4 pt-8">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="btn-secondary flex items-center gap-2"
+                className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2"
               >
-                <FiArrowLeft />
-                Back
+                <FiArrowLeft className="w-4 h-4" />
+                <span>Back</span>
               </button>
               
               <button
                 type="submit"
                 disabled={loading || completionPercentage < 100}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 text-lg py-3"
+                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Generating Content...
+                    <span className="text-lg">Generating Content</span>
                   </>
                 ) : (
                   <>
-                    <FiChevronRight />
-                    Generate Listing Content
+                    <FiChevronRight className="w-5 h-5" />
+                    <span className="text-lg">Generate Listing Content</span>
                   </>
                 )}
               </button>
@@ -671,106 +699,141 @@ export default function GenerateListing() {
 
   // STEP 3: Generated Content
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-primary-50 via-white to-secondary-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-8 py-12">
+        {/* Header */}
+        <div className="mb-12">
           <button
             onClick={() => setStep(2)}
-            className="flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-4"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
           >
-            <FiArrowLeft /> Back to Edit Details
+            <FiArrowLeft className="w-4 h-4" />
+            <span>Back to Edit Details</span>
           </button>
-          <h1 className="text-3xl font-bold text-primary-800 mb-2">Generated Content</h1>
-          <p className="text-secondary-600">Step 3 of 3: Your listing content is ready!</p>
+          
+          <div className="text-center">
+            <h1 className="text-4xl font-semibold text-gray-900 mb-4">Generated Content</h1>
+            <p className="text-lg text-gray-600">Step 3 of 3: Your listing content is ready!</p>
+          </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* MLS Description */}
-          <div className="card">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <FiFileText className="text-primary-600" />
-                MLS Description
-              </h3>
-              <button
-                onClick={() => handleCopy('mls')}
-                className="btn-secondary flex items-center gap-2"
-              >
-                {copied.mls ? <FiCheck className="text-green-600" /> : <FiCopy />}
-                {copied.mls ? 'Copied!' : 'Copy'}
-              </button>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <FiFileText className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">MLS Description</h3>
+                </div>
+                <button
+                  onClick={() => handleCopy('mls')}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2"
+                >
+                  {copied.mls ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
+                  <span>{copied.mls ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="whitespace-pre-wrap">{generatedContent.mls}</p>
+            <div className="p-8">
+              <div className="bg-gray-50 rounded-xl p-6">
+                <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.mls}</p>
+              </div>
             </div>
           </div>
 
           {/* Social Media Content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Facebook */}
-            <div className="card">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-blue-600">Facebook</h3>
-                <button
-                  onClick={() => handleCopy('facebook')}
-                  className="btn-secondary flex items-center gap-2 text-sm py-1 px-2"
-                >
-                  {copied.facebook ? <FiCheck className="text-green-600" /> : <FiCopy />}
-                  {copied.facebook ? 'Copied!' : 'Copy'}
-                </button>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FiGlobe className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold text-blue-600">Facebook</h3>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('facebook')}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  >
+                    {copied.facebook ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm whitespace-pre-wrap">{generatedContent.facebook}</p>
+              <div className="p-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.facebook}</p>
+                </div>
               </div>
             </div>
 
             {/* Instagram */}
-            <div className="card">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-pink-600">Instagram</h3>
-                <button
-                  onClick={() => handleCopy('instagram')}
-                  className="btn-secondary flex items-center gap-2 text-sm py-1 px-2"
-                >
-                  {copied.instagram ? <FiCheck className="text-green-600" /> : <FiCopy />}
-                  {copied.instagram ? 'Copied!' : 'Copy'}
-                </button>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                      <FiCamera className="w-4 h-4 text-pink-600" />
+                    </div>
+                    <h3 className="font-semibold text-pink-600">Instagram</h3>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('instagram')}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  >
+                    {copied.instagram ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm whitespace-pre-wrap">{generatedContent.instagram}</p>
+              <div className="p-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.instagram}</p>
+                </div>
               </div>
             </div>
 
             {/* LinkedIn */}
-            <div className="card">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-blue-700">LinkedIn</h3>
-                <button
-                  onClick={() => handleCopy('linkedin')}
-                  className="btn-secondary flex items-center gap-2 text-sm py-1 px-2"
-                >
-                  {copied.linkedin ? <FiCheck className="text-green-600" /> : <FiCopy />}
-                  {copied.linkedin ? 'Copied!' : 'Copy'}
-                </button>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FiLayers className="w-4 h-4 text-blue-700" />
+                    </div>
+                    <h3 className="font-semibold text-blue-700">LinkedIn</h3>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('linkedin')}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  >
+                    {copied.linkedin ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm whitespace-pre-wrap">{generatedContent.linkedin}</p>
+              <div className="p-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.linkedin}</p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-6">
+          <div className="flex justify-center space-x-4 pt-8">
             <button
               onClick={handleCreateNew}
-              className="btn-primary flex items-center gap-2"
+              className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl transition-all duration-300 flex items-center space-x-3 transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              <FiPlus />
-              Create New Listing
+              <FiPlus className="w-5 h-5" />
+              <span>Create New Listing</span>
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary"
+              className="px-8 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200"
             >
               Back to Dashboard
             </button>
