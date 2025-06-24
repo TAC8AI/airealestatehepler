@@ -381,18 +381,21 @@ export default function GenerateListing() {
               <h1 className="text-4xl font-semibold text-gray-900 mb-4">Property Details</h1>
               <p className="text-lg text-gray-600 mb-8">Step 2 of 3: Review and edit the property information</p>
               
-              {/* Progress bar */}
+              {/* Enhanced Progress bar */}
               <div className="max-w-md mx-auto">
-                <div className="flex justify-between text-sm text-gray-600 mb-3">
+                <div className="flex justify-between text-sm font-medium text-gray-600 mb-3">
                   <span>Completion</span>
-                  <span className="font-medium">{Math.round(completionPercentage)}%</span>
+                  <span className="text-gray-900">{Math.round(completionPercentage)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                   <div
-                    className="bg-gray-900 h-2 rounded-full transition-all duration-500 ease-out"
+                    className="bg-gradient-to-r from-gray-800 to-gray-900 h-3 rounded-full transition-all duration-700 ease-out shadow-sm"
                     style={{ width: `${completionPercentage}%` }}
                   ></div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {completionPercentage === 100 ? 'Ready to generate!' : 'Fill all required fields to continue'}
+                </p>
               </div>
             </div>
           </div>
@@ -459,19 +462,26 @@ export default function GenerateListing() {
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       Property Type *
                     </label>
-                    <select
-                      name="propertyType"
-                      value={propertyDetails.propertyType}
-                      onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
-                      required
-                    >
-                      <option value="Single Family">Single Family</option>
-                      <option value="Townhouse">Townhouse</option>
-                      <option value="Condo">Condo</option>
-                      <option value="Multi-Family">Multi-Family</option>
-                      <option value="Land">Land</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        name="propertyType"
+                        value={propertyDetails.propertyType}
+                        onChange={handlePropertyChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 bg-white appearance-none cursor-pointer shadow-sm"
+                        required
+                      >
+                        <option value="Single Family">Single Family</option>
+                        <option value="Townhouse">Townhouse</option>
+                        <option value="Condo">Condo</option>
+                        <option value="Multi-Family">Multi-Family</option>
+                        <option value="Land">Land</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -573,8 +583,8 @@ export default function GenerateListing() {
                     name="features"
                     value={propertyDetails.features}
                     onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none shadow-sm"
+                    rows={6}
                     placeholder="Updated kitchen, hardwood floors, two-car garage..."
                     required
                   />
@@ -588,8 +598,8 @@ export default function GenerateListing() {
                     name="description"
                     value={propertyDetails.description}
                     onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                    rows={6}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none shadow-sm"
+                    rows={8}
                     placeholder="Market insights and property description..."
                   />
                 </div>
@@ -662,8 +672,26 @@ export default function GenerateListing() {
               </div>
             </div>
 
+            {/* Professional Disclaimer */}
+            <div className="bg-blue-50 rounded-2xl border border-blue-200 p-6">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2">AI-Generated Content Notice</h4>
+                  <p className="text-sm text-blue-800 leading-relaxed">
+                    This content is AI-generated for reference only. Please verify all property details, market data, and pricing information before use. 
+                    Add your professional expertise and local market knowledge to ensure accuracy and compliance with your local MLS requirements.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Submit Button */}
-            <div className="flex space-x-4 pt-8">
+            <div className="flex space-x-4 pt-4">
               <button
                 type="button"
                 onClick={() => setStep(1)}
