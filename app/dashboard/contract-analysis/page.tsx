@@ -219,6 +219,47 @@ export default function ContractAnalysis() {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error' | 'warning'} | null>(null);
+  const [usageInfo, setUsageInfo] = useState<{currentUsage: number, monthlyLimit: number, plan: string} | null>(null);
+
+  // Fetch usage information on component mount
+  useEffect(() => {
+    const fetchUsageInfo = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        // Get user's subscription
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('plan_id')
+          .eq('user_id', session.user.id)
+          .eq('status', 'active')
+          .single();
+
+        const userPlan = subscription?.plan_id || 'free';
+
+        // Get monthly usage
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const { data: monthlyContracts } = await supabase
+          .from('contracts')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .gte('created_at', startOfMonth.toISOString());
+
+        const currentUsage = monthlyContracts?.length || 0;
+        const monthlyLimit = userPlan === 'free' ? 1 : userPlan === 'pro' ? 5 : 999999;
+
+        setUsageInfo({ currentUsage, monthlyLimit, plan: userPlan });
+      } catch (error) {
+        console.error('Error fetching usage info:', error);
+      }
+    };
+
+    fetchUsageInfo();
+  }, []);
 
   const handlePDFAnalysisComplete = async (result: any) => {
     setPdfAnalyzing(false);
@@ -230,6 +271,19 @@ export default function ContractAnalysis() {
       setNotification({
         message: 'Contract analysis completed successfully!',
         type: 'success'
+      });
+      
+      // Update usage info
+      if (usageInfo) {
+        setUsageInfo({
+          ...usageInfo,
+          currentUsage: usageInfo.currentUsage + 1
+        });
+      }
+    } else if (result.upgradeRequired) {
+      setNotification({
+        message: `${result.details} You've used ${result.currentUsage}/${result.monthlyLimit} analyses this month.`,
+        type: 'warning'
       });
     } else {
       setNotification({
@@ -326,9 +380,36 @@ export default function ContractAnalysis() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Contract Analysis</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
               Upload your contract and get AI-powered insights in seconds
             </p>
+            
+            {/* Usage Meter */}
+            {usageInfo && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-md mx-auto">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-800">
+                    Monthly Usage ({usageInfo.plan.charAt(0).toUpperCase() + usageInfo.plan.slice(1)} Plan)
+                  </span>
+                  <span className="text-sm text-blue-600">
+                    {usageInfo.currentUsage} / {usageInfo.monthlyLimit === 999999 ? '∞' : usageInfo.monthlyLimit}
+                  </span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    style={{ 
+                      width: usageInfo.monthlyLimit === 999999 ? '20%' : `${Math.min((usageInfo.currentUsage / usageInfo.monthlyLimit) * 100, 100)}%` 
+                    }}
+                  ></div>
+                </div>
+                {usageInfo.plan === 'free' && usageInfo.currentUsage >= usageInfo.monthlyLimit && (
+                  <p className="text-sm text-orange-600 mt-2">
+                    You've reached your monthly limit. <a href="/dashboard/subscription" className="underline">Upgrade your plan</a> for more analyses.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Contract Type Selection */}

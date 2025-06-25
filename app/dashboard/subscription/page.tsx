@@ -100,39 +100,49 @@ export default function Subscription() {
     
     setProcessingPayment(true);
     
-    // Simulate payment processing
-    setTimeout(async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          return;
-        }
-        
-        // Update subscription in database
-        const { error } = await supabase
-          .from('subscriptions')
-          .upsert({
-            user_id: session.user.id,
-            plan_id: planId,
-            status: 'active',
-            start_date: new Date().toISOString(),
-            // In a real app, you would include more details like payment info, end date, etc.
-          });
-        
-        if (error) {
-          console.error('Error updating subscription:', error);
-          alert('Failed to update subscription. Please try again.');
-        } else {
-          setCurrentPlan(planId);
-        }
-      } catch (error) {
-        console.error('Error processing subscription:', error);
-        alert('An unexpected error occurred. Please try again.');
-      } finally {
-        setProcessingPayment(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        alert('Please log in to subscribe');
+        return;
       }
-    }, 1500);
+
+      // Call the edge function instead of direct database update
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-subscription`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planId }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create subscription');
+      }
+
+      // If it's a free plan, update locally
+      if (planId === 'free') {
+        setCurrentPlan(planId);
+        alert('Successfully switched to free plan!');
+      } else {
+        // For paid plans, redirect to Stripe checkout
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      }
+
+    } catch (error) {
+      console.error('Error processing subscription:', error);
+      alert(`Failed to process subscription: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setProcessingPayment(false);
+    }
   };
 
   if (loading) {

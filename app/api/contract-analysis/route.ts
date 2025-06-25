@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
     // Get user from Authorization header or session
     const authHeader = request.headers.get('authorization');
     let userId: string;
+    let userPlan = 'free'; // Default to free plan
 
     if (authHeader?.startsWith('Bearer ')) {
       // Extract token and get user
@@ -70,6 +71,16 @@ export async function POST(request: NextRequest) {
         );
       }
       userId = user.id;
+      
+      // Check user's subscription plan
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan_id')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .single();
+      
+      userPlan = subscription?.plan_id || 'free';
     } else {
       // Generate a valid UUID for anonymous users instead of hardcoded string
       userId = crypto.randomUUID();
@@ -89,6 +100,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check usage limits for free users
+    if (userPlan === 'free') {
+      // Count contracts analyzed this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const { data: monthlyContracts, error: countError } = await supabase
+        .from('contracts')
+        .select('id')
+        .eq('user_id', userId)
+        .gte('created_at', startOfMonth.toISOString());
+      
+      if (countError) {
+        console.warn('[Contract Analysis API] Could not check usage limits:', countError);
+      } else if (monthlyContracts && monthlyContracts.length >= 1) {
+        return NextResponse.json({
+          error: 'Monthly limit reached',
+          details: 'Free users can analyze 1 contract per month. Upgrade to Pro for 5 analyses or Business for unlimited.',
+          upgradeRequired: true,
+          currentUsage: monthlyContracts.length,
+          monthlyLimit: 1
+        }, { status: 429 });
+      }
+    }
+
     // Validate contract type
     const validTypes: ContractType[] = ['purchase', 'listing', 'lease'];
     if (!validTypes.includes(contractType)) {
@@ -98,7 +135,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[Contract Analysis API] Starting ${contractType} analysis for user ${userId}`);
+    console.log(`[Contract Analysis API] Starting ${contractType} analysis for user ${userId} (${userPlan} plan)`);
 
     // Sanitize the input text for analysis
     const sanitizedText = sanitizeForPostgres(contractText);
