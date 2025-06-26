@@ -56,69 +56,28 @@ export async function analyzePDFContract(
     // Add user ID if logged in
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (user) {
-      formData.append('user_id', user.id);
+      formData.append('userId', user.id);
       console.log(`[PDF Upload] Adding user ID to request: ${user.id}`);
     } else {
       console.log(`[PDF Upload] No user found, proceeding without user ID`);
     }
     
-    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Supabase Edge Function`);
+    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) directly to Next.js API`);
     
-    // Get auth session for edge function
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log(`[PDF Upload] Session available: ${!!session?.access_token}`);
+    // Go directly to Next.js API route (bypassing edge function completely)
+    const response = await fetch('/api/contract-analysis-pdf', {
+      method: 'POST',
+      body: formData,
+    });
     
-    // Call Supabase Edge Function
-    try {
-      const { data, error } = await supabase.functions.invoke('Contract-Analysis', {
-        body: formData,
-        headers: session?.access_token ? {
-          'Authorization': `Bearer ${session.access_token}`,
-        } : {}
-      });
-      
-      console.log(`[PDF Upload] Edge function response:`, { 
-        success: !!data, 
-        hasError: !!error, 
-        errorMessage: error?.message 
-      });
-      
-      if (error) {
-        console.error(`[PDF Upload] Edge function error:`, error);
-        throw new Error(`Edge function failed: ${error.message}`);
-      }
-      
-      if (!data) {
-        throw new Error('No data received from edge function');
-      }
-      
-      if (!data.success) {
-        throw new Error(data.error || 'PDF analysis failed in edge function');
-      }
-      
-      console.log(`[PDF Upload] Analysis completed successfully via edge function`);
-      return data;
-      
-    } catch (edgeError) {
-      console.error(`[PDF Upload] Edge function invocation failed:`, edgeError);
-      
-      // Fallback to Next.js API if edge function fails
-      console.log(`[PDF Upload] Falling back to Next.js API route`);
-      
-      const response = await fetch('/api/contract-analysis-pdf', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Both edge function and API route failed');
-      }
-      
-      console.log(`[PDF Upload] Analysis completed successfully via API fallback`);
-      return result;
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.error || 'PDF analysis failed');
     }
+    
+    console.log(`[PDF Upload] Analysis completed successfully via Next.js API`);
+    return result;
     
   } catch (error) {
     console.error('[PDF Upload] Error analyzing PDF:', error);

@@ -1,20 +1,17 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDropzone } from 'react-dropzone';
-import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey, FiEye, FiClipboard, FiUsers, FiLoader } from 'react-icons/fi';
-import { extractTextFromTextFile, isTextFile } from '@/lib/ocr';
+import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey } from 'react-icons/fi';
 import { analyzePDFContract, isPDFFile, formatFileSize, getUploadMessage } from '@/lib/pdf-upload';
 import { supabase } from '@/lib/supabase';
 import LeaseContractCard from '@/components/contract-cards/LeaseContractCard';
 import PurchaseContractCard from '@/components/contract-cards/PurchaseContractCard';
 import ListingContractCard from '@/components/contract-cards/ListingContractCard';
 
-// Contract type definition
 type ContractType = 'purchase' | 'listing' | 'lease';
 
-// Contract type configuration
+// Beautiful contract type configuration (restored)
 const CONTRACT_TYPES = {
   purchase: {
     id: 'purchase' as ContractType,
@@ -48,58 +45,13 @@ const CONTRACT_TYPES = {
   }
 };
 
-// Utility to create readable summary from extracted data
-function formatAnalysisSummary(extractedData: any, contractType: ContractType, confidence: number): string {
-  const contractTypeName = CONTRACT_TYPES[contractType].name;
-  
-  let summary = `${contractTypeName} Analysis Summary\n`;
-  summary += `Confidence Score: ${confidence}%\n`;
-  summary += `Generated: ${new Date().toLocaleString()}\n\n`;
-  
-  // Format the extracted data into readable text
-  Object.entries(extractedData).forEach(([key, value]) => {
-    const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    summary += `${formattedKey}:\n`;
-    
-    if (value === null || value === undefined) {
-      summary += '  Not specified\n\n';
-    } else if (typeof value === 'object') {
-      summary += `  ${JSON.stringify(value, null, 2).replace(/[{}",]/g, '').trim()}\n\n`;
-    } else {
-      summary += `  ${value}\n\n`;
-    }
-  });
-  
-  return summary;
-}
-
-// Utility to sanitize strings for Postgres
-function sanitizeForPostgres(input: string): string {
-  if (!input) return '';
-  
-  // First pass: Remove all null bytes (\u0000) which cause Postgres errors
-  let sanitized = input.replace(/\u0000/g, '');
-  
-  // Second pass: Replace other control characters except common whitespace
-  sanitized = sanitized.replace(/[\u0001-\u001F\u007F-\u009F]/g, (c) => {
-    // Keep newlines, tabs, and carriage returns
-    if (c === '\n' || c === '\r' || c === '\t') return c;
-    return '';
-  });
-  
-  return sanitized;
-}
-
-// Premium Loading Component
+// Beautiful Premium Loading Component (restored)
 function PremiumLoader({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative">
-        {/* Outer ring */}
         <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-        {/* Inner spinning ring */}
         <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        {/* Center dot */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full"></div>
       </div>
       <div className="mt-6 text-center">
@@ -110,7 +62,7 @@ function PremiumLoader({ message }: { message: string }) {
   );
 }
 
-// PDF Upload Zone Component
+// Beautiful PDF Upload Zone with Drag & Drop (restored)
 interface PDFUploadZoneProps {
   contractType: ContractType | null;
   onAnalysisComplete: (result: any) => void;
