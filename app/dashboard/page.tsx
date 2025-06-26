@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
-import { FiPlus, FiFileText, FiBarChart2, FiTrendingUp, FiArrowRight, FiMail } from 'react-icons/fi';
+import { FiPlus, FiFileText, FiBarChart2, FiTrendingUp, FiArrowRight, FiMail, FiHome } from 'react-icons/fi';
 
 interface Listing {
   id: string;
@@ -17,11 +18,19 @@ interface Contract {
   created_at: string;
 }
 
+interface PropertyValuation {
+  id: string;
+  address: string;
+  created_at: string;
+}
+
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [valuations, setValuations] = useState<PropertyValuation[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -44,9 +53,7 @@ export default function Dashboard() {
         
         if (listingsError) {
           console.error('Error fetching listings:', listingsError);
-          console.log('User ID used for query:', session.user.id);
         } else {
-          console.log('Listings fetched successfully:', listingsData);
           setListings(listingsData || []);
         }
         
@@ -60,10 +67,22 @@ export default function Dashboard() {
         
         if (contractsError) {
           console.error('Error fetching contracts:', contractsError);
-          console.log('User ID used for query:', session.user.id);
         } else {
-          console.log('Contracts fetched successfully:', contractsData);
           setContracts(contractsData || []);
+        }
+
+        // Fetch user's property valuations
+        const { data: valuationsData, error: valuationsError } = await supabase
+          .from('property_valuations')
+          .select('id, address, created_at')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (valuationsError) {
+          console.error('Error fetching valuations:', valuationsError);
+        } else {
+          setValuations(valuationsData || []);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -74,6 +93,10 @@ export default function Dashboard() {
     
     fetchUserData();
   }, []);
+
+  const handleListingClick = (listingId: string) => {
+    router.push(`/dashboard/listings/${listingId}`);
+  };
 
   if (loading) {
     return (
@@ -151,8 +174,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Clean Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+      {/* Enhanced Stats Cards - Now 3 Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
           <div className="flex items-center justify-between mb-6">
             <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -174,121 +197,22 @@ export default function Dashboard() {
           <p className="text-4xl font-bold text-gray-900 mb-2">{contracts.length}</p>
           <p className="text-gray-500">Risk-free decisions</p>
         </div>
-      </div>
 
-      {/* Clean Feature Cards */}
-      <div className="mb-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-            Your AI-Powered Arsenal
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Everything you need to dominate your market, close deals faster, and earn more commissions
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Contract Analysis Feature */}
-          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-              <FiFileText className="h-8 w-8 text-black" />
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FiHome className="h-8 w-8 text-black" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Contract Analysis</h3>
-            <p className="text-gray-600 mb-8 leading-relaxed">
-              Upload any contract and get instant AI analysis. Spot red flags, hidden clauses, and negotiate with confidence.
-            </p>
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>3-second analysis time</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>99.7% accuracy rate</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Risk scoring included</span>
-              </div>
-            </div>
-            <Link 
-              href="/dashboard/contract-analysis"
-              className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Try It Now
-              <FiArrowRight className="h-4 w-4" />
-            </Link>
           </div>
-          
-          {/* Property Valuation Feature */}
-          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-              <FiTrendingUp className="h-8 w-8 text-black" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Property Valuation</h3>
-            <p className="text-gray-600 mb-8 leading-relaxed">
-              Get market-accurate property valuations with confidence scores, comparable sales, and market insights.
-            </p>
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Real-time market data</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Confidence scoring</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Comparable sales analysis</span>
-              </div>
-            </div>
-            <Link 
-              href="/dashboard/property-valuation"
-              className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Get Valuation
-              <FiArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          {/* Listing Generation Feature */}
-          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-              <FiPlus className="h-8 w-8 text-black" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Listing Generation</h3>
-            <p className="text-gray-600 mb-8 leading-relaxed">
-              Create compelling, high-converting property listings that sell faster and for more money.
-            </p>
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>SEO-optimized content</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Proven templates</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
-                <span>Higher conversion rates</span>
-              </div>
-            </div>
-            <Link 
-              href="/dashboard/generate-listing"
-              className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Create Listing
-              <FiArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Property Valuations</h3>
+          <p className="text-4xl font-bold text-gray-900 mb-2">{valuations.length}</p>
+          <p className="text-gray-500">Market insights</p>
         </div>
       </div>
 
       {/* Clean Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Listings */}
+        {/* Recent Listings - Now Clickable */}
         <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900">Recent Listings</h2>
@@ -305,13 +229,17 @@ export default function Dashboard() {
           {listings.length > 0 ? (
             <div className="space-y-4">
               {listings.map((listing) => (
-                <div key={listing.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors duration-300 hover:scale-[1.02]">
+                <div 
+                  key={listing.id} 
+                  onClick={() => handleListingClick(listing.id)}
+                  className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer group"
+                >
                   <div>
-                    <p className="font-semibold text-gray-900">{listing.title}</p>
+                    <p className="font-semibold text-gray-900 group-hover:text-black transition-colors">{listing.title}</p>
                     <p className="text-sm text-gray-500 mt-1">{formatDate(listing.created_at)}</p>
                   </div>
-                  <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
-                    <FiArrowRight className="h-5 w-5 text-gray-600" />
+                  <div className="w-10 h-10 bg-gray-200 group-hover:bg-gray-300 rounded-xl flex items-center justify-center transition-all">
+                    <FiArrowRight className="h-5 w-5 text-gray-600 group-hover:text-black group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               ))}
