@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f0f"/>
+      <stop offset="50%" style="stop-color:#1a1a1a"/>
+      <stop offset="100%" style="stop-color:#000000"/>
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f8f9fa"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Grid pattern overlay -->
+  <defs>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#333" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  
+  <!-- Main content card -->
+  <rect x="60" y="60" width="1080" height="510" rx="24" fill="url(#cardGradient)" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Logo area -->
+  <circle cx="150" cy="150" r="35" fill="#000000"/>
+  <path d="M125 150 L150 130 L175 150 L175 170 L125 170 Z" fill="#ffffff"/>
+  <circle cx="140" cy="140" r="3" fill="#4ade80"/>
+  <circle cx="160" cy="140" r="3" fill="#3b82f6"/>
+  <circle cx="150" cy="135" r="3" fill="#8b5cf6"/>
+  
+  <!-- Main heading -->
+  <text x="220" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="800" fill="#000000">
+    AI Real Estate Helper
+  </text>
+  
+  <!-- Subheading -->
+  <text x="220" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#666666">
+    Professional AI Tools for Real Estate Success
+  </text>
+  
+  <!-- Feature cards -->
+  <g>
+    <!-- Contract Analysis -->
+    <rect x="100" y="250" width="300" height="120" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <circle cx="140" cy="285" r="12" fill="#1e40af"/>
+    <path d="M134 285 L140 279 L146 285 L146 291 L134 291 Z" fill="#ffffff" transform="scale(0.6) translate(40, 40)"/>
+    <text x="170" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#1e293b">
+      Contract Analysis
+    </text>
+    <text x="170" y="305" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      AI-powered contract review
+    </text>
+    <text x="170" y="325" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      Risk assessment &amp; insights
+    </text>
+  </g>
+  
+  <g>
+    <!-- Property Valuation -->
+    <rect x="450" y="250" width="300" height="120" rx="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+    <circle cx="490" cy="285" r="12" fill="#16a34a"/>
+    <path d="M484 291 L490 279 L496 291" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <text x="520" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#1e293b">
+      Property Valuation
+    </text>
+    <text x="520" y="305" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      Instant market analysis
+    </text>
+    <text x="520" y="325" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      Comparable sales data
+    </text>
+  </g>
+  
+  <g>
+    <!-- Listing Generation -->
+    <rect x="800" y="250" width="300" height="120" rx="16" fill="#fefce8" stroke="#fde047" stroke-width="1"/>
+    <circle cx="840" cy="285" r="12" fill="#ca8a04"/>
+    <rect x="834" y="279" width="12" height="12" rx="2" fill="#ffffff"/>
+    <text x="870" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#1e293b">
+      Listing Generation
+    </text>
+    <text x="870" y="305" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      Compelling descriptions
+    </text>
+    <text x="870" y="325" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+      Social media content
+    </text>
+  </g>
+  
+  <!-- Bottom stats -->
+  <text x="100" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#059669">
+    ✓ High Accuracy Rate
+  </text>
+  <text x="300" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#059669">
+    ✓ Trusted by Professionals
+  </text>
+  <text x="550" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#059669">
+    ✓ Save Hours Daily
+  </text>
+  
+  <!-- Call to action -->
+  <rect x="800" y="460" width="200" height="50" rx="25" fill="#000000"/>
+  <text x="900" y="485" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">
+    Try Free Today
+  </text>
+  
+  <!-- Website URL -->
+  <text x="600" y="550" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500" fill="#666666" text-anchor="middle">
+    airealestatehelper.com
+  </text>
+</svg> 

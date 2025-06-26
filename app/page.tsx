@@ -28,6 +28,67 @@ import {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Additional JSON-LD for HomePage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "AI Real Estate Helper",
+            "url": "https://airealestatehelper.com",
+            "logo": "https://airealestatehelper.com/favicon.svg",
+            "description": "Revolutionary AI-powered real estate tools trusted by 1000+ agents. Get instant contract analysis, property valuations & viral-worthy listings.",
+            "foundingDate": "2024",
+            "founders": [
+              {
+                "@type": "Person",
+                "name": "Tucker Carlile"
+              }
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "email": "tucker@carlileadvisors.com",
+              "contactType": "Customer Support"
+            },
+            "sameAs": [
+              "https://twitter.com/airealestatehelper",
+              "https://linkedin.com/company/airealestatehelper"
+            ],
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "AI Real Estate Tools",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "AI Contract Analysis",
+                    "description": "Lightning-fast contract analysis with high accuracy rate"
+                  }
+                },
+                {
+                  "@type": "Offer", 
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Property Valuation",
+                    "description": "Expert-level property valuations in under 30 seconds"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service", 
+                    "name": "Listing Generation",
+                    "description": "Complete property research with compelling descriptions"
+                  }
+                }
+              ]
+            }
+          })
+        }}
+      />
+      
       {/* Navigation */}
       <Navigation />
 

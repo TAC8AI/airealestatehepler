@@ -85,4 +85,27 @@ Allow: /
 Allow: /dashboard/contract-analysis
 Allow: /dashboard/property-valuation
 Allow: /dashboard/generate-listing
-Crawl-delay: 1 
+Crawl-delay: 1
+
+# Social media bots for rich previews
+User-agent: facebookexternalhit/1.1
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Block potentially harmful bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: / 
