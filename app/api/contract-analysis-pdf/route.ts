@@ -138,7 +138,8 @@ export async function POST(request: NextRequest) {
             summary: `AI analysis of ${contractType} contract: ${fileName}`,
             extracted_data: extractedData,
             confidence_score: confidence,
-            original_content: `PDF analysis of ${fileName}`
+            original_content: `PDF analysis of ${fileName}`,
+            file_name: fileName
           })
           .select()
           .single();

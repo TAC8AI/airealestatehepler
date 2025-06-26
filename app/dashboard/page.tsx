@@ -98,6 +98,10 @@ export default function Dashboard() {
     router.push(`/dashboard/listings/${listingId}`);
   };
 
+  const handleValuationClick = (valuationId: string) => {
+    router.push(`/dashboard/property-valuations/${valuationId}`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -261,12 +265,12 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Recent Contract Analysis */}
+        {/* Recent Property Valuations */}
         <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Contract Analysis</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Recent Valuations</h2>
             <Link 
-              href="/dashboard/contract-analysis" 
+              href="/dashboard/property-valuation" 
               className="text-gray-600 hover:text-black flex items-center gap-2 text-sm font-medium transition-colors group"
             >
               <FiPlus className="h-4 w-4" />
@@ -275,16 +279,20 @@ export default function Dashboard() {
             </Link>
           </div>
           
-          {contracts.length > 0 ? (
+          {valuations.length > 0 ? (
             <div className="space-y-4">
-              {contracts.map((contract) => (
-                <div key={contract.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors duration-300 hover:scale-[1.02]">
+              {valuations.map((valuation) => (
+                <div 
+                  key={valuation.id} 
+                  onClick={() => handleValuationClick(valuation.id)}
+                  className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer group"
+                >
                   <div>
-                    <p className="font-semibold text-gray-900">{contract.title}</p>
-                    <p className="text-sm text-gray-500 mt-1">{formatDate(contract.created_at)}</p>
+                    <p className="font-semibold text-gray-900 group-hover:text-black transition-colors">{valuation.address}</p>
+                    <p className="text-sm text-gray-500 mt-1">{formatDate(valuation.created_at)}</p>
                   </div>
-                  <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
-                    <FiArrowRight className="h-5 w-5 text-gray-600" />
+                  <div className="w-10 h-10 bg-gray-200 group-hover:bg-gray-300 rounded-xl flex items-center justify-center transition-all">
+                    <FiArrowRight className="h-5 w-5 text-gray-600 group-hover:text-black group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               ))}
@@ -292,14 +300,14 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-12">
               <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <FiFileText className="h-8 w-8 text-gray-600" />
+                <FiHome className="h-8 w-8 text-gray-600" />
               </div>
-              <p className="text-gray-600 mb-6 text-lg">Analyze your first contract</p>
+              <p className="text-gray-600 mb-6 text-lg">Get your first property valuation</p>
               <Link 
-                href="/dashboard/contract-analysis" 
+                href="/dashboard/property-valuation" 
                 className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
               >
-                Upload Contract
+                Start Valuation
                 <FiArrowRight className="h-4 w-4" />
               </Link>
             </div>
