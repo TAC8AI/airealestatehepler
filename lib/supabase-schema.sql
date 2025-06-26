@@ -586,3 +586,31 @@ CREATE TRIGGER update_listing_agreements_updated_at BEFORE UPDATE ON listing_agr
 
 CREATE TRIGGER update_lease_agreements_updated_at BEFORE UPDATE ON lease_agreements
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create automatic profile creation for future signups
+CREATE OR REPLACE FUNCTION create_user_profile()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, email, created_at, updated_at)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 
+             SPLIT_PART(NEW.email, '@', 1)),
+    NEW.email,
+    NOW(),
+    NOW()
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION create_user_profile();
+
+-- Add RLS policies for contracts table
+CREATE POLICY "Users can insert their own contracts" ON contracts 
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own contracts" ON contracts 
+FOR SELECT USING (auth.uid() = user_id);

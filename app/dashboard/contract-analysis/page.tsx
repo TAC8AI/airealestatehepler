@@ -268,8 +268,17 @@ export default function ContractAnalysis() {
       setExtractedData(result.extractedData);
       setAnalysisResult(result);
       setFile(new File([''], result.fileName || 'contract.pdf', { type: 'application/pdf' }));
+      
+      // Enhanced notification with database save status
+      let message = 'Contract analysis completed successfully!';
+      if (result.savedToDatabase) {
+        message += ' Contract has been saved to your database.';
+      } else if (result.savedToDatabase === false) {
+        message += ' (Note: Contract analysis completed but was not saved to database - you may need to log in)';
+      }
+      
       setNotification({
-        message: 'Contract analysis completed successfully!',
+        message,
         type: 'success'
       });
       
