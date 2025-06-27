@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { supabase } from '@/lib/supabase';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Fixed: Use server-side environment variable
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, // Reverted: Use the key that was working
 });
 
 export async function POST(request: NextRequest) {
