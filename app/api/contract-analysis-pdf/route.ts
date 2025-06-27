@@ -3,21 +3,44 @@ import OpenAI from 'openai';
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, // Reverted: Use the key that was working
-});
+// Debug logging for environment variables
+console.log('[PDF Analysis API] Debug - Environment variables check:');
+console.log('[PDF Analysis API] NEXT_PUBLIC_OPENAI_API_KEY:', process.env.NEXT_PUBLIC_OPENAI_API_KEY ? 'SET' : 'NOT SET');
+console.log('[PDF Analysis API] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'NOT SET');
+console.log('[PDF Analysis API] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
 
-// Create admin Supabase client for server-side operations (bypasses RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // Service role key bypasses RLS
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
+let openai: OpenAI;
+let supabaseAdmin: any;
+
+try {
+  console.log('[PDF Analysis API] Initializing OpenAI client...');
+  openai = new OpenAI({
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, // Reverted: Use the key that was working
+  });
+  console.log('[PDF Analysis API] OpenAI client initialized successfully');
+} catch (error) {
+  console.error('[PDF Analysis API] Failed to initialize OpenAI client:', error);
+  throw error;
+}
+
+try {
+  console.log('[PDF Analysis API] Initializing Supabase admin client...');
+  // Create admin Supabase client for server-side operations (bypasses RLS)
+  supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // Service role key bypasses RLS
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
-  }
-);
+  );
+  console.log('[PDF Analysis API] Supabase admin client initialized successfully');
+} catch (error) {
+  console.error('[PDF Analysis API] Failed to initialize Supabase admin client:', error);
+  throw error;
+}
 
 export async function POST(request: NextRequest) {
   try {
