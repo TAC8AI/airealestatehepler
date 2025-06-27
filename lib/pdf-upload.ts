@@ -53,20 +53,27 @@ export async function analyzePDFContract(
     formData.append('contractType', contractType);
     formData.append('fileName', file.name);
     
-    // Add user ID if logged in
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (user) {
-      formData.append('userId', user.id);
-      console.log(`[PDF Upload] Adding user ID to request: ${user.id}`);
-    } else {
-      console.log(`[PDF Upload] No user found, proceeding without user ID`);
+    // Get user session for authentication
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('Please log in to use contract analysis');
     }
     
-    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) directly to Next.js API`);
+    // Add user ID to form data
+    formData.append('userId', session.user.id);
+    console.log(`[PDF Upload] Adding user ID to request: ${session.user.id}`);
     
-    // Go directly to Next.js API route (bypassing edge function completely)
-    const response = await fetch('/api/contract-analysis-pdf', {
+    console.log(`[PDF Upload] Sending ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) to Supabase Edge Function`);
+    
+    // Call Supabase Edge Function
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const functionUrl = `${supabaseUrl}/functions/v1/Contract-Analysis`;
+    
+    const response = await fetch(functionUrl, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
       body: formData,
     });
     
@@ -76,7 +83,7 @@ export async function analyzePDFContract(
       throw new Error(result.error || 'PDF analysis failed');
     }
     
-    console.log(`[PDF Upload] Analysis completed successfully via Next.js API`);
+    console.log(`[PDF Upload] Analysis completed successfully via Supabase Edge Function`);
     return result;
     
   } catch (error) {
@@ -86,7 +93,7 @@ export async function analyzePDFContract(
       success: false,
       extractedData: {},
       confidence: 0,
-      analysisMethod: 'GPT-4o Files API (Failed)',
+      analysisMethod: 'GPT-4o Files API v2 - Edge Function (Failed)',
       fileName: file.name,
       contractType,
       processingTime: Date.now(),
