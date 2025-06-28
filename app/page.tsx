@@ -126,6 +126,96 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Value Anchor Section */}
+      <section className="py-24 px-6 md:px-10 bg-gradient-to-b from-gray-900 to-black text-white">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            Stop Paying $150/Hour for What AI Can Do in 30 Seconds
+          </h2>
+          <p className="text-xl text-gray-300 mb-16 max-w-4xl mx-auto leading-relaxed">
+            See how much you're overpaying for basic real estate tasks
+          </p>
+          
+          <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/10">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="pb-6 text-lg font-semibold text-gray-300">Task</th>
+                    <th className="pb-6 text-lg font-semibold text-gray-300 text-center">Manual Cost</th>
+                    <th className="pb-6 text-lg font-semibold text-gray-300 text-center">With AI Helper</th>
+                    <th className="pb-6 text-lg font-semibold text-gray-300 text-center">You Save</th>
+                  </tr>
+                </thead>
+                <tbody className="text-lg">
+                  <tr className="border-b border-white/10">
+                    <td className="py-6">
+                      <div className="font-semibold text-white mb-1">Property Appraisal/Valuation</div>
+                      <div className="text-sm text-gray-400">Professional market analysis</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-red-400 text-xl">$357</div>
+                      <div className="text-sm text-gray-400">per appraisal</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">✓ Included</div>
+                      <div className="text-sm text-gray-400">30 seconds</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">$357</div>
+                      <div className="text-sm text-gray-400">each time</div>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-white/10">
+                    <td className="py-6">
+                      <div className="font-semibold text-white mb-1">Listing Copywriting</div>
+                      <div className="text-sm text-gray-400">Professional descriptions & content</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-red-400 text-xl">$25-55</div>
+                      <div className="text-sm text-gray-400">per listing</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">✓ Included</div>
+                      <div className="text-sm text-gray-400">2 minutes</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">$40</div>
+                      <div className="text-sm text-gray-400">average</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-6">
+                      <div className="font-semibold text-white mb-1">Contract Analysis</div>
+                      <div className="text-sm text-gray-400">Paralegal review & abstraction</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-red-400 text-xl">$75-150</div>
+                      <div className="text-sm text-gray-400">per hour</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">✓ Included</div>
+                      <div className="text-sm text-gray-400">30 seconds</div>
+                    </td>
+                    <td className="py-6 text-center">
+                      <div className="font-bold text-green-400 text-xl">$112</div>
+                      <div className="text-sm text-gray-400">average</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-white/20">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-400 mb-2">$500+ Saved</div>
+                <div className="text-lg text-gray-300">On just one property deal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Demo Cards Section */}
       <section className="py-24 px-6 md:px-10 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto">
