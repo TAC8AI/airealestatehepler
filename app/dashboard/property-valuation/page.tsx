@@ -1,9 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FiTrendingUp, FiMapPin, FiSearch, FiDollarSign, FiAlertTriangle, FiLoader, FiCheck, FiBarChart2, FiInfo } from 'react-icons/fi';
+import { 
+  FiTrendingUp, FiMapPin, FiSearch, FiDollarSign, FiAlertTriangle, 
+  FiLoader, FiCheck, FiBarChart2, FiInfo, FiActivity, FiAward, 
+  FiCalendar, FiTarget, FiStar, FiBookOpen, FiZap
+} from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
 
+// Updated to match your current edge function output
 interface SoldComp {
   addr: string;
   sold: string;
@@ -26,10 +31,6 @@ interface ValuationResult {
   micro_drivers: string[];
   agent_action_steps: string[];
   limitations: string;
-  // Legacy fields for backward compatibility
-  reasoning?: string;
-  caution?: string;
-  confidence_score?: number;
 }
 
 export default function PropertyValuation() {
@@ -37,6 +38,14 @@ export default function PropertyValuation() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ValuationResult | null>(null);
   const [error, setError] = useState('');
+
+  const hasValidMetrics = (keyNumbers: any) => {
+    if (!keyNumbers) return false;
+    return keyNumbers.price_per_sqft_subject > 0 || 
+           keyNumbers.zip_median_ppsf > 0 || 
+           keyNumbers.days_on_market_median > 0 || 
+           keyNumbers.months_of_supply > 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,9 +59,7 @@ export default function PropertyValuation() {
     setResult(null);
 
     try {
-      // Always use Supabase Edge Function
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session:', session?.user?.email || 'No session');
       
       if (!session) {
         throw new Error('Please log in to use this feature');
@@ -60,7 +67,6 @@ export default function PropertyValuation() {
       
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const functionUrl = `${supabaseUrl}/functions/v1/Property-Valuations`;
-      console.log('Calling edge function at:', functionUrl);
       
       const response = await fetch(functionUrl, {
         method: 'POST',
@@ -70,18 +76,13 @@ export default function PropertyValuation() {
         },
         body: JSON.stringify({ address: address.trim() }),
       });
-      
-      console.log('Edge function response status:', response.status);
-      console.log('Edge function response headers:', response.headers);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Response error:', errorText);
         throw new Error(`Failed to analyze property: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('Response data:', data);
       setResult(data);
     } catch (error) {
       console.error('Error analyzing property:', error);
@@ -98,8 +99,8 @@ export default function PropertyValuation() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-6xl mx-auto">
         {/* Clean Header */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
@@ -108,14 +109,19 @@ export default function PropertyValuation() {
             </div>
             <div>
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Property Valuation Analysis</h1>
-              <p className="text-lg text-gray-600 mt-1">Get comprehensive market analysis and valuation insights for any property</p>
+              <p className="text-lg text-gray-600 mt-1">Professional-grade property analysis powered by AI</p>
             </div>
           </div>
         </div>
 
         {!result ? (
-          /* Input Form */
+          /* Clean Input Form */
           <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Generate Market Intelligence Report</h2>
+              <p className="text-gray-600">Get comprehensive market analysis worth $300+ in 30 seconds</p>
+            </div>
+            
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
                 <label htmlFor="address" className="block text-lg font-bold text-gray-900 mb-4">
@@ -153,78 +159,148 @@ export default function PropertyValuation() {
                 {loading ? (
                   <>
                     <FiLoader className="h-5 w-5 animate-spin" />
-                    Analyzing Property...
+                    Generating Intelligence Report...
                   </>
                 ) : (
                   <>
                     <FiSearch className="h-5 w-5" />
-                    Analyze Property Value
+                    Generate Market Intelligence Report
                   </>
                 )}
               </button>
             </form>
           </div>
         ) : (
-          /* Results Display */
+          /* Clean Results Display */
           <div className="space-y-8">
-            {/* Address Header */}
-            <div className="bg-gradient-to-r from-black to-gray-800 text-white rounded-3xl p-8 shadow-lg">
-              <div className="flex items-center gap-3 mb-2">
-                <FiMapPin className="h-6 w-6" />
-                <h2 className="text-2xl font-bold">Property Analysis Results</h2>
-              </div>
-              <p className="text-gray-200 text-lg">{address}</p>
-            </div>
-
-            {/* Headline Range Card */}
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10 text-center">
-              <h2 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-                {result.headline_range}
-              </h2>
-              <p className="text-lg text-gray-600">
-                Confidence: {(result.confidence_0to1 * 100).toFixed(0)}%
-              </p>
-            </div>
-
-            {/* Key Numbers Grid */}
-            {result.key_numbers && (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-3xl font-bold text-gray-900 mb-2">${result.key_numbers.price_per_sqft_subject}</p>
-                  <p className="text-sm font-semibold text-gray-600">Price/SqFt Subject</p>
+            {/* 1. Hero Section - Clean Black Header */}
+            <div className="bg-black text-white rounded-3xl p-8 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiAward className="h-6 w-6" />
+                    <h2 className="text-2xl font-bold">Market Valuation Analysis</h2>
+                  </div>
+                  <p className="text-gray-300 text-lg">{address}</p>
                 </div>
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-3xl font-bold text-gray-900 mb-2">${result.key_numbers.zip_median_ppsf}</p>
-                  <p className="text-sm font-semibold text-gray-600">ZIP Median PPSF</p>
-                </div>
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-3xl font-bold text-gray-900 mb-2">{result.key_numbers.days_on_market_median}</p>
-                  <p className="text-sm font-semibold text-gray-600">Days on Market</p>
-                </div>
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-shadow duration-300">
-                  <p className="text-3xl font-bold text-gray-900 mb-2">{result.key_numbers.months_of_supply}</p>
-                  <p className="text-sm font-semibold text-gray-600">Months of Supply</p>
+                <div className="text-right">
+                  <p className="text-gray-300 text-sm">Analysis Confidence</p>
+                  <p className="text-3xl font-bold">{(result.confidence_0to1 * 100).toFixed(0)}%</p>
                 </div>
               </div>
-            )}
+              
+              <div className="text-center">
+                <h3 className="text-5xl font-bold mb-2 tracking-tight">
+                  {result.headline_range}
+                </h3>
+                <p className="text-xl text-gray-300">Estimated Market Value</p>
+              </div>
+            </div>
 
-            {/* Sold Comparables Table */}
+            {/* 2. Market Intelligence Narrative - THE STAR */}
+            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-10">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 p-3 bg-gray-100 rounded-xl mb-4">
+                  <FiBookOpen className="h-6 w-6 text-black" />
+                  <h2 className="text-2xl font-bold text-gray-900">Market Intelligence Report</h2>
+                </div>
+                <p className="text-gray-600">AI-powered analysis of current market conditions and trends</p>
+              </div>
+
+              <div className="space-y-8">
+                {result.market_context && (
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <FiActivity className="h-5 w-5 text-black" />
+                      Market Overview & Trends
+                    </h3>
+                    <div className="bg-gray-50 p-6 rounded-xl border-l-4 border-black">
+                      <p className="text-gray-800 leading-relaxed text-lg whitespace-pre-wrap">{result.market_context}</p>
+                    </div>
+                  </div>
+                )}
+
+                {result.active_comp_summary && (
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <FiTarget className="h-5 w-5 text-black" />
+                      Current Market Inventory
+                    </h3>
+                    <div className="bg-gray-50 p-6 rounded-xl border-l-4 border-gray-400">
+                      <p className="text-gray-800 leading-relaxed text-lg whitespace-pre-wrap">{result.active_comp_summary}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Strategic Insights - CO-STAR */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Market Drivers */}
+              {result.micro_drivers && result.micro_drivers.length > 0 && (
+                <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center gap-3 p-3 bg-gray-100 rounded-xl mb-4">
+                      <FiZap className="h-6 w-6 text-black" />
+                      <h3 className="text-xl font-bold text-gray-900">Key Market Drivers</h3>
+                    </div>
+                    <p className="text-gray-600">Factors influencing property values in this area</p>
+                  </div>
+                  <ul className="space-y-4">
+                    {result.micro_drivers.map((driver, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="p-2 bg-gray-100 rounded-full mt-1 flex-shrink-0">
+                          <FiTrendingUp className="h-4 w-4 text-black" />
+                        </div>
+                        <span className="text-gray-700 leading-relaxed text-lg">{driver}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Strategic Recommendations */}
+              {result.agent_action_steps && result.agent_action_steps.length > 0 && (
+                <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center gap-3 p-3 bg-gray-100 rounded-xl mb-4">
+                      <FiStar className="h-6 w-6 text-black" />
+                      <h3 className="text-xl font-bold text-gray-900">Strategic Recommendations</h3>
+                    </div>
+                    <p className="text-gray-600">Actionable insights for real estate professionals</p>
+                  </div>
+                  <ul className="space-y-4">
+                    {result.agent_action_steps.map((step, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="p-2 bg-gray-100 rounded-full mt-1 flex-shrink-0">
+                          <FiCheck className="h-4 w-4 text-black" />
+                        </div>
+                        <span className="text-gray-700 leading-relaxed text-lg">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* 4. Sold Comparables - Only if data exists */}
             {result.sold_comps && result.sold_comps.length > 0 && (
               <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <FiBarChart2 className="h-5 w-5 text-black" />
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-3 p-3 bg-gray-100 rounded-xl mb-4">
+                    <FiBarChart2 className="h-6 w-6 text-black" />
+                    <h3 className="text-xl font-bold text-gray-900">Recent Comparable Sales</h3>
                   </div>
-                  Sold Comparables
-                </h3>
+                  <p className="text-gray-600">Similar properties sold in the local market</p>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Address</th>
-                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Sold Date</th>
-                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">PPSF</th>
-                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Adj. Price</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Property Address</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Sale Date</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Price/SqFt</th>
+                        <th className="px-4 py-4 text-left text-sm font-bold text-gray-900">Sale Price</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -233,7 +309,7 @@ export default function PropertyValuation() {
                           <td className="px-4 py-4 text-sm text-gray-900 font-medium">{comp.addr}</td>
                           <td className="px-4 py-4 text-sm text-gray-700">{comp.sold}</td>
                           <td className="px-4 py-4 text-sm text-gray-700">${comp.ppsf}</td>
-                          <td className="px-4 py-4 text-sm text-gray-700">${comp.adj_price.toLocaleString()}</td>
+                          <td className="px-4 py-4 text-sm text-gray-700 font-semibold">${comp.adj_price.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -242,97 +318,56 @@ export default function PropertyValuation() {
               </div>
             )}
 
-            {/* Market Context & Active Comparables Info Box */}
-            {(result.active_comp_summary || result.market_context) && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <FiInfo className="h-5 w-5 text-black" />
-                  </div>
-                  Market Context
-                </h3>
-                <div className="bg-gray-50 p-6 rounded-2xl space-y-6">
-                  {result.market_context && (
-                    <div>
-                      <h4 className="font-bold text-gray-900 mb-3">Market Overview</h4>
-                      <p className="text-gray-700 leading-relaxed">{result.market_context}</p>
+            {/* 5. Market Metrics - Only if valid data exists */}
+            {result.key_numbers && hasValidMetrics(result.key_numbers) && (
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <FiBarChart2 className="h-5 w-5 text-gray-600" />
+                  Market Metrics
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {result.key_numbers.price_per_sqft_subject > 0 && (
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <p className="text-2xl font-bold text-gray-900">${result.key_numbers.price_per_sqft_subject}</p>
+                      <p className="text-sm text-gray-600">Subject PPSF</p>
                     </div>
                   )}
-                  {result.active_comp_summary && (
-                    <div>
-                      <h4 className="font-bold text-gray-900 mb-3">Active Comparables</h4>
-                      <p className="text-gray-700 leading-relaxed">{result.active_comp_summary}</p>
+                  {result.key_numbers.zip_median_ppsf > 0 && (
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <p className="text-2xl font-bold text-gray-900">${result.key_numbers.zip_median_ppsf}</p>
+                      <p className="text-sm text-gray-600">ZIP Median PPSF</p>
+                    </div>
+                  )}
+                  {result.key_numbers.days_on_market_median > 0 && (
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <p className="text-2xl font-bold text-gray-900">{result.key_numbers.days_on_market_median}</p>
+                      <p className="text-sm text-gray-600">Avg Days on Market</p>
+                    </div>
+                  )}
+                  {result.key_numbers.months_of_supply > 0 && (
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <p className="text-2xl font-bold text-gray-900">{result.key_numbers.months_of_supply}</p>
+                      <p className="text-sm text-gray-600">Months Supply</p>
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Side-by-side lists: Micro Drivers & Agent Action Steps */}
-            {(result.micro_drivers || result.agent_action_steps) && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Micro Drivers */}
-                {result.micro_drivers && result.micro_drivers.length > 0 && (
-                  <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <FiTrendingUp className="h-5 w-5 text-black" />
-                      </div>
-                      Market Drivers
-                    </h3>
-                    <ul className="space-y-4">
-                      {result.micro_drivers.map((driver, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <div className="p-1 bg-gray-100 rounded-full mt-1 flex-shrink-0">
-                            <FiCheck className="h-3 w-3 text-black" />
-                          </div>
-                          <span className="text-gray-700 leading-relaxed">{driver}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Agent Action Steps */}
-                {result.agent_action_steps && result.agent_action_steps.length > 0 && (
-                  <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <FiDollarSign className="h-5 w-5 text-black" />
-                      </div>
-                      Action Steps
-                    </h3>
-                    <ul className="space-y-4">
-                      {result.agent_action_steps.map((step, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <div className="p-1 bg-gray-100 rounded-full mt-1 flex-shrink-0">
-                            <FiCheck className="h-3 w-3 text-black" />
-                          </div>
-                          <span className="text-gray-700 leading-relaxed">{step}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Important Considerations */}
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <FiAlertTriangle className="h-5 w-5 text-black" />
-                </div>
-                Important Considerations
-              </h3>
-              <div className="bg-gray-50 p-6 rounded-2xl">
-                <p className="text-gray-700 leading-relaxed text-lg">
-                  {result.limitations || result.caution || "This analysis is based on available market data and should be used as a general guide. Consider getting a professional appraisal for precise valuation."}
+            {/* 6. Transparency Footer */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+              <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FiInfo className="h-5 w-5 text-gray-600" />
+                Analysis Limitations & Disclaimers
+              </h4>
+              <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                <p className="text-amber-800 leading-relaxed">
+                  {result.limitations || "This analysis is based on available market data and AI interpretation. For formal valuations, consult with a licensed real estate professional or certified appraiser."}
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Action Button */}
             <div className="flex justify-center">
               <button
                 onClick={handleNewAnalysis}
