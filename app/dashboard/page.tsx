@@ -26,6 +26,7 @@ interface PropertyValuation {
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [valuations, setValuations] = useState<PropertyValuation[]>([]);
@@ -42,6 +43,19 @@ export default function Dashboard() {
         }
         
         setUser(session.user);
+        
+        // Fetch user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        } else {
+          setProfile(profileData);
+        }
         
         // Fetch user's listings
         const { data: listingsData, error: listingsError } = await supabase
@@ -102,6 +116,14 @@ export default function Dashboard() {
     router.push(`/dashboard/property-valuations/${valuationId}`);
   };
 
+  // Function to get first name from full name
+  const getFirstName = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ')[0];
+    }
+    return 'Deal Closer';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -137,7 +159,7 @@ export default function Dashboard() {
                 Welcome Back,
                 <br />
                 <span className="text-white">
-                  Deal Closer
+                  {getFirstName()}
                 </span>
               </h1>
               
