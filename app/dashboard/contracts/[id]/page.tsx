@@ -199,15 +199,11 @@ export default function ContractDetail() {
 
   const renderContractCard = () => {
     if (!contract?.extracted_data) {
-      console.log('No extracted_data found:', contract?.extracted_data);
       return null;
     }
 
-    console.log('Full extracted_data:', contract.extracted_data);
     const rawData = contract.extracted_data.extractedData || contract.extracted_data;
-    console.log('Raw data for mapping:', rawData);
     const mappedData = mapDataForCard(rawData, contract.contract_type);
-    console.log('Mapped data:', mappedData);
 
     const props = {
       data: mappedData,
