@@ -178,40 +178,43 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Enhanced Stats Cards - Now 3 Cards */}
+      {/* Enhanced Stats Cards - Now Clickable */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+        <Link href="/dashboard/listings" className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
           <div className="flex items-center justify-between mb-6">
             <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <FiBarChart2 className="h-8 w-8 text-black" />
             </div>
+            <FiArrowRight className="h-5 w-5 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
           </div>
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">AI Listings Generated</h3>
           <p className="text-4xl font-bold text-gray-900 mb-2">{listings.length}</p>
           <p className="text-gray-500">Ready to publish</p>
-        </div>
+        </Link>
         
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+        <Link href="/dashboard/contracts" className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
           <div className="flex items-center justify-between mb-6">
             <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <FiFileText className="h-8 w-8 text-black" />
             </div>
+            <FiArrowRight className="h-5 w-5 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
           </div>
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Contracts Analyzed</h3>
           <p className="text-4xl font-bold text-gray-900 mb-2">{contracts.length}</p>
           <p className="text-gray-500">Risk-free decisions</p>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+        <Link href="/dashboard/property-valuations" className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
           <div className="flex items-center justify-between mb-6">
             <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <FiHome className="h-8 w-8 text-black" />
             </div>
+            <FiArrowRight className="h-5 w-5 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
           </div>
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Property Valuations</h3>
           <p className="text-4xl font-bold text-gray-900 mb-2">{valuations.length}</p>
           <p className="text-gray-500">Market insights</p>
-        </div>
+        </Link>
       </div>
 
       {/* Clean Recent Activity */}
