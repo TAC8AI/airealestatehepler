@@ -11,7 +11,8 @@ export type ContractType = 'purchase' | 'listing' | 'lease';
 
 export interface PDFAnalysisResult {
   success: boolean;
-  extractedData: any;
+  data?: any;  // For the frontend response format
+  extractedData?: any;  // For backward compatibility
   confidence: number;
   analysisMethod: string;
   fileName: string;
@@ -84,16 +85,28 @@ export async function analyzePDFContract(
     }
     
     console.log(`[PDF Upload] Analysis completed successfully via Supabase Edge Function`);
-    return result;
+    
+    // Transform the response to match the expected format
+    return {
+      success: result.success,
+      data: result.extractedData,
+      confidence: result.confidence,
+      analysisMethod: result.analysisMethod,
+      fileName: result.fileName,
+      contractType: result.contractType,
+      processingTime: result.processingTime,
+      savedToDatabase: result.savedToDatabase,
+      contractId: result.contractId
+    };
     
   } catch (error) {
     console.error('[PDF Upload] Error analyzing PDF:', error);
     
     return {
       success: false,
-      extractedData: {},
+      data: {},
       confidence: 0,
-      analysisMethod: 'GPT-4o Files API v2 - Edge Function (Failed)',
+      analysisMethod: 'GPT-4o Files API v2 - Supabase Edge Function (Failed)',
       fileName: file.name,
       contractType,
       processingTime: Date.now(),

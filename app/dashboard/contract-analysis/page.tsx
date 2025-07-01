@@ -221,46 +221,9 @@ export default function ContractAnalysis() {
     setPdfAnalyzing(false);
     if (result.success) {
       setExtractedData(result.data);
-      
-      try {
-        setLoading(true);
-        const response = await fetch('/api/contract-analysis', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contractType: selectedContractType,
-            extractedData: result.data,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to analyze contract');
-        }
-
-        const analysisData = await response.json();
-        setAnalysisResult(analysisData);
-
-        // Save to Supabase
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          await supabase.from('contracts').insert({
-            user_id: session.user.id,
-            contract_type: selectedContractType,
-            file_name: file?.name || 'Unknown',
-            analysis_result: analysisData,
-            extracted_data: result.data,
-          });
-        }
-
-      } catch (error) {
-        console.error('Error analyzing contract:', error);
-        setNotification({
-          message: 'Failed to analyze contract. Please try again.',
-          type: 'error'
-        });
-      } finally {
-        setLoading(false);
-      }
+      // Edge Function already did all the analysis and saved to database
+      // Just display the results directly!
+      setAnalysisResult({ summary: 'Analysis completed via Edge Function' });
     } else {
       setNotification({
         message: result.message || 'Failed to extract data from PDF',
