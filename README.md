@@ -181,3 +181,44 @@ To run from source:
 # Go >= 1.22
 go run . help
 ```
+
+# AI Real Estate Helper
+
+A comprehensive AI-powered real estate platform that helps agents and professionals with property valuation, contract analysis, and listing generation.
+
+## Features
+
+- **Property Valuation**: Get instant property value estimates using AI
+- **Contract Analysis**: Upload and analyze real estate contracts with AI-powered insights
+- **Listing Generation**: Create professional property listings with AI assistance
+
+## Recent Updates
+
+- ✨ **New Crisp Contract Analysis Cards**: Redesigned contract analysis with prioritized glassmorphism cards that show the most important information first (property details + price → parties → financial/dates → contingencies)
+- 🎨 **Premium Dark Theme**: Complete UI transformation with glassmorphism design, gradient effects, and professional styling
+- 🔧 **Fixed Contract Analysis**: Resolved UI display issues for seamless contract processing
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Supabase (Database + Authentication + Edge Functions)
+- **AI**: OpenAI GPT-4o for contract analysis and property insights
+- **Deployment**: Vercel
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables (Supabase + OpenAI keys)
+4. Run development server: `npm run dev`
+
+## Contract Analysis Features
+
+The new contract analysis cards prioritize information the way real estate professionals think:
+
+1. **Property Details** (High Priority) - Address and purchase price prominently displayed
+2. **Parties & Professionals** (Medium Priority) - Buyer, seller, agents, title company
+3. **Financial & Important Dates** (Medium Priority) - Earnest money, financing, closing dates
+4. **Contingencies & Conditions** (Low Priority) - All contract conditions and special terms
+
+Each card uses glassmorphism design with proper visual hierarchy and hover effects.
