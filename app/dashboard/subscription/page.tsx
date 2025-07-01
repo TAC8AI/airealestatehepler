@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FiCheck, FiStar, FiMail, FiArrowRight } from 'react-icons/fi';
+import { FiCheck, FiStar, FiMail, FiArrowRight, FiCreditCard, FiUsers, FiZap, FiShield } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
 
 interface Plan {
@@ -147,131 +147,194 @@ export default function Subscription() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-gray-800 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center h-screen">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-white/10 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Premium Header */}
-      <div className="mb-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h1 className="text-4xl font-semibold text-gray-900 mb-4">Subscription</h1>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto p-8">
+        {/* Premium Header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm border border-white/10 rounded-xl">
+              <FiCreditCard className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight">
+                Subscription
+              </h1>
+              <p className="text-lg text-gray-400 mt-1">Choose the perfect plan for your real estate business</p>
+            </div>
+          </div>
           
           {/* Current Plan Status */}
-          <div className="bg-gray-50 rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-2">Current Plan</h2>
-            <p className="text-gray-600">
-              You are currently on the <span className="font-semibold text-gray-900">{plans.find(p => p.id === currentPlan)?.name || 'Free'}</span> plan.
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-3 mb-2">
+              <FiShield className="h-5 w-5 text-green-400" />
+              <h2 className="text-lg font-medium text-white">Current Plan</h2>
+            </div>
+            <p className="text-gray-400">
+              You are currently on the <span className="font-semibold text-white">{plans.find(p => p.id === currentPlan)?.name || 'Free'}</span> plan.
             </p>
           </div>
         </div>
-      </div>
-      
-      {/* Pricing Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        {plans.map((plan) => {
-          const isCurrentPlan = plan.id === currentPlan;
-          
-          return (
-            <div 
-              key={plan.id}
-              className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 group ${
-                plan.isPopular 
-                  ? 'border-gray-300 relative' 
-                  : 'border-gray-200'
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.isPopular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gray-700 text-white px-4 py-1 rounded-lg text-xs font-medium">
-                    Most Popular
-                  </div>
-                </div>
-              )}
-              
-              <div className="p-8">
-                {/* Plan Header */}
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
-                  
-                  <div className="mb-6">
-                    <span className="text-5xl font-semibold text-gray-900">${plan.price}</span>
-                    <span className="text-lg text-gray-500">/{plan.interval}</span>
-                  </div>
-                </div>
-                
-                {/* Features List */}
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-5 h-5 bg-gray-100 rounded-lg flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                        <FiCheck className="h-3 w-3 text-gray-600" />
+        
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {plans.map((plan) => {
+            const isCurrentPlan = plan.id === currentPlan;
+            
+            return (
+              <div 
+                key={plan.id}
+                className={`bg-white/5 backdrop-blur-sm border rounded-3xl p-8 shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl group relative ${
+                  plan.isPopular 
+                    ? 'border-blue-400/50 bg-gradient-to-b from-blue-500/10 to-purple-500/10' 
+                    : 'border-white/10 hover:border-white/20'
+                } ${isCurrentPlan ? 'ring-2 ring-green-400/50' : ''}`}
+              >
+                {/* Popular Badge */}
+                {plan.isPopular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
+                      <div className="flex items-center gap-2">
+                        <FiStar className="h-4 w-4" />
+                        Most Popular
                       </div>
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Current Plan Badge */}
+                {isCurrentPlan && (
+                  <div className="absolute -top-4 right-4">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
+                      <div className="flex items-center gap-2">
+                        <FiCheck className="h-4 w-4" />
+                        Current
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center gap-1 mb-4">
+                    <span className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                      ${plan.price}
+                    </span>
+                    <span className="text-gray-400">/{plan.interval}</span>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="space-y-4 mb-8">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-5 h-5 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center">
+                        <FiCheck className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-300">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Action Button */}
                 <button
                   onClick={() => handleSubscribe(plan.id)}
-                  disabled={isCurrentPlan || processingPayment}
-                  className={`w-full py-4 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 group-hover:scale-105 ${
+                  disabled={processingPayment || isCurrentPlan}
+                  className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl backdrop-blur-sm border ${
                     isCurrentPlan
-                      ? 'bg-gray-100 text-gray-500 cursor-default'
+                      ? 'bg-green-500/20 border-green-400/50 text-green-300 cursor-default'
                       : plan.isPopular
-                        ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                  }`}
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 border-white/20 text-white'
+                      : 'bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 border-white/10 text-white'
+                  } ${processingPayment && !isCurrentPlan ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {processingPayment ? (
+                  {processingPayment && !isCurrentPlan ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Processing...
                     </>
                   ) : isCurrentPlan ? (
-                    'Current Plan'
+                    <>
+                      <FiCheck className="h-5 w-5" />
+                      Current Plan
+                    </>
                   ) : (
                     <>
-                      Subscribe to {plan.name}
+                      {plan.price === 0 ? (
+                        <>
+                          <FiUsers className="h-5 w-5" />
+                          Get Started
+                        </>
+                      ) : (
+                        <>
+                          <FiZap className="h-5 w-5" />
+                          Upgrade Now
+                        </>
+                      )}
                       <FiArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Additional Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* FAQ or Benefits */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <FiMail className="h-5 w-5 text-blue-400" />
+              <h3 className="text-lg font-semibold text-white">Need Help?</h3>
             </div>
-          );
-        })}
-      </div>
-      
-      {/* Enterprise Contact */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <FiMail className="h-6 w-6 text-gray-600" />
-          </div>
-          
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Need a custom plan?</h3>
-            <p className="text-gray-600 mb-4">
-              Contact our sales team for custom enterprise solutions tailored to your business needs.
+            <p className="text-gray-400 mb-4">
+              Have questions about our plans? We're here to help you choose the right solution for your business.
             </p>
-            
             <a 
-              href="mailto:tucker@carlileadvisors.com" 
-              className="inline-flex items-center gap-2 text-gray-900 font-medium hover:text-gray-700 transition-colors group"
+              href="mailto:tucker@carlileadvisors.com"
+              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
             >
               <FiMail className="h-4 w-4" />
-              tucker@carlileadvisors.com
-              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              Contact Support
             </a>
+          </div>
+
+          {/* Security */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <FiShield className="h-5 w-5 text-green-400" />
+              <h3 className="text-lg font-semibold text-white">Secure & Reliable</h3>
+            </div>
+            <p className="text-gray-400 mb-4">
+              Your data is protected with enterprise-grade security. Cancel anytime with no hidden fees.
+            </p>
+            <div className="flex items-center gap-2 text-green-400">
+              <FiShield className="h-4 w-4" />
+              <span className="text-sm">256-bit SSL encryption</span>
+            </div>
           </div>
         </div>
       </div>

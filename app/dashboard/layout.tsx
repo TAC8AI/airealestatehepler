@@ -40,14 +40,14 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black">
         <div className="text-center">
           {/* Premium Loading Spinner */}
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-gray-800 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+            <div className="w-16 h-16 border-4 border-white/20 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin absolute top-0"></div>
           </div>
-          <p className="text-gray-600 mt-4 font-medium">Loading Dashboard</p>
+          <p className="text-gray-400 mt-4 font-medium">Loading Dashboard</p>
         </div>
       </div>
     );
@@ -63,39 +63,39 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-black/95 backdrop-blur-sm border-b border-white/10 px-6 py-4 flex items-center justify-between shadow-2xl">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-all duration-300"
+          className="p-2 rounded-xl text-gray-400 hover:bg-white/10 hover:text-white transition-all duration-300"
         >
           {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
-        <div className="text-xl font-semibold text-gray-900">AI Real Estate Helper</div>
+        <div className="text-xl font-semibold text-white">AI Real Estate Helper</div>
       </div>
 
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-10 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10 lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
-      {/* Premium Sidebar */}
+      {/* Premium Glassmorphism Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-20 h-full w-72 bg-white border-r border-gray-200 transition-all duration-300 transform shadow-xl ${
+        className={`fixed top-0 left-0 z-20 h-full w-72 bg-black/80 backdrop-blur-xl border-r border-white/10 transition-all duration-300 transform shadow-2xl ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
         {/* Sidebar Header */}
-        <div className="p-8 border-b border-gray-100">
+        <div className="p-8 border-b border-white/10">
           <Link href="/dashboard" className="flex items-center group">
-            <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-300">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-300 border border-white/10">
               <div className="w-5 h-5 bg-white rounded-sm"></div>
             </div>
-            <h1 className="text-xl font-semibold text-gray-900 group-hover:text-gray-700 transition-colors duration-300">AI Real Estate Helper</h1>
+            <h1 className="text-xl font-semibold text-white group-hover:text-gray-300 transition-colors duration-300">AI Real Estate Helper</h1>
           </Link>
         </div>
 
@@ -110,18 +110,18 @@ export default function DashboardLayout({
                   href={item.href}
                   className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300 group ${
                     isActive
-                      ? 'bg-gray-900 text-white shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 text-white shadow-lg border border-white/20 backdrop-blur-sm'
+                      : 'text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <div className={`p-2 rounded-lg mr-3 transition-all duration-300 ${
                     isActive
-                      ? 'bg-white/20'
-                      : 'bg-gray-100 group-hover:bg-gray-200'
+                      ? 'bg-white/20 backdrop-blur-sm'
+                      : 'bg-white/5 group-hover:bg-white/10'
                   }`}>
                     <item.icon className={`h-4 w-4 ${
-                      isActive ? 'text-white' : 'text-gray-600'
+                      isActive ? 'text-blue-400' : 'text-gray-400 group-hover:text-white'
                     }`} />
                   </div>
                   {item.name}
@@ -132,19 +132,19 @@ export default function DashboardLayout({
         </div>
 
         {/* User Profile & Sign Out */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
-          <div className="mb-4 p-4 rounded-xl bg-gray-50">
-            <div className="text-sm font-medium text-gray-900 truncate">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10">
+          <div className="mb-4 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+            <div className="text-sm font-medium text-white truncate">
               {user?.email}
             </div>
-            <div className="text-xs text-gray-500 mt-1">Premium Account</div>
+            <div className="text-xs text-gray-400 mt-1">Premium Account</div>
           </div>
           
           <button
             onClick={handleSignOut}
-            className="flex items-center w-full px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-300 group"
+            className="flex items-center w-full px-4 py-3 text-gray-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all duration-300 group border border-transparent hover:border-red-500/20"
           >
-            <div className="p-2 rounded-lg mr-3 bg-gray-100 group-hover:bg-red-100 transition-all duration-300">
+            <div className="p-2 rounded-lg mr-3 bg-white/5 group-hover:bg-red-500/10 transition-all duration-300">
               <FiLogOut className="h-4 w-4" />
             </div>
             Sign Out

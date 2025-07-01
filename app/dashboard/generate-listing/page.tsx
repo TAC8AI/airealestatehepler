@@ -199,18 +199,11 @@ export default function GenerateListing() {
       }
 
       const generatedData = await response.json();
-      
-      setGeneratedContent({
-        mls: generatedData.mls,
-        facebook: generatedData.facebook,
-        instagram: generatedData.instagram,
-        linkedin: generatedData.linkedin,
-      });
-      
+      setGeneratedContent(generatedData);
       setStep(3);
     } catch (error) {
-      console.error('Error generating content:', error);
-      alert('Failed to generate content. Please try again.');
+      console.error('Error generating listings:', error);
+      alert('Failed to generate listing content. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -219,10 +212,8 @@ export default function GenerateListing() {
   const handleCopy = (type: keyof typeof copied) => {
     const content = generatedContent[type];
     navigator.clipboard.writeText(content);
-    setCopied((prev) => ({ ...prev, [type]: true }));
-    setTimeout(() => {
-      setCopied((prev) => ({ ...prev, [type]: false }));
-    }, 2000);
+    setCopied({ ...copied, [type]: true });
+    setTimeout(() => setCopied({ ...copied, [type]: false }), 2000);
   };
 
   const handleCreateNew = () => {
@@ -241,632 +232,427 @@ export default function GenerateListing() {
       description: '',
       highlights: [],
     });
-    setGeneratedContent({
-      mls: '',
-      facebook: '',
-      instagram: '',
-      linkedin: '',
-    });
+    setGeneratedContent({ mls: '', facebook: '', instagram: '', linkedin: '' });
   };
 
-  // STEP 1: Address Input
-  if (step === 1) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-2xl mx-auto px-8 py-12">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-semibold text-gray-900 mb-4">Generate Listing</h1>
-            <p className="text-lg text-gray-600">Step 1 of 3: Enter the property address</p>
-          </div>
-          
-          {/* Main Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Card Header */}
-            <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <FiMapPin className="w-6 h-6 text-gray-700" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Property Address</h2>
-                  <p className="text-sm text-gray-500 mt-1">We'll research the property details for you</p>
-                </div>
-              </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto p-8">
+        {/* Premium Header with Progress */}
+        <div className="mb-12">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-white/10 rounded-xl">
+              <FiFileText className="h-8 w-8 text-white" />
             </div>
-            
-            {/* Form */}
-            <form onSubmit={handleResearchProperty} className="p-8 space-y-8">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight">
+                Generate Listing
+              </h1>
+              <p className="text-lg text-gray-400 mt-1">
+                Step {step} of 3: {step === 1 ? 'Enter the property address' : 
+                                  step === 2 ? 'Customize property details' : 
+                                  'Review generated content'}
+              </p>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-white/10 rounded-full h-2 backdrop-blur-sm">
+            <div 
+              className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${(step / 3) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Step 1: Address Input */}
+        {step === 1 && (
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-10 shadow-2xl">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <FiMapPin className="h-6 w-6 text-blue-400" />
+                <h2 className="text-2xl font-bold text-white">Property Address</h2>
+              </div>
+              <p className="text-gray-400">We'll research the property details for you</p>
+            </div>
+
+            <form onSubmit={handleResearchProperty} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Street Address *
-                </label>
+                <label className="block text-sm font-medium text-white mb-2">Street Address *</label>
                 <input
                   type="text"
                   name="address"
                   value={addressInfo.address}
                   onChange={handleAddressChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="123 Main Street"
+                  className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                   required
                 />
               </div>
-              
-              <div className="grid grid-cols-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    City *
-                  </label>
+                  <label className="block text-sm font-medium text-white mb-2">City *</label>
                   <input
                     type="text"
                     name="city"
                     value={addressInfo.city}
                     onChange={handleAddressChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="San Francisco"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                     required
                   />
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    State *
-                  </label>
+                  <label className="block text-sm font-medium text-white mb-2">State *</label>
                   <input
                     type="text"
                     name="state"
                     value={addressInfo.state}
                     onChange={handleAddressChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="CA"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                     required
                   />
                 </div>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Zip Code (Optional)
-                </label>
+                <label className="block text-sm font-medium text-white mb-2">Zip Code (Optional)</label>
                 <input
                   type="text"
                   name="zipCode"
                   value={addressInfo.zipCode}
                   onChange={handleAddressChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="94102"
+                  className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                 />
               </div>
-              
+
               <button
                 type="submit"
-                disabled={researchLoading}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={researchLoading || !addressInfo.address || !addressInfo.city || !addressInfo.state}
+                className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/10"
               >
                 {researchLoading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-lg">Researching Property</span>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Researching Property...
                   </>
                 ) : (
                   <>
-                    <FiZap className="w-5 h-5" />
-                    <span className="text-lg">Research Property & Continue</span>
+                    <FiZap className="h-5 w-5" />
+                    Research Property & Continue
                   </>
                 )}
               </button>
             </form>
           </div>
-        </div>
-      </div>
-    );
-  }
+        )}
 
-  // STEP 2: Property Details (Pre-filled, Editable)
-  if (step === 2) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto px-8 py-12">
-          {/* Header */}
-          <div className="mb-12">
-            <button
-              onClick={() => setStep(1)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-              <span>Back to Address</span>
-            </button>
-            
-            <div className="text-center">
-              <h1 className="text-4xl font-semibold text-gray-900 mb-4">Property Details</h1>
-              <p className="text-lg text-gray-600 mb-8">Step 2 of 3: Review and edit the property information</p>
-              
-              {/* Enhanced Progress bar */}
-              <div className="max-w-md mx-auto">
-                <div className="flex justify-between text-sm font-medium text-gray-600 mb-3">
-                  <span>Completion</span>
-                  <span className="text-gray-900">{Math.round(completionPercentage)}%</span>
+        {/* Step 2: Property Details */}
+        {step === 2 && (
+          <div className="space-y-8">
+            {/* Completion Status */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Property Details</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400">Completion:</span>
+                  <span className="text-white font-medium">{Math.round(completionPercentage)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
-                  <div
-                    className="bg-gradient-to-r from-gray-800 to-gray-900 h-3 rounded-full transition-all duration-700 ease-out shadow-sm"
-                    style={{ width: `${completionPercentage}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {completionPercentage === 100 ? 'Ready to generate!' : 'Fill all required fields to continue'}
-                </p>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${completionPercentage}%` }}
+                ></div>
               </div>
             </div>
-          </div>
 
-          <form onSubmit={handleGenerateListings} className="space-y-8">
-            {/* Basic Information */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                    <FiHome className="w-5 h-5 text-gray-700" />
+            {/* Property Details Form */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
+              <form onSubmit={handleGenerateListings} className="space-y-6">
+                {/* Basic Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">Listing Title *</label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={propertyDetails.title}
+                      onChange={handlePropertyChange}
+                      placeholder="Beautiful family home..."
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                      required
+                    />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">Property Type</label>
+                    <select
+                      name="propertyType"
+                      value={propertyDetails.propertyType}
+                      onChange={handlePropertyChange}
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    >
+                      <option value="Single Family">Single Family</option>
+                      <option value="Condo">Condo</option>
+                      <option value="Townhouse">Townhouse</option>
+                      <option value="Multi-Family">Multi-Family</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="p-8 space-y-6">
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Listing Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={propertyDetails.title}
-                    onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
-                    placeholder="Beautiful Family Home"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Full Address *
-                  </label>
+                  <label className="block text-sm font-medium text-white mb-2">Full Address *</label>
                   <input
                     type="text"
                     name="address"
                     value={propertyDetails.address}
                     onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
+                    placeholder="Complete property address"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                     required
                   />
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {/* Property Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Price *
-                    </label>
+                    <label className="block text-sm font-medium text-white mb-2">Price *</label>
                     <input
                       type="text"
                       name="price"
                       value={propertyDetails.price}
                       onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="$750,000"
+                      placeholder="$500,000"
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
-                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Property Type *
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="propertyType"
-                        value={propertyDetails.propertyType}
-                        onChange={handlePropertyChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 bg-white appearance-none cursor-pointer shadow-sm"
-                        required
-                      >
-                        <option value="Single Family">Single Family</option>
-                        <option value="Townhouse">Townhouse</option>
-                        <option value="Condo">Condo</option>
-                        <option value="Multi-Family">Multi-Family</option>
-                        <option value="Land">Land</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Property Specifications */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                    <FiTarget className="w-5 h-5 text-gray-700" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Property Specifications</h3>
-                </div>
-              </div>
-              
-              <div className="p-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Bedrooms *
-                    </label>
+                    <label className="block text-sm font-medium text-white mb-2">Bedrooms *</label>
                     <input
                       type="text"
                       name="bedrooms"
                       value={propertyDetails.bedrooms}
                       onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
                       placeholder="3"
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
-                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Bathrooms *
-                    </label>
+                    <label className="block text-sm font-medium text-white mb-2">Bathrooms *</label>
                     <input
                       type="text"
                       name="bathrooms"
                       value={propertyDetails.bathrooms}
                       onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="2.5"
+                      placeholder="2"
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
-                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Square Feet *
-                    </label>
+                    <label className="block text-sm font-medium text-white mb-2">Square Feet *</label>
                     <input
                       type="text"
                       name="squareFeet"
                       value={propertyDetails.squareFeet}
                       onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="2,100"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Year Built *
-                    </label>
-                    <input
-                      type="text"
-                      name="yearBuilt"
-                      value={propertyDetails.yearBuilt}
-                      onChange={handlePropertyChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400"
-                      placeholder="1995"
+                      placeholder="1,500"
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Features & Description */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                    <FiStar className="w-5 h-5 text-gray-700" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Features & Description</h3>
-                </div>
-              </div>
-              
-              <div className="p-8 space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Key Features *
-                  </label>
+                  <label className="block text-sm font-medium text-white mb-2">Year Built *</label>
+                  <input
+                    type="text"
+                    name="yearBuilt"
+                    value={propertyDetails.yearBuilt}
+                    onChange={handlePropertyChange}
+                    placeholder="2010"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Key Features *</label>
                   <textarea
                     name="features"
                     value={propertyDetails.features}
                     onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none shadow-sm"
-                    rows={6}
                     placeholder="Updated kitchen, hardwood floors, two-car garage..."
+                    rows={3}
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
                     required
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Market Analysis
-                  </label>
-                  <textarea
-                    name="description"
-                    value={propertyDetails.description}
-                    onChange={handlePropertyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none shadow-sm"
-                    rows={8}
-                    placeholder="Market insights and property description..."
-                  />
-                </div>
-              </div>
-            </div>
 
-            {/* Marketing Highlights */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <FiTrendingUp className="w-5 h-5 text-gray-700" />
+                {/* Highlights Selection */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="block text-sm font-medium text-white">Marketing Highlights</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowHighlights(!showHighlights)}
+                      className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                    >
+                      {showHighlights ? 'Hide' : 'Show'} Options
+                      <FiChevronRight className={`h-4 w-4 transition-transform ${showHighlights ? 'rotate-90' : ''}`} />
+                    </button>
+                  </div>
+                  
+                  {showHighlights && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {highlightOptions.map((option) => (
+                        <button
+                          key={option.label}
+                          type="button"
+                          onClick={() => toggleHighlight(option.label)}
+                          className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                            propertyDetails.highlights.includes(option.label)
+                              ? 'bg-blue-500/20 border border-blue-400/50 text-blue-300'
+                              : 'bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">Marketing Highlights</h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowHighlights(!showHighlights)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
-                  >
-                    <FiPlus className="w-4 h-4" />
-                    <span>{showHighlights ? 'Hide' : 'Add'} Highlights</span>
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-8">
-                {showHighlights && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                    {highlightOptions.map((option) => (
-                      <button
-                        key={option.label}
-                        type="button"
-                        onClick={() => toggleHighlight(option.label)}
-                        className={`p-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                          propertyDetails.highlights.includes(option.label)
-                            ? 'bg-gray-900 border-gray-900 text-white'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                
-                {propertyDetails.highlights.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-4">Selected Highlights:</p>
-                    <div className="flex flex-wrap gap-2">
+                  )}
+                  
+                  {propertyDetails.highlights.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {propertyDetails.highlights.map((highlight) => (
                         <span
                           key={highlight}
-                          className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium"
+                          className="px-2 py-1 bg-blue-500/20 border border-blue-400/50 text-blue-300 rounded text-xs"
                         >
-                          <span>{highlight}</span>
-                          <button
-                            type="button"
-                            onClick={() => toggleHighlight(highlight)}
-                            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                          >
-                            ×
-                          </button>
+                          {highlight}
                         </span>
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
 
-            {/* Professional Disclaimer */}
-            <div className="bg-blue-50 rounded-2xl border border-blue-200 p-6">
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-6">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center gap-2"
+                  >
+                    <FiArrowLeft className="h-4 w-4" />
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || completionPercentage < 100}
+                    className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Generating Listings...
+                      </>
+                    ) : (
+                      <>
+                        <FiZap className="h-5 w-5" />
+                        Generate Listings
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Generated Content */}
+        {step === 3 && (
+          <div className="space-y-8">
+            {/* Success Header */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg">
+                  <FiCheck className="h-6 w-6 text-green-400" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-blue-900 mb-2">AI-Generated Content Notice</h4>
-                  <p className="text-sm text-blue-800 leading-relaxed">
-                    This content is AI-generated for reference only. Please verify all property details, market data, and pricing information before use. 
-                    Add your professional expertise and local market knowledge to ensure accuracy and compliance with your local MLS requirements.
-                  </p>
+                  <h2 className="text-xl font-bold text-white">Listings Generated Successfully!</h2>
+                  <p className="text-gray-400">Your property listings are ready for different platforms</p>
                 </div>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex space-x-4 pt-4">
+            {/* Generated Content Cards */}
+            <div className="grid gap-6">
+              {/* MLS Listing */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <FiHome className="h-5 w-5 text-blue-400" />
+                    <h3 className="text-lg font-semibold text-white">MLS Listing</h3>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('mls')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
+                  >
+                    {copied.mls ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                    {copied.mls ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                <div className="bg-white/5 rounded-lg p-4">
+                  <p className="text-gray-300 whitespace-pre-wrap">{generatedContent.mls}</p>
+                </div>
+              </div>
+
+              {/* Social Media Posts */}
+              {['facebook', 'instagram', 'linkedin'].map((platform) => (
+                <div key={platform} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <FiGlobe className="h-5 w-5 text-purple-400" />
+                      <h3 className="text-lg font-semibold text-white capitalize">{platform} Post</h3>
+                    </div>
+                    <button
+                      onClick={() => handleCopy(platform as keyof typeof copied)}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
+                    >
+                      {copied[platform as keyof typeof copied] ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                      {copied[platform as keyof typeof copied] ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <p className="text-gray-300 whitespace-pre-wrap">{generatedContent[platform as keyof typeof generatedContent]}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Action Button */}
+            <div className="text-center pt-8">
               <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2"
+                onClick={handleCreateNew}
+                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border border-white/10 backdrop-blur-sm"
               >
-                <FiArrowLeft className="w-4 h-4" />
-                <span>Back</span>
-              </button>
-              
-              <button
-                type="submit"
-                disabled={loading || completionPercentage < 100}
-                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-lg">Generating Content</span>
-                  </>
-                ) : (
-                  <>
-                    <FiChevronRight className="w-5 h-5" />
-                    <span className="text-lg">Generate Listing Content</span>
-                  </>
-                )}
+                Create New Listing
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // STEP 3: Generated Content
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <button
-            onClick={() => setStep(2)}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
-          >
-            <FiArrowLeft className="w-4 h-4" />
-            <span>Back to Edit Details</span>
-          </button>
-          
-          <div className="text-center">
-            <h1 className="text-4xl font-semibold text-gray-900 mb-4">Generated Content</h1>
-            <p className="text-lg text-gray-600">Step 3 of 3: Your listing content is ready!</p>
           </div>
-        </div>
-
-        <div className="space-y-8">
-          {/* MLS Description */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                    <FiFileText className="w-5 h-5 text-gray-700" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">MLS Description</h3>
-                </div>
-                <button
-                  onClick={() => handleCopy('mls')}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2"
-                >
-                  {copied.mls ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
-                  <span>{copied.mls ? 'Copied!' : 'Copy'}</span>
-                </button>
-              </div>
-            </div>
-            <div className="p-8">
-              <div className="bg-gray-50 rounded-xl p-6">
-                <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.mls}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Media Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Facebook */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <FiGlobe className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-blue-600">Facebook</h3>
-                  </div>
-                  <button
-                    onClick={() => handleCopy('facebook')}
-                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                  >
-                    {copied.facebook ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.facebook}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Instagram */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
-                      <FiCamera className="w-4 h-4 text-pink-600" />
-                    </div>
-                    <h3 className="font-semibold text-pink-600">Instagram</h3>
-                  </div>
-                  <button
-                    onClick={() => handleCopy('instagram')}
-                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                  >
-                    {copied.instagram ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.instagram}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* LinkedIn */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <FiLayers className="w-4 h-4 text-blue-700" />
-                    </div>
-                    <h3 className="font-semibold text-blue-700">LinkedIn</h3>
-                  </div>
-                  <button
-                    onClick={() => handleCopy('linkedin')}
-                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                  >
-                    {copied.linkedin ? <FiCheck className="w-4 h-4 text-green-600" /> : <FiCopy className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{generatedContent.linkedin}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-center space-x-4 pt-8">
-            <button
-              onClick={handleCreateNew}
-              className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl transition-all duration-300 flex items-center space-x-3 transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <FiPlus className="w-5 h-5" />
-              <span>Create New Listing</span>
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-8 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -413,7 +413,7 @@ export default function Home() {
         </div>
       </section>
 
-                      {/* Smooth Transition */}
+      {/* Smooth Transition */}
       <div className="h-16 bg-gradient-to-b from-black to-gray-900"></div>
 
       {/* AI Recommendation Section */}
@@ -496,73 +496,6 @@ export default function Home() {
 
       {/* Smooth Transition */}
       <div className="h-16 bg-gradient-to-b from-black to-gray-900"></div>
-
-      {/* Expert Support Section */}
-      <section className="py-24 px-6 md:px-10 bg-gradient-to-b from-gray-900 to-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 tracking-tight">Need AI Automation?</h3>
-              <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                Get expert AI automation consulting and custom solutions designed to transform your business operations.
-              </p>
-              <ul className="space-y-4 mb-10">
-                <li className="flex items-center gap-4 text-gray-300">
-                  <FiCheck className="h-6 w-6 text-green-400" />
-                  <span className="text-lg">Custom AI workflow automation</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                  <FiCheck className="h-6 w-6 text-green-400" />
-                  <span className="text-lg">Business process optimization</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                  <FiCheck className="h-6 w-6 text-green-400" />
-                  <span className="text-lg">Enterprise AI solutions</span>
-                </li>
-              </ul>
-              <div className="mb-6">
-                <a 
-                  href="https://carlileadvisors.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-[0_20px_40px_rgba(59,130,246,0.4)] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 text-lg shadow-xl hover:shadow-2xl transform hover:scale-105"
-                >
-                  <FiExternalLink className="h-6 w-6" />
-                  Visit CarlileAdvisors.com
-                </a>
-              </div>
-              <p className="text-gray-500">
-                tucker@carlileadvisors.com • Expert AI Automation Consultant
-              </p>
-            </div>
-            
-            <div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-10 border border-white/10 shadow-lg">
-                <div className="text-center mb-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <FiAward className="h-10 w-10 text-blue-400" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-white">Premium AI Consulting</h4>
-                </div>
-                <div className="space-y-6 text-gray-400">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg">Response Time:</span>
-                    <span className="font-semibold text-white text-lg">Typically within 2 hours</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg">Client Rating:</span>
-                    <span className="font-semibold text-white text-lg">4.9/5</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg">Support:</span>
-                    <span className="font-semibold text-white text-lg">Expert-level consultation</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="bg-black text-white py-12 px-6 md:px-10">
