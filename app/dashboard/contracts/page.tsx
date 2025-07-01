@@ -94,26 +94,26 @@ export default function ContractsPage() {
   const getContractTypeIcon = (type: string) => {
     switch (type) {
       case 'purchase':
-        return <FiCheckCircle className="h-5 w-5 text-green-600" />;
+        return <FiCheckCircle className="h-5 w-5 text-green-400" />;
       case 'lease':
-        return <FiFileText className="h-5 w-5 text-blue-600" />;
+        return <FiFileText className="h-5 w-5 text-blue-400" />;
       case 'listing':
-        return <FiAlertTriangle className="h-5 w-5 text-orange-600" />;
+        return <FiAlertTriangle className="h-5 w-5 text-orange-400" />;
       default:
-        return <FiFileText className="h-5 w-5 text-gray-600" />;
+        return <FiFileText className="h-5 w-5 text-gray-400" />;
     }
   };
 
   const getContractTypeColor = (type: string) => {
     switch (type) {
       case 'purchase':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'lease':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
       case 'listing':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-500/20 text-orange-300 border border-orange-500/30';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-300 border border-gray-500/30';
     }
   };
 
@@ -127,13 +127,13 @@ export default function ContractsPage() {
   const getRiskColor = (riskLevel: string) => {
     switch (riskLevel?.toLowerCase()) {
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500/20 text-red-300 border border-red-500/30';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-300 border border-gray-500/30';
     }
   };
 
@@ -141,27 +141,27 @@ export default function ContractsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin absolute top-0"></div>
+          <div className="w-16 h-16 border-4 border-white/20 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin absolute top-0"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Contract Analysis</h1>
-            <p className="text-gray-600">Manage all your AI-analyzed contracts and documents</p>
+            <h1 className="text-4xl font-bold text-white mb-2">Contract Analysis</h1>
+            <p className="text-gray-300">Manage all your AI-analyzed contracts and documents</p>
           </div>
           <Link 
             href="/dashboard/contract-analysis"
-            className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
+            className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
           >
             <FiPlus className="h-4 w-4" />
             Analyze New Contract
@@ -170,7 +170,7 @@ export default function ContractsPage() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
@@ -180,7 +180,7 @@ export default function ContractsPage() {
               placeholder="Search contracts by title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
             />
           </div>
           
@@ -190,10 +190,10 @@ export default function ContractsPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+              className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
             >
               {uniqueContractTypes.map(type => (
-                <option key={type} value={type}>
+                <option key={type} value={type} className="bg-gray-800 text-white">
                   {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1)}
                 </option>
               ))}
@@ -205,17 +205,17 @@ export default function ContractsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title')}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+              className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Title A-Z</option>
+              <option value="newest" className="bg-gray-800 text-white">Newest First</option>
+              <option value="oldest" className="bg-gray-800 text-white">Oldest First</option>
+              <option value="title" className="bg-gray-800 text-white">Title A-Z</option>
             </select>
           </div>
         </div>
         
         {/* Results Count */}
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-4 text-sm text-gray-400">
           {filteredContracts.length} of {contracts.length} contracts
         </div>
       </div>
@@ -224,15 +224,16 @@ export default function ContractsPage() {
       {filteredContracts.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredContracts.map((contract) => (
-            <div
+            <Link
               key={contract.id}
-              className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
+              href={`/dashboard/contracts/${contract.id}`}
+              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group block shadow-lg hover:bg-white/10"
             >
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     {getContractTypeIcon(contract.contract_type)}
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-black transition-colors">
+                    <h3 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">
                       {contract.title}
                     </h3>
                   </div>
@@ -250,13 +251,13 @@ export default function ContractsPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-gray-200 rounded-xl flex items-center justify-center transition-all">
-                    <FiArrowRight className="h-6 w-6 text-gray-600 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                  <div className="w-12 h-12 bg-white/10 group-hover:bg-white/20 rounded-xl flex items-center justify-center transition-all">
+                    <FiArrowRight className="h-6 w-6 text-gray-300 group-hover:text-white group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <FiCalendar className="h-4 w-4" />
                   Analyzed {formatDate(contract.created_at)}
@@ -266,19 +267,19 @@ export default function ContractsPage() {
                   View Analysis
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (
         <div className="text-center py-20">
-          <div className="w-24 h-24 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
-            <FiFileText className="h-12 w-12 text-gray-600" />
+          <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
+            <FiFileText className="h-12 w-12 text-gray-400" />
           </div>
           
           {searchTerm || filterType !== 'all' ? (
             <>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">No contracts found</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">No contracts found</h3>
+              <p className="text-gray-400 mb-8 max-w-md mx-auto">
                 No contracts match your current filters. Try adjusting your search or filter settings.
               </p>
               <button
@@ -286,20 +287,20 @@ export default function ContractsPage() {
                   setSearchTerm('');
                   setFilterType('all');
                 }}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
               >
                 Clear Filters
               </button>
             </>
           ) : (
             <>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Analyze your first contract</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">Analyze your first contract</h3>
+              <p className="text-gray-400 mb-8 max-w-md mx-auto">
                 Upload any real estate contract and get instant AI-powered risk analysis and insights.
               </p>
               <Link 
                 href="/dashboard/contract-analysis"
-                className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <FiPlus className="h-5 w-5" />
                 Analyze Your First Contract
@@ -312,12 +313,12 @@ export default function ContractsPage() {
       {/* View All from Features */}
       {filteredContracts.length > 0 && (
         <div className="mt-16 text-center">
-          <div className="bg-gray-50 rounded-2xl p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Need to analyze another contract?</h3>
-            <p className="text-gray-600 mb-6">Get instant AI-powered risk analysis on any document</p>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+            <h3 className="text-xl font-bold text-white mb-4">Need to analyze another contract?</h3>
+            <p className="text-gray-400 mb-6">Get instant AI-powered risk analysis on any document</p>
             <Link 
               href="/dashboard/contract-analysis"
-              className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
             >
               <FiPlus className="h-4 w-4" />
               Analyze New Contract

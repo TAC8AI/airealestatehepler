@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '../../../../lib/supabase';
-import { FiArrowLeft, FiShare2, FiCopy, FiCheck, FiFileText, FiCalendar, FiDownload, FiTrash2 } from 'react-icons/fi';
+import { FiArrowLeft, FiShare2, FiCopy, FiCheck, FiFileText, FiCalendar, FiDownload, FiTrash2, FiHome, FiList, FiMoreHorizontal } from 'react-icons/fi';
 import LeaseContractCard from '../../../../components/contract-cards/LeaseContractCard';
 import PurchaseContractCard from '../../../../components/contract-cards/PurchaseContractCard';
 import ListingContractCard from '../../../../components/contract-cards/ListingContractCard';
@@ -24,6 +24,7 @@ export default function ContractDetail() {
   const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showActions, setShowActions] = useState(false);
   const params = useParams();
   const router = useRouter();
   const contractId = params.id;
@@ -122,10 +123,9 @@ export default function ContractDetail() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -140,21 +140,21 @@ export default function ContractDetail() {
   const getConfidenceColor = (score: number) => {
     // Normalize score to 0-1 range for comparison
     const normalizedScore = score > 1 ? score / 100 : score;
-    if (normalizedScore >= 0.8) return 'text-green-600 bg-green-100';
-    if (normalizedScore >= 0.6) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
+    if (normalizedScore >= 0.8) return 'text-green-300 bg-green-500/20 border border-green-500/30';
+    if (normalizedScore >= 0.6) return 'text-yellow-300 bg-yellow-500/20 border border-yellow-500/30';
+    return 'text-red-300 bg-red-500/20 border border-red-500/30';
   };
 
   const getContractTypeInfo = (type: string) => {
     switch (type) {
       case 'purchase':
-        return { name: 'Purchase Agreement', color: 'blue', emoji: '🏠' };
+        return { name: 'Purchase Agreement', color: 'blue', icon: FiHome };
       case 'listing':
-        return { name: 'Listing Agreement', color: 'green', emoji: '📋' };
+        return { name: 'Listing Agreement', color: 'green', icon: FiList };
       case 'lease':
-        return { name: 'Lease Agreement', color: 'purple', emoji: '🔑' };
+        return { name: 'Lease Agreement', color: 'purple', icon: FiFileText };
       default:
-        return { name: 'Contract', color: 'gray', emoji: '📄' };
+        return { name: 'Contract', color: 'gray', icon: FiFileText };
     }
   };
 
@@ -220,17 +220,17 @@ export default function ContractDetail() {
         return <LeaseContractCard {...props} />;
       default:
         return (
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Contract Analysis - {contract.contract_type}</h3>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Contract Analysis - {contract.contract_type}</h3>
             <div className="mb-4">
-              <h4 className="font-semibold mb-2">Mapped Data:</h4>
-              <pre className="bg-gray-50 rounded-lg p-4 text-sm overflow-auto max-h-64">
+              <h4 className="font-semibold mb-2 text-gray-300">Mapped Data:</h4>
+              <pre className="bg-black/20 rounded-lg p-4 text-sm overflow-auto max-h-64 text-gray-300">
                 {JSON.stringify(mappedData, null, 2)}
               </pre>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Raw Analysis Result:</h4>
-              <pre className="bg-gray-50 rounded-lg p-4 text-sm overflow-auto max-h-64">
+              <h4 className="font-semibold mb-2 text-gray-300">Raw Analysis Result:</h4>
+              <pre className="bg-black/20 rounded-lg p-4 text-sm overflow-auto max-h-64 text-gray-300">
                 {JSON.stringify(contract.extracted_data, null, 2)}
               </pre>
             </div>
@@ -241,10 +241,10 @@ export default function ContractDetail() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin absolute top-0"></div>
+          <div className="w-16 h-16 border-4 border-white/20 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin absolute top-0"></div>
         </div>
       </div>
     );
@@ -252,67 +252,90 @@ export default function ContractDetail() {
 
   if (!contract) {
     return (
-      <div className="text-center py-16">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Contract not found</h1>
-        <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
-          Return to Dashboard
-        </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Contract not found</h1>
+          <Link href="/dashboard" className="text-blue-400 hover:text-blue-300">
+            Return to Dashboard
+          </Link>
+        </div>
       </div>
     );
   }
 
   const contractInfo = getContractTypeInfo(contract.contract_type);
+  const IconComponent = contractInfo.icon;
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Professional Clean Header */}
+      <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6">
+          {/* Main Header Row */}
           <div className="flex items-center justify-between py-6">
+            {/* Left: Back + Title */}
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
               >
-                <FiArrowLeft className="h-5 w-5 text-gray-600" />
+                <FiArrowLeft className="h-5 w-5 text-white" />
               </button>
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">{contractInfo.emoji}</span>
-                  <h1 className="text-2xl font-bold text-gray-900">{contractInfo.name}</h1>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getConfidenceColor(contract.confidence_score)}`}>
-                    {formatConfidence(contract.confidence_score)} Confidence
-                  </span>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 bg-${contractInfo.color}-500/20 rounded-lg`}>
+                  <IconComponent className={`h-5 w-5 text-${contractInfo.color}-400`} />
                 </div>
-                <p className="text-gray-500 flex items-center gap-2">
-                  <FiFileText className="h-4 w-4" />
-                  {contract.file_name}
-                  <span className="mx-2">•</span>
-                  <FiCalendar className="h-4 w-4" />
-                  Analyzed {formatDate(contract.created_at)}
-                </p>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">{contractInfo.name}</h1>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-sm text-gray-400">{contract.file_name}</span>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-sm text-gray-400">Analyzed {formatDate(contract.created_at)}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+
+            {/* Right: Confidence + Primary Action */}
+            <div className="flex items-center gap-4">
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${getConfidenceColor(contract.confidence_score)}`}>
+                {formatConfidence(contract.confidence_score)} Confidence
+              </div>
+              <Link 
+                href="/dashboard/contract-analysis"
+                className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-gray-100 rounded-xl transition-all font-medium"
+              >
+                <FiFileText className="h-4 w-4" />
+                Analyze New Contract
+              </Link>
+            </div>
+          </div>
+
+          {/* Secondary Actions Row */}
+          <div className="flex items-center justify-between pb-4 border-t border-white/5 pt-4">
+            <div className="text-sm text-gray-400">
+              Contract analysis and extracted data below
+            </div>
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => copyToClipboard(contract.extracted_data, 'analysis')}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
               >
                 {copiedField === 'analysis' ? (
                   <>
-                    <FiCheck className="h-4 w-4 text-green-600" />
-                    Copied!
+                    <FiCheck className="h-4 w-4 text-green-400" />
+                    Copied
                   </>
                 ) : (
                   <>
                     <FiCopy className="h-4 w-4" />
-                    Copy Data
+                    Copy
                   </>
                 )}
               </button>
               <button 
                 onClick={downloadReport}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
               >
                 <FiDownload className="h-4 w-4" />
                 Download
@@ -320,18 +343,11 @@ export default function ContractDetail() {
               <button 
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50 text-sm"
               >
                 <FiTrash2 className="h-4 w-4" />
                 {deleting ? 'Deleting...' : 'Delete'}
               </button>
-              <Link 
-                href="/dashboard/contract-analysis"
-                className="flex items-center gap-2 px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-xl transition-all"
-              >
-                <FiFileText className="h-4 w-4" />
-                Analyze New Contract
-              </Link>
             </div>
           </div>
         </div>
@@ -344,24 +360,24 @@ export default function ContractDetail() {
 
           {/* Summary Section (if available) */}
           {contract.extracted_data?.summary && (
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiFileText className="h-5 w-5 text-blue-600" />
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <FiFileText className="h-5 w-5 text-blue-400" />
                 Analysis Summary
               </h3>
-              <div className="prose max-w-none text-gray-700">
+              <div className="prose max-w-none text-gray-300">
                 <p className="text-lg leading-relaxed">{contract.extracted_data.summary}</p>
               </div>
             </div>
           )}
 
           {/* Raw Data Section (Collapsible) */}
-          <details className="bg-white rounded-3xl shadow-lg border border-gray-200">
-            <summary className="cursor-pointer p-8 font-bold text-gray-900 hover:bg-gray-50 transition-colors">
+          <details className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl">
+            <summary className="cursor-pointer p-8 font-bold text-white hover:bg-white/5 transition-colors">
               Raw Analysis Data (Click to expand)
             </summary>
             <div className="px-8 pb-8">
-              <pre className="bg-gray-50 rounded-lg p-4 text-sm overflow-auto max-h-96">
+              <pre className="bg-black/20 rounded-lg p-4 text-sm overflow-auto max-h-96 text-gray-300">
                 {JSON.stringify(contract.extracted_data, null, 2)}
               </pre>
             </div>
