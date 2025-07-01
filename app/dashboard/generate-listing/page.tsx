@@ -45,6 +45,7 @@ export default function GenerateListing() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [researchLoading, setResearchLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [showHighlights, setShowHighlights] = useState(false);
   const [completionPercentage, setCompletionPercentage] = useState(0);
   
@@ -233,6 +234,58 @@ export default function GenerateListing() {
       highlights: [],
     });
     setGeneratedContent({ mls: '', facebook: '', instagram: '', linkedin: '' });
+  };
+
+  // Save generated listing to database
+  const handleSaveListing = async () => {
+    setSaveLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Please log in to save listings');
+      }
+
+      // Prepare listing data for database
+      const listingData = {
+        user_id: session.user.id,
+        title: propertyDetails.title,
+        property_details: {
+          address: propertyDetails.address,
+          price: parseFloat(propertyDetails.price.replace(/[^0-9.]/g, '')) || 0,
+          bedrooms: parseInt(propertyDetails.bedrooms) || 0,
+          bathrooms: parseFloat(propertyDetails.bathrooms) || 0,
+          sqft: parseInt(propertyDetails.squareFeet.replace(/[^0-9]/g, '')) || 0,
+          yearBuilt: parseInt(propertyDetails.yearBuilt) || 0,
+          propertyType: propertyDetails.propertyType,
+          features: propertyDetails.features,
+          highlights: propertyDetails.highlights,
+        },
+        mls_description: generatedContent.mls,
+        facebook_content: generatedContent.facebook,
+        instagram_content: generatedContent.instagram,
+        linkedin_content: generatedContent.linkedin,
+      };
+
+      const { data, error } = await supabase
+        .from('listings')
+        .insert([listingData])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Navigate to the saved listing
+      router.push(`/dashboard/listings/${data.id}`);
+    } catch (error) {
+      console.error('Error saving listing:', error);
+      alert('Failed to save listing. Please try again.');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -642,8 +695,25 @@ export default function GenerateListing() {
               ))}
             </div>
 
-            {/* Action Button */}
-            <div className="text-center pt-8">
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 pt-8">
+              <button
+                onClick={handleSaveListing}
+                disabled={saveLoading}
+                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center gap-3 shadow-lg hover:shadow-xl"
+              >
+                {saveLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving Listing...
+                  </>
+                ) : (
+                  <>
+                    <FiCheck className="h-5 w-5" />
+                    Save Listing
+                  </>
+                )}
+              </button>
               <button
                 onClick={handleCreateNew}
                 className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border border-white/10 backdrop-blur-sm"

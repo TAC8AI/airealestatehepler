@@ -4,12 +4,26 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
-import { FiPlus, FiSearch, FiArrowRight, FiCalendar, FiEye, FiFilter } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiArrowRight, FiCalendar, FiEye, FiFilter, FiHome } from 'react-icons/fi';
 
 interface Listing {
   id: string;
   title: string;
-  description: string;
+  property_details: {
+    address: string;
+    price: number;
+    bedrooms: number;
+    bathrooms: number;
+    sqft: number;
+    yearBuilt: number;
+    propertyType: string;
+    features: string;
+    highlights: string[];
+  };
+  mls_description: string;
+  facebook_content: string;
+  instagram_content: string;
+  linkedin_content: string;
   created_at: string;
   updated_at: string;
 }
@@ -60,7 +74,8 @@ export default function ListingsPage() {
   const filterAndSortListings = () => {
     let filtered = listings.filter(listing =>
       listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.description.toLowerCase().includes(searchTerm.toLowerCase())
+      listing.mls_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      listing.property_details?.address?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Sort
@@ -94,27 +109,27 @@ export default function ListingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin absolute top-0"></div>
+          <div className="w-16 h-16 border-4 border-white/20 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin absolute top-0"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">AI Listings</h1>
-            <p className="text-gray-600">Manage all your AI-generated property listings</p>
+            <h1 className="text-4xl font-bold text-white mb-2">AI Listings</h1>
+            <p className="text-gray-300">Manage all your AI-generated property listings</p>
           </div>
           <Link 
             href="/dashboard/generate-listing"
-            className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
+            className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
           >
             <FiPlus className="h-4 w-4" />
             Create New Listing
@@ -123,7 +138,7 @@ export default function ListingsPage() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
@@ -133,7 +148,7 @@ export default function ListingsPage() {
               placeholder="Search listings by title or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
             />
           </div>
           
@@ -143,17 +158,17 @@ export default function ListingsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title')}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+              className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Title A-Z</option>
+              <option value="newest" className="bg-gray-800 text-white">Newest First</option>
+              <option value="oldest" className="bg-gray-800 text-white">Oldest First</option>
+              <option value="title" className="bg-gray-800 text-white">Title A-Z</option>
             </select>
           </div>
         </div>
         
         {/* Results Count */}
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-4 text-sm text-gray-400">
           {filteredListings.length} of {listings.length} listings
         </div>
       </div>
@@ -165,25 +180,25 @@ export default function ListingsPage() {
             <div
               key={listing.id}
               onClick={() => handleListingClick(listing.id)}
-              className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
+              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group shadow-lg hover:bg-white/10"
             >
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-black transition-colors">
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
                     {listing.title}
                   </h3>
-                  <p className="text-gray-600 line-clamp-3 mb-4">
-                    {listing.description}
+                  <p className="text-gray-300 line-clamp-3 mb-4">
+                    {listing.property_details?.address || listing.mls_description || 'No description available'}
                   </p>
                 </div>
                 <div className="ml-4">
-                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-gray-200 rounded-xl flex items-center justify-center transition-all">
-                    <FiArrowRight className="h-6 w-6 text-gray-600 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                  <div className="w-12 h-12 bg-white/10 group-hover:bg-white/20 rounded-xl flex items-center justify-center transition-all">
+                    <FiArrowRight className="h-6 w-6 text-gray-300 group-hover:text-white group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <FiCalendar className="h-4 w-4" />
                   Created {formatDate(listing.created_at)}
@@ -198,32 +213,32 @@ export default function ListingsPage() {
         </div>
       ) : (
         <div className="text-center py-20">
-          <div className="w-24 h-24 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
-            <FiPlus className="h-12 w-12 text-gray-600" />
+          <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
+            <FiHome className="h-12 w-12 text-gray-400" />
           </div>
           
           {searchTerm ? (
             <>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">No listings found</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">No listings found</h3>
+              <p className="text-gray-400 mb-8 max-w-md mx-auto">
                 No listings match your search "{searchTerm}". Try adjusting your search terms.
               </p>
               <button
                 onClick={() => setSearchTerm('')}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
               >
                 Clear Search
               </button>
             </>
           ) : (
             <>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Create your first AI listing</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">Create your first AI listing</h3>
+              <p className="text-gray-400 mb-8 max-w-md mx-auto">
                 Generate professional property listings in seconds with AI. Stand out from the competition.
               </p>
               <Link 
                 href="/dashboard/generate-listing"
-                className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <FiPlus className="h-5 w-5" />
                 Create Your First Listing
@@ -236,12 +251,12 @@ export default function ListingsPage() {
       {/* View All from Features */}
       {filteredListings.length > 0 && (
         <div className="mt-16 text-center">
-          <div className="bg-gray-50 rounded-2xl p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Ready to create more?</h3>
-            <p className="text-gray-600 mb-6">Generate another professional listing with AI</p>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+            <h3 className="text-xl font-bold text-white mb-4">Ready to create more?</h3>
+            <p className="text-gray-400 mb-6">Generate another professional listing with AI</p>
             <Link 
               href="/dashboard/generate-listing"
-              className="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
             >
               <FiPlus className="h-4 w-4" />
               Generate New Listing
