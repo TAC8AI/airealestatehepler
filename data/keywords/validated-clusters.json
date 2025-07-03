@@ -1,0 +1,179 @@
+{
+  "clusters": [
+    {
+      "id": "contract-analysis-automation",
+      "theme": "AI-powered contract review for risk mitigation",
+      "keywords": [
+        {
+          "keyword": "AI real estate contract review software",
+          "intent": "commercial",
+          "priority": "high",
+          "url_slug": "ai-real-estate-contract-review-software"
+        },
+        {
+          "keyword": "automate lease agreement analysis for brokers",
+          "intent": "transactional", 
+          "priority": "high",
+          "url_slug": "automate-lease-agreement-analysis-for-brokers"
+        },
+        {
+          "keyword": "identify risks in property contracts AI",
+          "intent": "informational",
+          "priority": "medium",
+          "url_slug": "identify-risks-in-property-contracts-ai"
+        },
+        {
+          "keyword": "time-saving contract review for agents",
+          "intent": "commercial",
+          "priority": "high",
+          "url_slug": "time-saving-contract-review-for-agents"
+        },
+        {
+          "keyword": "compare manual vs AI contract review",
+          "intent": "commercial",
+          "priority": "very-high",
+          "url_slug": "ai-contract-analysis-vs-manual-review"
+        }
+      ]
+    },
+    {
+      "id": "automated-property-listings",
+      "theme": "AI-generated marketing content for properties",
+      "keywords": [
+        {
+          "keyword": "AI real estate listing description generator",
+          "intent": "transactional",
+          "priority": "high",
+          "url_slug": "ai-real-estate-listing-description-generator"
+        },
+        {
+          "keyword": "automate MLS descriptions SaaS",
+          "intent": "commercial",
+          "priority": "high", 
+          "url_slug": "automate-mls-descriptions-saas"
+        },
+        {
+          "keyword": "generate Zillow descriptions instantly",
+          "intent": "commercial",
+          "priority": "medium",
+          "url_slug": "generate-zillow-descriptions-instantly"
+        }
+      ]
+    },
+    {
+      "id": "instant-valuation-technology", 
+      "theme": "AI-driven property valuation tools",
+      "keywords": [
+        {
+          "keyword": "30-second property valuation SaaS",
+          "intent": "commercial",
+          "priority": "very-high",
+          "url_slug": "30-second-property-valuation-saas"
+        },
+        {
+          "keyword": "AI comparative market analysis tools",
+          "intent": "transactional",
+          "priority": "high",
+          "url_slug": "ai-comparative-market-analysis-tools"
+        },
+        {
+          "keyword": "instant home valuation for agents",
+          "intent": "transactional",
+          "priority": "high", 
+          "url_slug": "instant-home-valuation-for-agents"
+        },
+        {
+          "keyword": "AI vs traditional valuation methods",
+          "intent": "commercial",
+          "priority": "high",
+          "url_slug": "ai-vs-traditional-valuation-methods"
+        }
+      ]
+    },
+    {
+      "id": "risk-analysis-contracts",
+      "theme": "Mitigating legal exposure in agreements",
+      "keywords": [
+        {
+          "keyword": "detect lease agreement risks AI",
+          "intent": "informational",
+          "priority": "high",
+          "url_slug": "detect-lease-agreement-risks-ai"
+        },
+        {
+          "keyword": "liability identification in real estate contracts",
+          "intent": "commercial",
+          "priority": "high",
+          "url_slug": "liability-identification-real-estate-contracts"
+        },
+        {
+          "keyword": "clause compliance checker for brokers",
+          "intent": "transactional",
+          "priority": "medium",
+          "url_slug": "clause-compliance-checker-for-brokers"
+        }
+      ]
+    },
+    {
+      "id": "transaction-efficiency-tools",
+      "theme": "Workflow automation for agent productivity",
+      "keywords": [
+        {
+          "keyword": "AI real estate closing automation",
+          "intent": "transactional",
+          "priority": "high",
+          "url_slug": "ai-real-estate-closing-automation"
+        },
+        {
+          "keyword": "reduce contract management time SaaS",
+          "intent": "commercial",
+          "priority": "high",
+          "url_slug": "reduce-contract-management-time-saas"
+        },
+        {
+          "keyword": "SaaS ROI calculator for agents",
+          "intent": "commercial",
+          "priority": "medium",
+          "url_slug": "saas-roi-calculator-for-agents"
+        }
+      ]
+    }
+  ],
+  "comparison_targets": [
+    {
+      "toolA": "AI Contract Analysis",
+      "toolB": "Manual Review",
+      "url_slug": "ai-contract-analysis-vs-manual-review",
+      "priority": "very-high",
+      "target_keyword": "compare manual vs AI contract review"
+    },
+    {
+      "toolA": "AI Real Estate Helper",
+      "toolB": "ContractWorks", 
+      "url_slug": "ai-real-estate-helper-vs-contractworks",
+      "priority": "high",
+      "target_keyword": "AI real estate contract review software"
+    },
+    {
+      "toolA": "Instant Valuations",
+      "toolB": "Traditional Appraisals",
+      "url_slug": "instant-valuations-vs-traditional-appraisals", 
+      "priority": "high",
+      "target_keyword": "AI vs traditional valuation methods"
+    },
+    {
+      "toolA": "AI Property Valuations",
+      "toolB": "Manual Appraisals",
+      "url_slug": "ai-property-valuations-vs-manual-appraisals",
+      "priority": "high",
+      "target_keyword": "AI comparative market analysis tools"
+    },
+    {
+      "toolA": "Automated MLS Descriptions",
+      "toolB": "Manual Copywriting",
+      "url_slug": "automated-mls-descriptions-vs-manual-copywriting",
+      "priority": "medium",
+      "target_keyword": "automate MLS descriptions SaaS"
+    }
+  ]
+} 

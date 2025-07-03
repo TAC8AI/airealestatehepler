@@ -194,6 +194,27 @@ export default function RootLayout({
             })
           }}
         />
+
+        {/* Google Analytics 4 */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-98DNCZS0NN"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-98DNCZS0NN', {
+                page_title: document.title,
+                page_location: window.location.href,
+                custom_map: {
+                  'custom_parameter_1': 'content_group1',
+                  'custom_parameter_2': 'content_group2', 
+                  'custom_parameter_3': 'content_group3'
+                }
+              });
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         {children}

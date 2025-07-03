@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import keywordData from '@/data/keywords/validated-clusters.json'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://airealestatehelper.com'
@@ -75,6 +76,54 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: 'yearly',
       priority: 0.3,
+    },
+    
+    // SEO Directory
+    {
+      url: `${baseUrl}/seo-directory`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    
+    // Programmatic SEO Comparison Pages
+    {
+      url: `${baseUrl}/compare/ai-contract-analysis-vs-manual-review`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/compare/ai-property-valuations-vs-manual-appraisals`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/compare/automated-mls-descriptions-vs-manual-copywriting`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    
+    // Programmatic SEO Guide Pages
+    {
+      url: `${baseUrl}/guides/ai-real-estate-contract-review-software`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/guides/automate-mls-descriptions-saas`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/guides/30-second-property-valuation-saas`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
   ]
 } 
