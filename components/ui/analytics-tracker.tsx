@@ -119,7 +119,7 @@ export const ScrollDepthTracker: React.FC = () => {
       milestones.forEach(milestone => {
         if (scrollPercent >= milestone && !trackedDepths.has(milestone)) {
           trackScrollDepth(milestone);
-          setTrackedDepths(prev => new Set([...prev, milestone]));
+          setTrackedDepths(prev => new Set(Array.from(prev).concat(milestone)));
         }
       });
     };
