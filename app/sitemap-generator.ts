@@ -62,12 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 // Helper function to get sitemap data for analysis
 export function getSitemapData() {
-  const sitemap = sitemap();
+  const sitemapData = sitemap();
   return {
-    totalPages: sitemap.length,
-    highPriorityPages: sitemap.filter(page => page.priority >= 0.8).length,
-    guidePages: sitemap.filter(page => page.url.includes('/guides/')).length,
-    comparisonPages: sitemap.filter(page => page.url.includes('/compare/')).length,
+    totalPages: sitemapData.length,
+    highPriorityPages: sitemapData.filter(page => page.priority && page.priority >= 0.8).length,
+    guidePages: sitemapData.filter(page => page.url.includes('/guides/')).length,
+    comparisonPages: sitemapData.filter(page => page.url.includes('/compare/')).length,
     lastGenerated: new Date().toISOString()
   };
 } 

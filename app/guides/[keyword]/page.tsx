@@ -145,46 +145,6 @@ const guideData: Record<string, any> = {
           description: 'Generate descriptions for MLS, social media, websites, and marketing materials from a single input.',
           icon: 'FiFileText'
         }
-      ]
-    }
-  },
-  'automate-mls-descriptions-saas': {
-    title: 'Complete Guide: Automate MLS Descriptions with SaaS for Real Estate Agents',
-    description: 'Discover how to automate MLS listing descriptions using AI SaaS tools. Save hours per listing while creating compelling, SEO-optimized property descriptions.',
-    targetKeyword: 'automate MLS descriptions SaaS',
-    readTime: '7 min read',
-    lastUpdated: 'January 3, 2025',
-    sections: {
-      definition: {
-        title: 'What is MLS Description Automation SaaS?',
-        content: 'MLS description automation SaaS uses artificial intelligence to generate compelling, SEO-optimized property descriptions for Multiple Listing Service platforms, transforming basic property data into engaging marketing copy that attracts buyers.',
-        stats: [
-          { number: '85%', label: 'Time Saved' },
-          { number: '$40+', label: 'Value Per Listing' },
-          { number: '2min', label: 'Generation Time' }
-        ]
-      },
-      benefits: [
-        {
-          title: 'Consistent Quality',
-          description: 'Generate professional, engaging descriptions every time without writer\'s block or quality variations.',
-          icon: 'FiCheck'
-        },
-        {
-          title: 'SEO Optimization',
-          description: 'Built-in SEO best practices ensure your listings rank higher in search results and attract more qualified leads.',
-          icon: 'FiTrendingUp'
-        },
-        {
-          title: 'Time Efficiency',
-          description: 'Create compelling descriptions in minutes instead of hours, allowing more time for client relationships.',
-          icon: 'FiClock'
-        },
-        {
-          title: 'Multiple Formats',
-          description: 'Generate descriptions for MLS, social media, websites, and marketing materials from a single input.',
-          icon: 'FiFileText'
-        }
       ],
       howItWorks: [
         {
