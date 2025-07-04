@@ -588,15 +588,29 @@ export default function GenerateListing() {
                   )}
                   
                   {propertyDetails.highlights.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {propertyDetails.highlights.map((highlight) => (
-                        <span
-                          key={highlight}
-                          className="px-2 py-1 bg-blue-500/20 border border-blue-400/50 text-blue-300 rounded text-xs"
-                        >
-                          {highlight}
-                        </span>
-                      ))}
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-400 mb-3">Selected Marketing Highlights:</p>
+                      <div className="flex flex-wrap gap-3">
+                        {propertyDetails.highlights.map((highlight) => (
+                          <div
+                            key={highlight}
+                            className="flex items-center gap-2 px-4 py-3 bg-blue-500/20 border border-blue-400/50 text-blue-200 rounded-lg text-sm font-medium group hover:bg-blue-500/30 transition-all duration-200"
+                          >
+                            <span>{highlight}</span>
+                            <button
+                              type="button"
+                              onClick={() => toggleHighlight(highlight)}
+                              className="w-6 h-6 rounded-full bg-red-500/20 hover:bg-red-500/40 border border-red-400/30 hover:border-red-400/60 flex items-center justify-center text-red-300 hover:text-red-200 transition-all duration-200 group-hover:scale-110 ml-2"
+                              title={`Remove "${highlight}"`}
+                            >
+                              <span className="text-sm font-bold">×</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Click the × to remove any highlights you don't want to emphasize
+                      </p>
                     </div>
                   )}
                 </div>
