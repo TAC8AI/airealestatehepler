@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFileText, FiKey } from 'react-icons/fi';
 import { analyzePDFContract, isPDFFile, formatFileSize, getUploadMessage } from '@/lib/pdf-upload';
 import { supabase } from '@/lib/supabase';
+import { LoadingScreen, CONTRACT_ANALYSIS_STEPS } from '@/components/ui/loading-screen';
 import LeaseContractCard from '@/components/contract-cards/LeaseContractCard';
 import PurchaseContractCard from '@/components/contract-cards/PurchaseContractCard';
 import ListingContractCard from '@/components/contract-cards/ListingContractCard';
@@ -45,22 +46,7 @@ const CONTRACT_TYPES = {
   }
 };
 
-// Premium Loading Component with dark theme
-function PremiumLoader({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16">
-      <div className="relative">
-        <div className="w-16 h-16 border-4 border-white/10 rounded-full"></div>
-        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
-      </div>
-      <div className="mt-6 text-center">
-        <h3 className="text-lg font-semibold text-white mb-2">Analyzing Contract</h3>
-        <p className="text-gray-400 max-w-sm">{message}</p>
-      </div>
-    </div>
-  );
-}
+
 
 // Premium PDF Upload Zone with dark glassmorphism styling
 interface PDFUploadZoneProps {
@@ -167,6 +153,8 @@ export default function ContractAnalysis() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [pdfAnalyzing, setPdfAnalyzing] = useState<boolean>(false);
+  const [loadingStep, setLoadingStep] = useState<number>(0);
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [extractedData, setExtractedData] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -217,8 +205,37 @@ export default function ContractAnalysis() {
     fetchUsageInfo();
   }, []);
 
+  const simulateProgress = async () => {
+    // Step 1: Processing Document
+    setLoadingStep(0);
+    setLoadingProgress(10);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingProgress(30);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Step 2: Analyzing Contract
+    setLoadingStep(1);
+    setLoadingProgress(40);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setLoadingProgress(70);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Step 3: Validating Results
+    setLoadingStep(2);
+    setLoadingProgress(85);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
+
   const handlePDFAnalysisComplete = async (result: any) => {
+    // Simulate progress while actual analysis happens
+    await simulateProgress();
+    
     setPdfAnalyzing(false);
+    setLoadingStep(0);
+    setLoadingProgress(0);
+    
     if (result.success) {
       setExtractedData(result.data);
       // Edge Function already did all the analysis and saved to database
@@ -360,11 +377,14 @@ export default function ContractAnalysis() {
 
         {/* Step 3: Processing State */}
         {(pdfAnalyzing || loading) && (
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-2xl">
-            <PremiumLoader 
-              message={pdfAnalyzing ? "Extracting contract data..." : "Analyzing contract terms and clauses..."} 
-            />
-          </div>
+          <LoadingScreen
+            title="Analyzing Contract"
+            subtitle="Our AI is processing your document and identifying key terms"
+            steps={CONTRACT_ANALYSIS_STEPS}
+            currentStep={loadingStep}
+            progress={loadingProgress}
+            disclaimer="This analysis is AI-generated and should be reviewed by a qualified professional. While our AI is highly accurate, it may not catch every nuance or interpretation that a human expert would identify."
+          />
         )}
 
         {/* Step 4: Analysis Results */}

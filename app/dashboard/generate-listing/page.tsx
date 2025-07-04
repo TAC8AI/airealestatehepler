@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiSend, FiCopy, FiCheck, FiEdit3, FiHome, FiDollarSign, FiMapPin, FiCalendar, FiTrendingUp, FiStar, FiPlus, FiChevronRight, FiCamera, FiMic, FiZap, FiArrowLeft, FiFileText, FiTarget, FiLayers, FiGlobe } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
+import { LoadingScreen, LISTING_GENERATION_STEPS } from '@/components/ui/loading-screen';
 
 interface PropertyDetails {
   title: string;
@@ -48,6 +49,8 @@ export default function GenerateListing() {
   const [saveLoading, setSaveLoading] = useState(false);
   const [showHighlights, setShowHighlights] = useState(false);
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [loadingStep, setLoadingStep] = useState<number>(0);
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
   
   // Step 1: Basic address info
   const [addressInfo, setAddressInfo] = useState<AddressInfo>({
@@ -94,6 +97,40 @@ export default function GenerateListing() {
     setCompletionPercentage((completed / requiredFields.length) * 100);
   }, [propertyDetails]);
 
+  const simulateResearchProgress = async () => {
+    // Step 1: Property Research
+    setLoadingStep(0);
+    setLoadingProgress(15);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setLoadingProgress(45);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
+
+  const simulateGenerationProgress = async () => {
+    // Step 1: Property Research (already done)
+    setLoadingStep(0);
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Step 2: Market Analysis
+    setLoadingStep(1);
+    setLoadingProgress(20);
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    setLoadingProgress(60);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Step 3: Content Generation
+    setLoadingStep(2);
+    setLoadingProgress(75);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingProgress(95);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
+
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setAddressInfo((prev) => ({ ...prev, [name]: value }));
@@ -119,6 +156,9 @@ export default function GenerateListing() {
     setResearchLoading(true);
 
     try {
+      // Start progress simulation
+      const progressPromise = simulateResearchProgress();
+      
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -141,6 +181,9 @@ export default function GenerateListing() {
       }
 
       const researchData = await response.json();
+      
+      // Wait for progress simulation to complete
+      await progressPromise;
       
       // Pre-fill property details with research data
       setPropertyDetails(prev => ({
@@ -167,6 +210,8 @@ export default function GenerateListing() {
       alert('Failed to research property. Please try again.');
     } finally {
       setResearchLoading(false);
+      setLoadingStep(0);
+      setLoadingProgress(0);
     }
   };
 
@@ -176,6 +221,9 @@ export default function GenerateListing() {
     setLoading(true);
 
     try {
+      // Start progress simulation
+      const progressPromise = simulateGenerationProgress();
+      
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -200,6 +248,10 @@ export default function GenerateListing() {
       }
 
       const generatedData = await response.json();
+      
+      // Wait for progress simulation to complete
+      await progressPromise;
+      
       setGeneratedContent(generatedData);
       setStep(3);
     } catch (error) {
@@ -207,6 +259,8 @@ export default function GenerateListing() {
       alert('Failed to generate listing content. Please try again.');
     } finally {
       setLoading(false);
+      setLoadingStep(0);
+      setLoadingProgress(0);
     }
   };
 
@@ -324,6 +378,29 @@ export default function GenerateListing() {
             ></div>
           </div>
         </div>
+
+        {/* Loading Screen Overlay */}
+        {researchLoading && (
+          <LoadingScreen
+            title="Researching Property"
+            subtitle="Gathering market data and property information for accurate listing generation"
+            steps={LISTING_GENERATION_STEPS}
+            currentStep={loadingStep}
+            progress={loadingProgress}
+            disclaimer="Our AI pre-fills property information based on available data sources. Please review and verify all details before generating your listing."
+          />
+        )}
+
+        {loading && (
+          <LoadingScreen
+            title="Generating Listings"
+            subtitle="Creating personalized marketing content optimized for different platforms"
+            steps={LISTING_GENERATION_STEPS}
+            currentStep={loadingStep}
+            progress={loadingProgress}
+            disclaimer="Generated content is AI-created and should be reviewed for accuracy. Customize any details to match your specific property and marketing preferences."
+          />
+        )}
 
         {/* Step 1: Address Input */}
         {step === 1 && (
