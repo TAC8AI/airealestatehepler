@@ -5,7 +5,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://airealestatehelper.com'
   const lastModified = new Date()
   
-  return [
+  // Helper function to convert priority to numeric value
+  const getPriorityValue = (priority: string): number => {
+    switch (priority) {
+      case 'very-high': return 0.9
+      case 'high': return 0.8
+      case 'medium': return 0.7
+      default: return 0.6
+    }
+  }
+  
+  // Static pages
+  const staticPages: MetadataRoute.Sitemap = [
     // Main pages
     {
       url: baseUrl,
@@ -85,45 +96,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    
-    // Programmatic SEO Comparison Pages
-    {
-      url: `${baseUrl}/compare/ai-contract-analysis-vs-manual-review`,
+  ]
+  
+  // Dynamic Guide Pages - Generate from all keyword clusters
+  const guidePages: MetadataRoute.Sitemap = keywordData.clusters.flatMap(cluster => 
+    cluster.keywords.map(keyword => ({
+      url: `${baseUrl}/guides/${keyword.url_slug}`,
       lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/compare/ai-property-valuations-vs-manual-appraisals`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/compare/automated-mls-descriptions-vs-manual-copywriting`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    
-    // Programmatic SEO Guide Pages
-    {
-      url: `${baseUrl}/guides/ai-real-estate-contract-review-software`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/guides/automate-mls-descriptions-saas`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/guides/30-second-property-valuation-saas`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
+      changeFrequency: 'weekly' as const,
+      priority: getPriorityValue(keyword.priority),
+    }))
+  )
+  
+  // Dynamic Comparison Pages - Generate from comparison targets
+  const comparisonPages: MetadataRoute.Sitemap = keywordData.comparison_targets.map(comparison => ({
+    url: `${baseUrl}/compare/${comparison.url_slug}`,
+    lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: getPriorityValue(comparison.priority),
+  }))
+  
+  // Combine all pages
+  return [
+    ...staticPages,
+    ...guidePages,
+    ...comparisonPages,
   ]
 } 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { FiHome, FiFileText, FiSettings, FiLogOut, FiMenu, FiX, FiPlus, FiCreditCard, FiTrendingUp } from 'react-icons/fi';
+import { FiHome, FiFileText, FiSettings, FiLogOut, FiMenu, FiX, FiPlus, FiCreditCard, FiTrendingUp, FiBarChart } from 'react-icons/fi';
 
 export default function DashboardLayout({
   children,
@@ -12,6 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -27,6 +28,20 @@ export default function DashboardLayout({
       }
       
       setUser(data.session.user);
+      
+      // Fetch user profile to check SEO access
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.session.user.id)
+        .maybeSingle();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else {
+        setProfile(profileData);
+      }
+      
       setLoading(false);
     };
     
@@ -53,11 +68,14 @@ export default function DashboardLayout({
     );
   }
 
+  // Build navigation items - include SEO dashboard if user has access
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: FiHome },
     { name: 'Generate Listing', href: '/dashboard/generate-listing', icon: FiPlus },
     { name: 'Contract Analysis', href: '/dashboard/contract-analysis', icon: FiFileText },
     { name: 'Property Valuation', href: '/dashboard/property-valuation', icon: FiTrendingUp },
+    // Conditionally add SEO Dashboard
+    ...(profile?.seo === 'yes' ? [{ name: 'SEO Dashboard', href: '/dashboard/seo', icon: FiBarChart }] : []),
     { name: 'Settings', href: '/dashboard/settings', icon: FiSettings },
     { name: 'Subscription', href: '/dashboard/subscription', icon: FiCreditCard },
   ];
@@ -137,7 +155,9 @@ export default function DashboardLayout({
             <div className="text-sm font-medium text-white truncate">
               {user?.email}
             </div>
-            <div className="text-xs text-gray-400 mt-1">Premium Account</div>
+            <div className="text-xs text-gray-400 mt-1">
+              Premium Account
+            </div>
           </div>
           
           <button
