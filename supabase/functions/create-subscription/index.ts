@@ -8,8 +8,9 @@ const corsHeaders = {
 
 // Stripe price IDs for your plans
 const STRIPE_PRICE_IDS = {
-  'pro': 'price_1RdXAeP39gdAeIfcrTV2f0nx',
-  'business': 'price_1RdXMuP39gdAeIfcTgZx2eag'
+  'starter': 'price_1RhxE2P39gdAeIfcHl7uRo9R',
+  'professional': 'price_1RhxEyP39gdAeIfc3O6o8gbA',
+  'business': 'price_1RhxG5P39gdAeIfchCGkP3jw'
 };
 
 serve(async (req) => {

@@ -26,35 +26,46 @@ export default function Subscription() {
       price: 0,
       interval: 'month',
       features: [
-        '1 Listing per month',
-        '1 Contract analysis per month',
-        '1 Property valuation per month',
+        '3 credits per month',
+        '1 credit = 1 contract analysis',
+        '1 credit = 1 property valuation',
+        '1 credit = 1 listing generation',
         'Email support'
       ]
     },
     {
-      id: 'pro',
-      name: 'Professional',
-      price: 29,
+      id: 'starter',
+      name: 'Starter',
+      price: 19,
       interval: 'month',
       features: [
-        '5 Listings per month',
-        '5 Contract analyses per month',
-        '5 Property valuations per month',
-        'Priority support'
+        '15 credits per month',
+        'All Free features included',
+        'Priority email support',
+        'Cancel anytime'
+      ]
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 49,
+      interval: 'month',
+      features: [
+        '50 credits per month',
+        'All Starter features included',
+        'Priority support',
+        'Advanced features access'
       ],
       isPopular: true
     },
     {
       id: 'business',
       name: 'Business',
-      price: 79,
+      price: 99,
       interval: 'month',
       features: [
-        'Unlimited listings',
-        'Unlimited contract analyses',
-        'Unlimited property valuations',
-        'Priority support',
+        '150 credits per month',
+        'All Professional features included',
         'One-on-one meetings'
       ]
     }
@@ -80,7 +91,8 @@ export default function Subscription() {
         
         if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
           console.error('Error fetching subscription:', error);
-        } else if (data) {
+          setCurrentPlan('free'); // Default to free plan on error
+        } else if (data && data.plan_id) {
           setCurrentPlan(data.plan_id);
         } else {
           setCurrentPlan('free'); // Default to free plan
@@ -180,9 +192,9 @@ export default function Subscription() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight">
-                Subscription
+                Choose Your Credits
               </h1>
-              <p className="text-lg text-gray-400 mt-1">Choose the perfect plan for your real estate business</p>
+              <p className="text-lg text-gray-400 mt-1">Flexible credit-based pricing that scales with your business needs</p>
             </div>
           </div>
           
@@ -197,16 +209,18 @@ export default function Subscription() {
             </p>
           </div>
         </div>
+
+
         
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentPlan;
             
             return (
               <div 
                 key={plan.id}
-                className={`bg-white/5 backdrop-blur-sm border rounded-3xl p-8 shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl group relative ${
+                className={`bg-white/5 backdrop-blur-sm border rounded-3xl p-6 shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl group relative ${
                   plan.isPopular 
                     ? 'border-blue-400/50 bg-gradient-to-b from-blue-500/10 to-purple-500/10' 
                     : 'border-white/10 hover:border-white/20'
@@ -214,10 +228,10 @@ export default function Subscription() {
               >
                 {/* Popular Badge */}
                 {plan.isPopular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
                       <div className="flex items-center gap-2">
-                        <FiStar className="h-4 w-4" />
+                        <FiStar className="h-3 w-3" />
                         Most Popular
                       </div>
                     </div>
@@ -226,34 +240,47 @@ export default function Subscription() {
 
                 {/* Current Plan Badge */}
                 {isCurrentPlan && (
-                  <div className="absolute -top-4 right-4">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
-                      <div className="flex items-center gap-2">
-                        <FiCheck className="h-4 w-4" />
+                  <div className="absolute -top-4 right-3 z-10">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm border border-white/20">
+                      <div className="flex items-center gap-1">
+                        <FiCheck className="h-3 w-3" />
                         Current
                       </div>
                     </div>
                   </div>
                 )}
                 
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                  <div className="flex items-baseline justify-center gap-1 mb-4">
-                    <span className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center gap-1 mb-2">
+                    <span className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                       ${plan.price}
                     </span>
                     <span className="text-gray-400">/{plan.interval}</span>
                   </div>
+                  
+                  {/* Credit Amount Highlight */}
+                  <div className="mt-3 p-3 bg-gradient-to-r from-white/5 to-white/10 rounded-xl border border-white/20">
+                    <div className="flex items-center justify-center gap-2">
+                      <FiZap className="h-4 w-4 text-yellow-400" />
+                      <span className="text-lg font-semibold text-white">
+                        {plan.id === 'free' ? '3 Credits' : 
+                         plan.id === 'starter' ? '15 Credits' :
+                         plan.id === 'professional' ? '50 Credits' : '150 Credits'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">per month</p>
+                  </div>
                 </div>
 
                 {/* Features */}
-                <div className="space-y-4 mb-8">
+                <div className="space-y-3 mb-6">
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center">
-                        <FiCheck className="h-3 w-3 text-white" />
+                      <div className="flex-shrink-0 w-4 h-4 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center">
+                        <FiCheck className="h-2.5 w-2.5 text-white" />
                       </div>
-                      <span className="text-gray-300">{feature}</span>
+                      <span className="text-gray-300 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -262,7 +289,7 @@ export default function Subscription() {
                 <button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={processingPayment || isCurrentPlan}
-                  className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl backdrop-blur-sm border ${
+                  className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl backdrop-blur-sm border text-sm ${
                     isCurrentPlan
                       ? 'bg-green-500/20 border-green-400/50 text-green-300 cursor-default'
                       : plan.isPopular
@@ -272,34 +299,74 @@ export default function Subscription() {
                 >
                   {processingPayment && !isCurrentPlan ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Processing...
                     </>
                   ) : isCurrentPlan ? (
                     <>
-                      <FiCheck className="h-5 w-5" />
+                      <FiCheck className="h-4 w-4" />
                       Current Plan
                     </>
                   ) : (
                     <>
                       {plan.price === 0 ? (
                         <>
-                          <FiUsers className="h-5 w-5" />
+                          <FiUsers className="h-4 w-4" />
                           Get Started
                         </>
                       ) : (
                         <>
-                          <FiZap className="h-5 w-5" />
-                          Upgrade Now
+                          <FiZap className="h-4 w-4" />
+                          {plan.id === 'starter' ? 'Start Trial' : 'Upgrade Now'}
                         </>
                       )}
-                      <FiArrowRight className="h-4 w-4" />
+                      <FiArrowRight className="h-3 w-3" />
                     </>
                   )}
                 </button>
               </div>
             );
           })}
+        </div>
+
+        {/* Value Comparison Section */}
+        <div className="mb-12">
+          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm border border-green-500/20 rounded-3xl p-8 shadow-lg">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Compare Your Savings</h2>
+              <p className="text-gray-300">See how much you save with our credit-based pricing vs. traditional services</p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div className="text-3xl font-bold text-red-400 mb-2">$75-150</div>
+                <div className="text-sm text-gray-400 mb-3">Per Contract Analysis</div>
+                <div className="text-xs text-gray-500">Traditional Paralegal</div>
+              </div>
+              
+              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div className="text-3xl font-bold text-red-400 mb-2">$300-500</div>
+                <div className="text-sm text-gray-400 mb-3">Per Property Valuation</div>
+                <div className="text-xs text-gray-500">Professional Appraiser</div>
+              </div>
+              
+              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                <div className="text-3xl font-bold text-red-400 mb-2">$25-55</div>
+                <div className="text-sm text-gray-400 mb-3">Per Listing Description</div>
+                <div className="text-xs text-gray-500">Professional Copywriter</div>
+              </div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <div className="inline-flex items-center gap-4 p-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/30">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white mb-1">With Professional Plan</div>
+                  <div className="text-green-400 font-semibold">Save $20,000+ annually</div>
+                  <div className="text-sm text-gray-400">Based on 10 contracts + 5 valuations + 20 listings per month</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Additional Info */}
