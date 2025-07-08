@@ -160,13 +160,15 @@ export default function Home() {
               <FiArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
             </Link>
             
-            <Link 
-              href="#demo"
+            <a 
+              href="https://www.youtube.com/watch?v=vr3gyQEQVH8"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group px-8 py-4 border border-white/20 rounded-full font-semibold transition-all duration-300 hover:bg-white/10 hover:border-white/40 inline-flex items-center gap-3 text-lg backdrop-blur-sm"
             >
               <FiPlay className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               Watch Demo
-            </Link>
+            </a>
           </div>
 
           {/* Trust Indicators with Logos */}

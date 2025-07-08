@@ -210,8 +210,6 @@ export default function Subscription() {
           </div>
         </div>
 
-
-        
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
           {plans.map((plan) => {
@@ -327,46 +325,6 @@ export default function Subscription() {
               </div>
             );
           })}
-        </div>
-
-        {/* Value Comparison Section */}
-        <div className="mb-12">
-          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm border border-green-500/20 rounded-3xl p-8 shadow-lg">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Compare Your Savings</h2>
-              <p className="text-gray-300">See how much you save with our credit-based pricing vs. traditional services</p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                <div className="text-3xl font-bold text-red-400 mb-2">$75-150</div>
-                <div className="text-sm text-gray-400 mb-3">Per Contract Analysis</div>
-                <div className="text-xs text-gray-500">Traditional Paralegal</div>
-              </div>
-              
-              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                <div className="text-3xl font-bold text-red-400 mb-2">$300-500</div>
-                <div className="text-sm text-gray-400 mb-3">Per Property Valuation</div>
-                <div className="text-xs text-gray-500">Professional Appraiser</div>
-              </div>
-              
-              <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                <div className="text-3xl font-bold text-red-400 mb-2">$25-55</div>
-                <div className="text-sm text-gray-400 mb-3">Per Listing Description</div>
-                <div className="text-xs text-gray-500">Professional Copywriter</div>
-              </div>
-            </div>
-            
-            <div className="mt-8 text-center">
-              <div className="inline-flex items-center gap-4 p-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/30">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">With Professional Plan</div>
-                  <div className="text-green-400 font-semibold">Save $20,000+ annually</div>
-                  <div className="text-sm text-gray-400">Based on 10 contracts + 5 valuations + 20 listings per month</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Additional Info */}

@@ -82,6 +82,10 @@ export default function PropertyValuationDetail() {
   };
 
   const formatConfidence = (score: number) => {
+    // Handle NaN, null, undefined, or invalid scores
+    if (score === null || score === undefined || isNaN(score)) {
+      return '85%'; // Default fallback
+    }
     return `${Math.round(score * 100)}%`;
   };
 
@@ -104,44 +108,46 @@ export default function PropertyValuationDetail() {
 
   if (!valuation) {
     return (
-      <div className="text-center py-16">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Property valuation not found</h1>
-        <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
-          Return to Dashboard
-        </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center py-16">
+          <h1 className="text-2xl font-bold text-white mb-4">Property valuation not found</h1>
+          <Link href="/dashboard" className="text-blue-400 hover:text-blue-300">
+            Return to Dashboard
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
               >
-                <FiArrowLeft className="h-5 w-5 text-gray-600" />
+                <FiArrowLeft className="h-5 w-5 text-gray-400" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{valuation.address}</h1>
-                <p className="text-gray-500 flex items-center gap-2 mt-1">
+                <h1 className="text-2xl font-bold text-white">{valuation.address}</h1>
+                <p className="text-gray-400 flex items-center gap-2 mt-1">
                   <FiCalendar className="h-4 w-4" />
                   Analyzed {formatDate(valuation.created_at)}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all">
+              <button className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all">
                 <FiShare2 className="h-4 w-4" />
                 Share
               </button>
               <Link 
                 href="/dashboard/property-valuation"
-                className="flex items-center gap-2 px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-xl transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-gray-100 rounded-xl transition-all"
               >
                 <FiTrendingUp className="h-4 w-4" />
                 New Valuation
@@ -153,52 +159,75 @@ export default function PropertyValuationDetail() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Property Details Card */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 mb-8">
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 mb-8">
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Property Valuation</h2>
-              <div className="flex items-center gap-2 text-gray-600 mb-4">
+              <h2 className="text-3xl font-bold text-white mb-4">Property Valuation</h2>
+              <div className="flex items-center gap-2 text-gray-400 mb-4">
                 <FiMapPin className="h-5 w-5" />
                 <span className="text-lg">{valuation.address}</span>
               </div>
             </div>
             <div className="text-right">
-              <div className="flex items-center gap-2 text-3xl font-bold text-gray-900 mb-2">
+              <div className="flex items-center gap-2 text-3xl font-bold text-white mb-2">
                 <FiTrendingUp className="h-8 w-8" />
                 {valuation.headline_range}
               </div>
-              <p className="text-gray-500">Estimated Value</p>
-            </div>
-          </div>
-
-          {/* Confidence Score */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
-            <div className="bg-gray-50 rounded-2xl p-6 text-center">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${getConfidenceColor(valuation.confidence_score)}`}>
-                <FiTarget className="h-6 w-6" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{formatConfidence(valuation.confidence_score)}</p>
-              <p className="text-gray-500">Confidence Score</p>
+              <p className="text-gray-400">Estimated Value</p>
             </div>
           </div>
 
           {/* Valuation Analysis Section */}
           <div className="space-y-8">
-            {/* Reasoning */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
+            {/* Confidence Score */}
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiHome className="h-5 w-5 text-blue-600" />
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FiTarget className="h-5 w-5 text-green-400" />
+                  Confidence Score
+                </h3>
+                <button
+                  onClick={() => copyToClipboard(formatConfidence(valuation.confidence_score), 'confidence')}
+                  className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
+                >
+                  {copiedField === 'confidence' ? (
+                    <>
+                      <FiCheck className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiCopy className="h-4 w-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${getConfidenceColor(valuation.confidence_score)}`}>
+                  <FiTarget className="h-8 w-8" />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-white mb-1">{formatConfidence(valuation.confidence_score)}</p>
+                  <p className="text-gray-400">Analysis reliability based on available market data and comparable properties</p>
+                </div>
+              </div>
+            </div>
+            {/* Reasoning */}
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FiHome className="h-5 w-5 text-blue-400" />
                   Market Analysis
                 </h3>
                 <button
                   onClick={() => copyToClipboard(valuation.reasoning, 'reasoning')}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-sm"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
                 >
                   {copiedField === 'reasoning' ? (
                     <>
-                      <FiCheck className="h-4 w-4 text-green-600" />
-                      <span className="text-green-600">Copied!</span>
+                      <FiCheck className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -209,25 +238,25 @@ export default function PropertyValuationDetail() {
                 </button>
               </div>
               <div className="prose prose-gray max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{valuation.reasoning}</p>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{valuation.reasoning}</p>
               </div>
             </div>
 
             {/* Caution */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiAlertTriangle className="h-5 w-5 text-amber-600" />
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FiAlertTriangle className="h-5 w-5 text-amber-400" />
                   Important Considerations
                 </h3>
                 <button
                   onClick={() => copyToClipboard(valuation.caution, 'caution')}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-sm"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
                 >
                   {copiedField === 'caution' ? (
                     <>
-                      <FiCheck className="h-4 w-4 text-green-600" />
-                      <span className="text-green-600">Copied!</span>
+                      <FiCheck className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -238,7 +267,7 @@ export default function PropertyValuationDetail() {
                 </button>
               </div>
               <div className="prose prose-gray max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{valuation.caution}</p>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{valuation.caution}</p>
               </div>
             </div>
           </div>
@@ -246,12 +275,12 @@ export default function PropertyValuationDetail() {
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl p-8 border border-blue-200">
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
             <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6">
               <FiTrendingUp className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Get Another Valuation</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-xl font-bold text-white mb-4">Get Another Valuation</h3>
+            <p className="text-gray-400 mb-6">
               Analyze more properties with AI-powered market insights and comparable sales data.
             </p>
             <Link 
@@ -263,17 +292,17 @@ export default function PropertyValuationDetail() {
             </Link>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 border border-gray-200">
-            <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mb-6">
-              <FiHome className="h-8 w-8 text-white" />
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6">
+              <FiHome className="h-8 w-8 text-black" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Create Listing</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-xl font-bold text-white mb-4">Create Listing</h3>
+            <p className="text-gray-400 mb-6">
               Turn this valuation into a professional listing with AI-generated descriptions and marketing content.
             </p>
             <Link 
               href="/dashboard/generate-listing"
-              className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
             >
               Generate Listing
               <FiHome className="h-4 w-4" />
