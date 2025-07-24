@@ -6,10 +6,10 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'AI Real Estate Helper - Close More Deals with AI-Powered Tools 🏠✨',
+    default: 'AI Real Estate Helper - Close More Deals with AI-Powered Tools',
     template: '%s | AI Real Estate Helper'
   },
-  description: '🚀 Revolutionary AI real estate tools trusted by 1000+ agents. Get instant contract analysis, property valuations & viral-worthy listings. Save 10+ hours weekly. Free trial!',
+  description: 'Revolutionary AI real estate tools trusted by 1000+ agents. Get instant contract analysis, property valuations and viral-worthy listings. Save 10+ hours weekly. Free trial!',
   keywords: [
     'AI real estate tools',
     'real estate contract analysis',
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'AI Real Estate Helper - Close More Deals with AI 🏠✨',
-    description: '🚀 Revolutionary AI tools trusted by 1000+ agents. Get instant contract analysis, property valuations & viral-worthy listings. Save 10+ hours weekly!',
+    title: 'AI Real Estate Helper - Close More Deals with AI',
+    description: 'Revolutionary AI tools trusted by 1000+ agents. Get instant contract analysis, property valuations and viral-worthy listings. Save 10+ hours weekly!',
     url: 'https://airealestatehelper.com',
     siteName: 'AI Real Estate Helper',
     images: [
@@ -60,8 +60,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Real Estate Helper - Close More Deals with AI 🏠✨',
-    description: '🚀 Revolutionary AI tools trusted by 1000+ agents. Instant contract analysis, valuations & viral listings. Save 10+ hours weekly! Free trial ⚡',
+    title: 'AI Real Estate Helper - Close More Deals with AI',
+    description: 'Revolutionary AI tools trusted by 1000+ agents. Instant contract analysis, valuations and viral listings. Save 10+ hours weekly! Free trial available.',
     images: ['/og-image.svg'],
     creator: '@airealestatehelper',
     site: '@airealestatehelper',

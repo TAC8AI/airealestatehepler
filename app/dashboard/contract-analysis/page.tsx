@@ -6,6 +6,7 @@ import { FiUpload, FiFile, FiCheck, FiCopy, FiDownload, FiTrash2, FiHome, FiFile
 import { analyzePDFContract, isPDFFile, formatFileSize, getUploadMessage } from '@/lib/pdf-upload';
 import { supabase } from '@/lib/supabase';
 import { LoadingScreen, CONTRACT_ANALYSIS_STEPS } from '@/components/ui/loading-screen';
+import { SEOHead } from '@/components/ui/seo-head';
 import LeaseContractCard from '@/components/contract-cards/LeaseContractCard';
 import PurchaseContractCard from '@/components/contract-cards/PurchaseContractCard';
 import ListingContractCard from '@/components/contract-cards/ListingContractCard';
@@ -270,7 +271,23 @@ export default function ContractAnalysis() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+    <>
+      <SEOHead
+        title="AI Contract Analysis Tool"
+        description="Analyze real estate contracts instantly with AI. Get detailed risk assessments, key term extraction, and professional insights for purchase, lease, and listing agreements."
+        keywords={[
+          'contract analysis AI',
+          'real estate contract review',
+          'legal document analysis',
+          'contract risk assessment',
+          'purchase agreement analysis',
+          'lease agreement review',
+          'listing contract analysis',
+          'real estate legal AI'
+        ]}
+        canonicalUrl="https://airealestatehelper.com/dashboard/contract-analysis"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -445,6 +462,7 @@ export default function ContractAnalysis() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

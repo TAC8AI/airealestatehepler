@@ -4,61 +4,97 @@ import React, { useState } from 'react';
 import { 
   FiTrendingUp, FiMapPin, FiSearch, FiDollarSign, FiAlertTriangle, 
   FiLoader, FiCheck, FiBarChart2, FiInfo, FiActivity, FiAward, 
-  FiCalendar, FiTarget, FiStar, FiBookOpen, FiZap, FiHome
+  FiCalendar, FiTarget, FiStar, FiBookOpen, FiZap, FiHome, FiCopy
 } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
+import { LoadingScreen, PROPERTY_VALUATION_STEPS } from '@/components/ui/loading-screen';
+import { SEOHead } from '@/components/ui/seo-head';
 
-// Updated to match your current edge function output
-interface SoldComp {
-  addr: string;
-  sold: string;
-  ppsf: number;
-  adj_price: number;
+// Updated to match your Sarah Chen marketing analysis edge function
+interface PropertyDetails {
+  estimatedPrice: string;
+  bedrooms: string;
+  bathrooms: string;
+  squareFeet: string;
+  yearBuilt: string;
+  propertyType: string;
 }
 
 interface ValuationResult {
-  headline_range: string;
-  confidence_0to1: number;
-  key_numbers: {
-    price_per_sqft_subject: number;
-    zip_median_ppsf: number;
-    days_on_market_median: number;
-    months_of_supply: number;
-  };
-  sold_comps: SoldComp[];
-  active_comp_summary: string;
-  market_context: string;
-  micro_drivers: string[];
-  agent_action_steps: string[];
-  limitations: string;
+  propertyDetails: PropertyDetails;
+  marketAnalysis: string;
+  keyFeatures: string;
+  neighborhoodHighlights: string[];
+  areasToHighlight: string[];
+}
+
+interface AddressInfo {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
 }
 
 export default function PropertyValuation() {
-  const [address, setAddress] = useState('');
+  const [addressInfo, setAddressInfo] = useState<AddressInfo>({
+    address: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ValuationResult | null>(null);
   const [error, setError] = useState('');
+  const [loadingStep, setLoadingStep] = useState<number>(0);
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
-  const hasValidMetrics = (keyNumbers: any) => {
-    if (!keyNumbers) return false;
-    return keyNumbers.price_per_sqft_subject > 0 || 
-           keyNumbers.zip_median_ppsf > 0 || 
-           keyNumbers.days_on_market_median > 0 || 
-           keyNumbers.months_of_supply > 0;
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAddressInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const simulateValuationProgress = async () => {
+    // Step 1: Property Research
+    setLoadingStep(0);
+    setLoadingProgress(10);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingProgress(35);
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    
+    // Step 2: Market Analysis
+    setLoadingStep(1);
+    setLoadingProgress(45);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setLoadingProgress(70);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Step 3: Generating Report
+    setLoadingStep(2);
+    setLoadingProgress(80);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingProgress(95);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 500));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address.trim()) {
-      setError('Please enter a property address');
+    if (!addressInfo.address.trim() || !addressInfo.city.trim() || !addressInfo.state.trim()) {
+      setError('Please enter address, city, and state');
       return;
     }
 
     setLoading(true);
     setError('');
     setResult(null);
+    setLoadingStep(0);
+    setLoadingProgress(0);
 
     try {
+      // Start progress simulation
+      const progressPromise = simulateValuationProgress();
+      
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -74,7 +110,12 @@ export default function PropertyValuation() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ address: address.trim() }),
+        body: JSON.stringify({
+          address: addressInfo.address.trim(),
+          city: addressInfo.city.trim(),
+          state: addressInfo.state.trim(),
+          zipCode: addressInfo.zipCode.trim()
+        }),
       });
 
       if (!response.ok) {
@@ -83,6 +124,10 @@ export default function PropertyValuation() {
       }
 
       const data = await response.json();
+      
+      // Wait for progress simulation to complete
+      await progressPromise;
+      
       setResult(data);
     } catch (error) {
       console.error('Error analyzing property:', error);
@@ -93,13 +138,34 @@ export default function PropertyValuation() {
   };
 
   const handleNewAnalysis = () => {
-    setAddress('');
+    setAddressInfo({
+      address: '',
+      city: '',
+      state: '',
+      zipCode: ''
+    });
     setResult(null);
     setError('');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+    <>
+      <SEOHead
+        title="AI Property Valuation Tool"
+        description="Get instant property valuations powered by AI. Analyze real estate market data from Zillow, Redfin, and MLS sources. Professional-grade property analysis for real estate agents."
+        keywords={[
+          'property valuation tool',
+          'AI real estate analysis',
+          'property value estimator',
+          'real estate market analysis',
+          'Zillow property analysis',
+          'Redfin market data',
+          'MLS property valuation',
+          'real estate agent tools'
+        ]}
+        canonicalUrl="https://airealestatehelper.com/dashboard/property-valuation"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -123,34 +189,80 @@ export default function PropertyValuation() {
           </div>
         </div>
 
+        {/* Loading Screen Overlay */}
+        {loading && (
+          <LoadingScreen
+            title="Analyzing Property"
+            subtitle="Gathering comprehensive market analysis and property valuation data"
+            steps={PROPERTY_VALUATION_STEPS}
+            currentStep={loadingStep}
+            progress={loadingProgress}
+            disclaimer="Our AI analyzes real-time market data from multiple sources. Please review and verify all details before making investment decisions."
+          />
+        )}
+
         {!result ? (
-          /* Premium Input Form */
+          /* Premium Input Form - Matching Generate Listing Style */
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-10 shadow-2xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Generate Market Intelligence Report</h2>
-              <p className="text-gray-400">Get comprehensive market analysis worth $300+ in 30 seconds</p>
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <FiMapPin className="h-6 w-6 text-blue-400" />
+                <h2 className="text-2xl font-bold text-white">Property Address</h2>
+              </div>
+              <p className="text-gray-400">We'll research the property details for you</p>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="address" className="block text-lg font-bold text-white mb-4">
-                  Property Address
-                </label>
-                <div className="relative">
-                  <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <label className="block text-sm font-medium text-white mb-2">Street Address *</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={addressInfo.address}
+                  onChange={handleAddressChange}
+                  placeholder="123 Main Street"
+                  className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">City *</label>
                   <input
                     type="text"
-                    id="address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Enter full property address (e.g., 1428 Freedom Pkwy, Winona Lake, IN)"
-                    className="w-full pl-12 pr-4 py-4 text-lg bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
-                    disabled={loading}
+                    name="city"
+                    value={addressInfo.city}
+                    onChange={handleAddressChange}
+                    placeholder="San Francisco"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    required
                   />
                 </div>
-                <p className="mt-3 text-sm text-gray-400">
-                  Enter the complete address including street, city, and state for best results
-                </p>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">State *</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={addressInfo.state}
+                    onChange={handleAddressChange}
+                    placeholder="CA"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Zip Code (Optional)</label>
+                <input
+                  type="text"
+                  name="zipCode"
+                  value={addressInfo.zipCode}
+                  onChange={handleAddressChange}
+                  placeholder="94102"
+                  className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                />
               </div>
 
               {error && (
@@ -162,7 +274,7 @@ export default function PropertyValuation() {
 
               <button
                 type="submit"
-                disabled={loading || !address.trim()}
+                disabled={loading || !addressInfo.address.trim() || !addressInfo.city.trim() || !addressInfo.state.trim()}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/10"
               >
                 {loading ? (
@@ -173,182 +285,166 @@ export default function PropertyValuation() {
                 ) : (
                   <>
                     <FiSearch className="h-5 w-5" />
-                    Generate Market Intelligence Report
+                    Research Property & Continue
                   </>
                 )}
               </button>
             </form>
           </div>
         ) : (
-          /* Premium Results Display */
-          <div className="space-y-8">
-            {/* 1. Hero Section - Premium Dark Header */}
-            <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 backdrop-blur-sm border border-white/10 text-white rounded-3xl p-8 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
+          /* Clean Airbnb-Style Results Display */
+          <div className="space-y-6">
+            {/* Success Header */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <FiCheck className="w-5 h-5 text-white" />
+                </div>
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <FiAward className="h-6 w-6 text-yellow-400" />
-                    <h2 className="text-2xl font-bold">Market Valuation Analysis</h2>
-                  </div>
-                  <p className="text-gray-300 text-lg">{address}</p>
+                  <h2 className="text-xl font-semibold text-white">Analysis Complete</h2>
+                  <p className="text-gray-400 text-sm">Property analyzed and valued successfully</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-gray-300 text-sm">Analysis Confidence</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                    {(result.confidence_0to1 * 100).toFixed(0)}%
-                  </p>
+              </div>
+            </div>
+
+            {/* Property Details Card */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                  <FiHome className="w-5 h-5 text-blue-400" />
                 </div>
+                <h3 className="text-lg font-semibold text-white">Property Details</h3>
               </div>
               
-              <div className="text-center">
-                <h3 className="text-5xl font-bold mb-2 tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  {result.headline_range}
-                </h3>
-                <p className="text-xl text-gray-300">Estimated Market Value</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Property Address</p>
+                  <p className="text-white font-medium">
+                    {addressInfo.address}, {addressInfo.city}, {addressInfo.state}
+                    {addressInfo.zipCode && ` ${addressInfo.zipCode}`}
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Estimated Value</p>
+                  <p className="text-2xl font-bold text-green-400">{result.propertyDetails.estimatedPrice}</p>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-white/10">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Bedrooms</p>
+                    <p className="text-white font-semibold">{result.propertyDetails.bedrooms}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Bathrooms</p>
+                    <p className="text-white font-semibold">{result.propertyDetails.bathrooms}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Square Feet</p>
+                    <p className="text-white font-semibold">{result.propertyDetails.squareFeet}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Year Built</p>
+                    <p className="text-white font-semibold">{result.propertyDetails.yearBuilt}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Property Type</p>
+                    <p className="text-white font-semibold">{result.propertyDetails.propertyType}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 2. Market Intelligence Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Market Context */}
+            {/* Market Analysis & Key Features Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Market Analysis */}
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
-                  <FiBarChart2 className="h-5 w-5 text-blue-400" />
-                  <h3 className="text-lg font-semibold text-white">Market Context</h3>
+                  <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                    <FiBarChart2 className="w-5 h-5 text-green-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Market Analysis</h3>
                 </div>
-                <p className="text-gray-300 leading-relaxed">{result.market_context}</p>
+                <p className="text-gray-300 leading-relaxed">{result.marketAnalysis}</p>
               </div>
 
-              {/* Key Metrics */}
-              {hasValidMetrics(result.key_numbers) && (
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <FiActivity className="h-5 w-5 text-green-400" />
-                    <h3 className="text-lg font-semibold text-white">Key Metrics</h3>
+              {/* Key Features */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                    <FiStar className="w-5 h-5 text-yellow-400" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {result.key_numbers.price_per_sqft_subject > 0 && (
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <p className="text-sm text-gray-400">Price per sq ft</p>
-                        <p className="text-lg font-semibold text-white">${result.key_numbers.price_per_sqft_subject}</p>
-                      </div>
-                    )}
-                    {result.key_numbers.zip_median_ppsf > 0 && (
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <p className="text-sm text-gray-400">Zip median PPSF</p>
-                        <p className="text-lg font-semibold text-white">${result.key_numbers.zip_median_ppsf}</p>
-                      </div>
-                    )}
-                    {result.key_numbers.days_on_market_median > 0 && (
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <p className="text-sm text-gray-400">Days on market</p>
-                        <p className="text-lg font-semibold text-white">{result.key_numbers.days_on_market_median}</p>
-                      </div>
-                    )}
-                    {result.key_numbers.months_of_supply > 0 && (
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <p className="text-sm text-gray-400">Months of supply</p>
-                        <p className="text-lg font-semibold text-white">{result.key_numbers.months_of_supply.toFixed(1)}</p>
-                      </div>
-                    )}
-                  </div>
+                  <h3 className="text-lg font-semibold text-white">Key Features</h3>
                 </div>
-              )}
+                <p className="text-gray-300 leading-relaxed">{result.keyFeatures}</p>
+              </div>
             </div>
 
-            {/* 3. Comparable Sales */}
-            {result.sold_comps && result.sold_comps.length > 0 && (
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
-                <div className="flex items-center gap-3 mb-6">
-                  <FiHome className="h-5 w-5 text-purple-400" />
-                  <h3 className="text-lg font-semibold text-white">Recent Comparable Sales</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="text-left py-3 text-sm font-medium text-gray-400">Address</th>
-                        <th className="text-left py-3 text-sm font-medium text-gray-400">Sold Date</th>
-                        <th className="text-left py-3 text-sm font-medium text-gray-400">Price/SF</th>
-                        <th className="text-left py-3 text-sm font-medium text-gray-400">Adj. Price</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.sold_comps.map((comp, index) => (
-                        <tr key={index} className="border-b border-white/5">
-                          <td className="py-3 text-white">{comp.addr}</td>
-                          <td className="py-3 text-gray-300">{comp.sold}</td>
-                          <td className="py-3 text-gray-300">${comp.ppsf}</td>
-                          <td className="py-3 text-white font-semibold">${comp.adj_price.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 4. Market Drivers */}
-            {result.micro_drivers && result.micro_drivers.length > 0 && (
+            {/* Neighborhood Highlights */}
+            {result.neighborhoodHighlights && result.neighborhoodHighlights.length > 0 && (
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
-                  <FiTarget className="h-5 w-5 text-cyan-400" />
-                  <h3 className="text-lg font-semibold text-white">Market Drivers</h3>
+                  <div className="w-10 h-10 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                    <FiTarget className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Neighborhood Highlights</h3>
                 </div>
-                <ul className="space-y-2">
-                  {result.micro_drivers.map((driver, index) => (
-                    <li key={index} className="flex items-center gap-3 text-gray-300">
-                      <FiCheck className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      {driver}
-                    </li>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {result.neighborhoodHighlights.map((highlight, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+                      <FiCheck className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-300 text-sm">{highlight}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
-            {/* 5. Agent Action Steps */}
-            {result.agent_action_steps && result.agent_action_steps.length > 0 && (
+            {/* Investment Highlights */}
+            {result.areasToHighlight && result.areasToHighlight.length > 0 && (
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
-                  <FiZap className="h-5 w-5 text-yellow-400" />
-                  <h3 className="text-lg font-semibold text-white">Recommended Actions</h3>
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                    <FiZap className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Investment Highlights</h3>
                 </div>
-                <ul className="space-y-3">
-                  {result.agent_action_steps.map((step, index) => (
-                    <li key={index} className="flex items-start gap-3 text-gray-300">
-                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="space-y-3">
+                  {result.areasToHighlight.map((highlight, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">
                         {index + 1}
-                      </span>
-                      {step}
-                    </li>
+                      </div>
+                      <span className="text-gray-300 text-sm leading-relaxed">{highlight}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            )}
-
-            {/* 6. Limitations */}
-            {result.limitations && (
-              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="flex items-center gap-3 mb-3">
-                  <FiInfo className="h-5 w-5 text-yellow-400" />
-                  <h3 className="text-lg font-semibold text-white">Analysis Limitations</h3>
                 </div>
-                <p className="text-gray-300 leading-relaxed">{result.limitations}</p>
               </div>
             )}
 
-            {/* New Analysis Button */}
-            <div className="text-center pt-8">
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-4">
               <button
                 onClick={handleNewAnalysis}
-                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border border-white/10 backdrop-blur-sm"
+                className="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-white/20"
               >
-                Analyze Another Property
+                New Analysis
+              </button>
+              <button
+                onClick={() => {
+                  // Copy functionality can be added here
+                  navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 flex items-center gap-2"
+              >
+                <FiCopy className="w-4 h-4" />
+                Copy Report
               </button>
             </div>
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

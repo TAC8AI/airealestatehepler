@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { FiPlus, FiFileText, FiBarChart2, FiTrendingUp, FiArrowRight, FiMail, FiHome } from 'react-icons/fi';
+import { SEOHead } from '@/components/ui/seo-head';
 
 interface Listing {
   id: string;
@@ -145,7 +146,23 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
+    <>
+      <SEOHead
+        title="Real Estate Agent Dashboard"
+        description="Access your AI-powered real estate tools. Manage listings, analyze contracts, get property valuations, and boost your real estate business with professional-grade AI tools."
+        keywords={[
+          'real estate dashboard',
+          'agent dashboard',
+          'real estate tools',
+          'property management',
+          'listing management',
+          'contract dashboard',
+          'real estate analytics',
+          'agent productivity tools'
+        ]}
+        canonicalUrl="https://airealestatehelper.com/dashboard"
+      />
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
       {/* Subtle Background Effects */}
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
@@ -351,5 +368,6 @@ export default function Dashboard() {
       </div>
       </div>
     </div>
+    </>
   );
 }

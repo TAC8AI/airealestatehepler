@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FiSend, FiCopy, FiCheck, FiEdit3, FiHome, FiDollarSign, FiMapPin, FiCalendar, FiTrendingUp, FiStar, FiPlus, FiChevronRight, FiCamera, FiMic, FiZap, FiArrowLeft, FiFileText, FiTarget, FiLayers, FiGlobe } from 'react-icons/fi';
 import { supabase } from '../../../lib/supabase';
 import { LoadingScreen, LISTING_GENERATION_STEPS } from '@/components/ui/loading-screen';
+import { SEOHead } from '@/components/ui/seo-head';
 
 interface PropertyDetails {
   title: string;
@@ -343,7 +344,22 @@ export default function GenerateListing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
+    <>
+      <SEOHead
+        title="AI Listing Generator"
+        description="Generate professional real estate listings instantly with AI. Create MLS descriptions, social media content, and marketing materials. Save hours with automated listing generation."
+        keywords={[
+          'listing generator',
+          'MLS description generator',
+          'real estate listing AI',
+          'property listing creator',
+          'social media real estate content',
+          'listing description writer',
+          'real estate marketing AI'
+        ]}
+        canonicalUrl="https://airealestatehelper.com/dashboard/generate-listing"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -815,6 +831,7 @@ export default function GenerateListing() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

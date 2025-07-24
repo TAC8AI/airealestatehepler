@@ -160,4 +160,28 @@ export const LISTING_GENERATION_STEPS: LoadingStep[] = [
     icon: FiZap,
     estimatedSeconds: 15
   }
+];
+
+export const PROPERTY_VALUATION_STEPS: LoadingStep[] = [
+  {
+    id: 'research',
+    label: 'Property Research',
+    description: 'Searching Zillow, Redfin, and MLS data',
+    icon: FiTarget,
+    estimatedSeconds: 20
+  },
+  {
+    id: 'analysis',
+    label: 'Market Analysis',
+    description: 'Analyzing neighborhood trends and comparables',
+    icon: FiCpu,
+    estimatedSeconds: 25
+  },
+  {
+    id: 'valuation',
+    label: 'Generating Report',
+    description: 'Creating comprehensive valuation analysis',
+    icon: FiZap,
+    estimatedSeconds: 15
+  }
 ]; 
