@@ -28,6 +28,34 @@ import {
 } from 'react-icons/fi';
 
 export default function Home() {
+  const [email, setEmail] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('https://hooks.zapier.com/hooks/catch/18068773/2fh25f6/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (response.ok) {
+        setIsSubmitted(true);
+        setEmail('');
+      }
+    } catch (error) {
+      console.error('Newsletter signup error:', error);
+    }
+    setIsSubmitting(false);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
       {/* Additional JSON-LD for HomePage */}
@@ -251,6 +279,74 @@ export default function Home() {
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
               <div className="text-lg font-semibold text-white mb-1">Listing Generation</div>
               <div className="text-sm text-gray-400">Create viral-worthy content</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup Section */}
+      <section className="py-16 px-6 md:px-10 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-white/10 text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <FiMail className="h-6 w-6 text-blue-400" />
+              <h3 className="text-2xl md:text-3xl font-bold text-white">
+                Get Weekly Real Estate AI Insights
+              </h3>
+            </div>
+            
+            <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+              Join agents receiving market updates, AI tips, and money-saving strategies every Wednesday
+            </p>
+
+            {!isSubmitted ? (
+              <form onSubmit={handleNewsletterSubmit} className="mb-6">
+                <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !email}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {isSubmitting ? 'Subscribing...' : 'Get Free Weekly Tips'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl max-w-lg mx-auto">
+                <div className="flex items-center justify-center gap-2 text-green-400">
+                  <FiCheck className="h-5 w-5" />
+                  <span className="font-semibold">Successfully subscribed! Check your email.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span>Local market insights and US</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span>Latest AI tools, automations, and tricks for realtors</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                <span>Money-saving strategies and tips</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>Industry trends and updates</span>
+              </div>
             </div>
           </div>
         </div>
