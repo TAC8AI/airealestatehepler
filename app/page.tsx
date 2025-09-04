@@ -364,9 +364,6 @@ export default function Home() {
                   <p className="text-lg text-gray-400 mb-4">
                     You'll receive your first weekly AI insights this Wednesday.
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Check your email for confirmation details.
-                  </p>
                 </div>
               </div>
             )}
